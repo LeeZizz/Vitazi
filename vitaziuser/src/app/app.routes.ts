@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { DepartmentListComponent } from './component/department-list/department-list.component';
+import { DepartmentListComponent } from './component/department-list/department-list';
 import { BookingFormComponent } from './component/booking-form/booking-form';
 
 export const routes: Routes = [
