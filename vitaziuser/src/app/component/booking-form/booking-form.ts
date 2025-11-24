@@ -6,11 +6,13 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import {
   BookingService,
   DaySchedule,
   TimeSlot,
 } from '../../services/booking.service';
+
 
 @Component({
   selector: 'app-booking-form',
@@ -48,13 +50,13 @@ export class BookingFormComponent implements OnInit {
       });
 
       // lấy id khoa từ URL: /booking/:clinicId
-      this.route.paramMap.subscribe(params => {
-        const idStr = params.get('clinicId');
-        if (idStr) {
-          this.clinicId = Number(idStr);
-          this.loadWeekSchedules();
-        }
-      });
+     this.route.paramMap.subscribe((params: ParamMap) => {
+       const idStr = params.get('clinicId');
+       if (idStr) {
+         this.clinicId = Number(idStr);
+         this.loadWeekSchedules();
+       }
+     });
     }
 
     private loadWeekSchedules(): void {
