@@ -1,0 +1,71 @@
+.home-page {
+  padding: 24px 40px;
+  background: #f4f7ff;
+  min-height: 100vh;
+}
+
+.hero-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #63b8ff;
+  border-radius: 24px;
+  padding: 24px 32px;
+  margin-bottom: 24px;
+  color: #fff;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.department-list {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+}
+
+.department-card {
+  display: flex;
+  align-items: center;
+  min-width: 260px;
+  padding: 12px;
+  border-radius: 18px;
+  background: #cbe4ff;
+}
+
+.card-left .avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.card-middle {
+  flex: 1;
+  padding: 0 12px;
+}
+
+.dept-name {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.dept-time {
+  font-size: 12px;
+}
+
+.book-btn {
+  border: none;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.loading, .error {
+  margin-bottom: 8px;
+}

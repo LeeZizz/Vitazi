@@ -1,0 +1,177 @@
+.booking-page {
+  min-height: 100vh;
+  background: #f4f7ff;
+  padding: 32px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.page-title {
+  width: 100%;
+  max-width: 980px;
+  text-align: left;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.page-container {
+  width: 100%;
+  max-width: 980px;
+  background: #e9f1ff;
+  border-radius: 24px;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* Thanh chọn ngày */
+.date-strip {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+}
+
+.date-card {
+  min-width: 90px;
+  padding: 10px 8px;
+  border-radius: 16px;
+  background: #ffffff;
+  text-align: center;
+  cursor: pointer;
+  font-size: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.date-card .weekday {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.date-card .day-number {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.date-card .month {
+  margin-top: 2px;
+  font-size: 11px;
+}
+
+.date-card.active {
+  background: #4c6fff;
+  color: #ffffff;
+}
+
+/* Ca khám */
+.slot-section {
+  margin-top: 16px;
+}
+
+.slot-header {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.slot-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.slot-btn {
+  border-radius: 16px;
+  border: none;
+  padding: 8px 16px;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.slot-btn.selected {
+  background: #4c6fff;
+  color: #ffffff;
+}
+
+.slot-btn.disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Form thông tin người khám */
+.patient-section {
+  margin-top: 24px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px 20px 24px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.patient-section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.input-group label {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.input-group input {
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid #d0d7ff;
+  padding: 0 10px;
+  font-size: 13px;
+  outline: none;
+}
+
+.input-group input:focus {
+  border-color: #4c6fff;
+}
+
+.notify-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 16px;
+  font-size: 13px;
+}
+
+.error {
+  color: #d93025;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.submit-btn {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 0;
+  background: #4c6fff;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.loading-center {
+  margin: 16px 0;
+  font-size: 14px;
+}

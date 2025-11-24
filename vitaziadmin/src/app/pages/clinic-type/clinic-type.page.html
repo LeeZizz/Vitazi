@@ -1,0 +1,69 @@
+<ion-content class="clinic-type-page" fullscreen>
+  <div class="page-container">
+
+    <!-- Hàng trên: nút back -->
+    <div class="top-row">
+      <button type="button" class="back-btn" (click)="goBack()">
+        &lt;
+      </button>
+    </div>
+
+    <!-- Tiêu đề -->
+    <h1 class="title">Thông tin phòng khám</h1>
+    <p class="subtitle">Hãy chọn loại phòng khám của bạn.</p>
+
+    <!-- Nhóm chọn loại phòng khám -->
+    <ion-radio-group
+      [(ngModel)]="selectedType"
+      class="clinic-type-group">
+
+      <!-- Chuyên khoa -->
+      <ion-item
+        lines="none"
+        class="clinic-card"
+        [class.selected]="selectedType === 'specialized'"
+        (click)="onSelect('specialized')">
+
+        <div class="card-text" slot="start">
+          <div class="card-title">Chuyên khoa</div>
+          <div class="card-desc">
+            Đối với phòng khám chỉ chuyên 1 khoa
+          </div>
+        </div>
+
+        <ion-radio
+          slot="end"
+          value="specialized">
+        </ion-radio>
+      </ion-item>
+
+      <!-- Đa khoa -->
+      <ion-item
+        lines="none"
+        class="clinic-card"
+        [class.selected]="selectedType === 'general'"
+        (click)="onSelect('general')">
+
+        <div class="card-text" slot="start">
+          <div class="card-title">Đa khoa</div>
+          <div class="card-desc">
+            Đối với phòng khám đa khoa
+          </div>
+        </div>
+
+        <ion-radio
+          slot="end"
+          value="general">
+        </ion-radio>
+      </ion-item>
+    </ion-radio-group>
+
+    <!-- Nút dưới cùng -->
+    <ion-button
+      expand="block"
+      class="submit-btn"
+      (click)="onSubmit()">
+      Tiếp tục
+    </ion-button>
+  </div>
+</ion-content>
