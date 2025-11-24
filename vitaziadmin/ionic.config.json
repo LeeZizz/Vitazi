@@ -1,5 +1,7 @@
 {
-  "name": "MyIonicApp",
-  "integrations": {},
-  "type": "angular"
+  "name": "ClinicBooking",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
 }
