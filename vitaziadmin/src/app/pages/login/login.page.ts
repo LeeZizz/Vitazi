@@ -8,7 +8,7 @@ import { IonContent, IonIcon, IonButton } from '@ionic/angular/standalone';
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [IonContent, CommonModule, FormsModule,IonButton]
+  imports: [IonContent, CommonModule, FormsModule, IonButton, IonIcon]
 })
 export class LoginPage implements OnInit {
 
@@ -17,4 +17,11 @@ export class LoginPage implements OnInit {
   ngOnInit() {
   }
 
+  loginWithGoogle() {
+    window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+  }
+
+  loginWithFacebook() {
+    window.location.href = 'http://localhost:8080/oauth2/authorization/facebook';
+  }
 }

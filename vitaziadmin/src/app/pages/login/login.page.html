@@ -19,12 +19,12 @@
 
     <!-- Các nút social -->
     <div class="social-buttons">
-      <ion-button expand="block" class="social-btn google">
+      <ion-button expand="block" class="social-btn google" (click)="loginWithGoogle()">
         <img src="assets/icon/google.png" class="social-icon" alt="Google" />
         <span>Sign in with Google</span>
       </ion-button>
 
-      <ion-button expand="block" class="social-btn facebook">
+      <ion-button expand="block" class="social-btn facebook" (click)="loginWithFacebook()">
         <img src="assets/icon/facebook.png" class="social-icon" alt="Google" />
         <span>Sign in with Facebook</span>
       </ion-button>
