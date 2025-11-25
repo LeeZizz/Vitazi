@@ -176,3 +176,35 @@
   margin: 16px 0;
   font-size: 14px;
 }
+.toast-success {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #07FF38;
+  color: black;
+  font-size: 13px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+
+  animation: toast-slide-in 0.25s ease-out, toast-fade-out 0.3s ease-in 2.7s forwards;
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-fade-out {
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}

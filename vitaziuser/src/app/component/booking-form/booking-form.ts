@@ -30,6 +30,9 @@ export class BookingFormComponent implements OnInit {
   isSubmitting = false;
   errorMessage = '';
 
+  showSuccessToast = false;
+  successMessage = '';
+
   form!: FormGroup;
 
   private clinicId!: number;
@@ -125,8 +128,12 @@ export class BookingFormComponent implements OnInit {
     this.bookingService.createBooking(payload).subscribe({
       next: () => {
         this.isSubmitting = false;
-        alert('Đặt lịch thành công');
-        // TODO: điều hướng sang trang "đặt lịch thành công" nếu cần
+        this.successMessage = 'Đặt lịch khám thành công!';
+                this.showSuccessToast = true;
+                // tự ẩn sau 5 giây
+                setTimeout(() => {
+                  this.showSuccessToast = false;
+                }, 5000);
       },
       error: () => {
         this.isSubmitting = false;
