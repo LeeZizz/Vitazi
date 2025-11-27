@@ -1,0 +1,53 @@
+<div class="schedule-wrapper">
+  <h1 class="title">Chỉnh sửa lịch làm việc</h1>
+
+  <div class="filter-row">
+    <div class="filter-item" *ngIf="mode === 'GENERAL' && allowDepartmentSelect">
+      <label>Khoa</label>
+      <select [(ngModel)]="departmentId" (change)="onDepartmentChange()">
+        <option [ngValue]="null" disabled>Chọn khoa</option>
+        <option *ngFor="let d of departments" [ngValue]="d.id">
+          {{ d.name }}
+        </option>
+      </select>
+    </div>
+
+    <div class="filter-item">
+      <label>Ngày</label>
+      <ion-datetime
+        presentation="date"
+        [value]="selectedDate"
+        (ionChange)="onDateChange($event)"
+      ></ion-datetime>
+    </div>
+  </div>
+
+  <div class="section-title">Ca làm việc</div>
+
+  <div class="shift-list">
+    <div class="shift-row" *ngFor="let shift of shifts; let i = index">
+      <div class="time-group">
+        <input type="time" [(ngModel)]="shift.startTime" class="time-input" />
+        <span class="dash">-</span>
+        <input type="time" [(ngModel)]="shift.endTime" class="time-input" />
+      </div>
+
+      <button
+        class="remove-btn"
+        type="button"
+        (click)="removeShift(i)"
+        *ngIf="shifts.length > 1"
+      >
+        -
+      </button>
+    </div>
+  </div>
+
+  <button class="add-btn" type="button" (click)="addShift()">
+    + Thêm ca làm việc
+  </button>
+
+  <button class="primary-btn" type="button" (click)="save()">
+    Lưu ca làm việc
+  </button>
+</div>

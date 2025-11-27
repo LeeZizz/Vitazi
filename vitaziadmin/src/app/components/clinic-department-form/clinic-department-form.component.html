@@ -1,0 +1,43 @@
+<div class="dept-form-wrapper">
+  <h1 class="title">Các khoa bệnh</h1>
+
+  <div class="avatar-wrapper">
+    <img
+      src="assets/images/clinic-default.png"
+      alt="Ảnh khoa"
+      class="avatar"
+    />
+  </div>
+
+  <div class="form-card">
+    <h2 class="form-title">Thông tin Khoa bệnh</h2>
+
+    <label class="field">
+      <span>Tên đầy đủ</span>
+      <input
+        type="text"
+        [(ngModel)]="model.name"
+        placeholder="Nhập tên đầy đủ của khoa"
+      />
+    </label>
+
+    <label class="field">
+      <span>Mô tả</span>
+      <textarea
+        rows="3"
+        [(ngModel)]="model.description"
+        placeholder="Nhập mô tả khoa bệnh"
+      ></textarea>
+    </label>
+  </div>
+
+  <div class="btn-row">
+    <button class="secondary-btn" type="button" (click)="onCancel()">
+      Hủy
+    </button>
+
+    <button class="primary-btn" type="button" (click)="onSave()">
+      Lưu
+    </button>
+  </div>
+</div>
