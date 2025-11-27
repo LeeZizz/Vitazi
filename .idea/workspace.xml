@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="42d85e84-b6a1-4e78-ba21-f3147a42bae7" name="Changes" comment="update login google + facebook">
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vitazibe/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vitazibe/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
