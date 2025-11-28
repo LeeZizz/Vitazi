@@ -1,0 +1,55 @@
+<div class="dept-list-wrapper">
+  <div class="top-bar" *ngIf="showHeader">
+    <h1 class="title">Các khoa bệnh</h1>
+
+    <button class="icon-btn" type="button" (click)="onCreateClick()">
+      <ion-icon [icon]="addIcon"></ion-icon>
+    </button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
+  <div class="card-list" *ngIf="!loading">
+    <div class="dept-card" *ngFor="let dept of departments">
+      <div class="card-left">
+        <img
+          src="assets/images/clinic-default.png"
+          alt="Ảnh khoa"
+          class="dept-img"
+        />
+      </div>
+
+      <div class="card-right">
+        <div class="card-header-row">
+          <div class="dept-name">{{ dept.name }}</div>
+          <button
+            class="icon-btn small"
+            type="button"
+            (click)="onDeleteClick(dept)"
+          >
+            <ion-icon [icon]="closeIcon"></ion-icon>
+          </button>
+        </div>
+
+        <div class="dept-time">
+          <!-- tạm thời ghi cứng, hoặc hiển thị giờ chuẩn nếu có -->
+          08:00 AM - 18:00 PM
+        </div>
+
+        <button
+          class="primary-outline"
+          type="button"
+          (click)="onEditClick(dept)"
+        >
+          Chỉnh sửa
+        </button>
+      </div>
+    </div>
+
+    <div class="empty" *ngIf="!departments.length">
+      Chưa có khoa bệnh nào.
+    </div>
+  </div>
+</div>

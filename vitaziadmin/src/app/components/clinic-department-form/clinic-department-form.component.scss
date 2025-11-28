@@ -1,0 +1,79 @@
+.dept-form-wrapper {
+  .title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .avatar-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .form-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 24px;
+  }
+
+  .form-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+
+    span {
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    input,
+    textarea {
+      border-radius: 10px;
+      border: 1px solid #dde1f2;
+      padding: 8px 10px;
+      font-size: 14px;
+      outline: none;
+    }
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .primary-btn,
+  .secondary-btn {
+    flex: 1;
+    border-radius: 999px;
+    padding: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    border: none;
+  }
+
+  .primary-btn {
+    background: linear-gradient(90deg, #5e8bff, #7b5bff);
+    color: #fff;
+  }
+
+  .secondary-btn {
+    background: #e5e7f5;
+    color: #333;
+  }
+}

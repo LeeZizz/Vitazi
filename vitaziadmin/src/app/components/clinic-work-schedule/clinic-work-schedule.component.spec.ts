@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { ShiftListComponent } from './shift-list.component';
+import { ClinicWorkScheduleComponent } from './clinic-work-schedule.component';
 
-describe('ShiftListComponent', () => {
-  let component: ShiftListComponent;
-  let fixture: ComponentFixture<ShiftListComponent>;
+describe('ClinicWorkScheduleComponent', () => {
+  let component: ClinicWorkScheduleComponent;
+  let fixture: ComponentFixture<ClinicWorkScheduleComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ ShiftListComponent ],
+      declarations: [ ClinicWorkScheduleComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ShiftListComponent);
+    fixture = TestBed.createComponent(ClinicWorkScheduleComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

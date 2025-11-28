@@ -3,8 +3,8 @@ import { IonicModule, NavController, ToastController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { ClinicScheduleService } from '../../services/clinic-schedule.service';
 import { ClinicMode } from '../../models/clinic.models';
+import { ClinicScheduleService } from '../../services/clinic-schedule.service';
 
 @Component({
   selector: 'app-clinic-type',
@@ -15,7 +15,7 @@ import { ClinicMode } from '../../models/clinic.models';
 })
 export class ClinicTypePage implements OnInit {
 
-  // UI dùng 2 string này, sau đó map sang ClinicMode
+  // UI: 2 lựa chọn, map sang ClinicMode
   selectedType: 'specialized' | 'general' | null = null;
 
   constructor(
@@ -25,10 +25,10 @@ export class ClinicTypePage implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Nếu trước đó đã chọn rồi thì hiển thị lại
+    // Nếu trước đó đã chọn loại phòng khám thì set lại
     const mode = this.clinicSvc.currentMode;
-    if (mode === 'SPECIALTY') this.selectedType = 'specialized';
-    if (mode === 'MULTI') this.selectedType = 'general';
+    if (mode === ClinicMode.SPECIALTY) this.selectedType = 'specialized';
+    if (mode === ClinicMode.GENERAL)   this.selectedType = 'general';
   }
 
   goBack() {
@@ -46,17 +46,20 @@ export class ClinicTypePage implements OnInit {
         duration: 1500,
         color: 'warning',
       });
-      return t.present();
+      await t.present();
+      return;
     }
 
-    // Map UI -> ClinicMode dùng trong hệ thống
+    // Map UI -> enum ClinicMode
     const mode: ClinicMode =
-      this.selectedType === 'specialized' ? 'SPECIALTY' : 'MULTI';
+      this.selectedType === 'specialized'
+        ? ClinicMode.SPECIALTY
+        : ClinicMode.GENERAL;
 
-    // Lưu loại hình để tab Booking dùng
+    // Lưu vào service (service tự lưu vào localStorage)
     this.clinicSvc.setMode(mode);
 
-    // Sau khi chọn xong, chuyển sang tab Lịch làm việc
+    // Chuyển sang tab booking / lịch làm việc
     this.navCtrl.navigateRoot('/tabs/booking');
   }
 }
