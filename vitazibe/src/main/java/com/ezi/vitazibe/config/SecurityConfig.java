@@ -1,5 +1,6 @@
 package com.ezi.vitazibe.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,12 +26,13 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/login**", "/oauth2/**", "/error**").permitAll()
+                        .requestMatchers("/clinics/**").authenticated()
                         .anyRequest().authenticated()
                 )
+                .formLogin(withDefaults())
                 .oauth2Login(oauth2 -> oauth2.successHandler(authenticationSuccessHandler()))
                 .logout(logout -> logout.logoutSuccessUrl("/").permitAll())
         ;
-
         return http.build();
     }
 
@@ -47,7 +49,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:8100", "http://localhost:4200"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(Boolean.TRUE);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

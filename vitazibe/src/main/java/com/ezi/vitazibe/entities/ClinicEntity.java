@@ -19,14 +19,14 @@ public class ClinicEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private String ouathProvider;
-    private String ouathId;
-
+    private String oauthProvider;
     @Column(nullable = false, length = 100)
-    private String email;
 
-    private String ownerName;
+    private String oauthEmail;
     private String clinicName;
+
+    @Column(nullable = false, unique = true)
+    private String oauthSub;
 
     @Enumerated(EnumType.STRING)
     private ClinicType clinicType;
