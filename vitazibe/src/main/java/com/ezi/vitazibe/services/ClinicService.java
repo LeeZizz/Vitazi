@@ -12,6 +12,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ClinicService {
@@ -53,6 +55,8 @@ public class ClinicService {
         departmentRepository.save(defaultDepartment);
         return savedClinic;
     }
+
+    @Transactional
     public ClinicEntity createGeneralClinic(OAuth2User oAuth2User) {
         String sub = oAuth2User.getAttribute("sub");
         String email = oAuth2User.getAttribute("email");
@@ -77,5 +81,10 @@ public class ClinicService {
         newClinic.setClinicType(ClinicType.GENERAL);
 
         return clinicRepository.save(newClinic);
+    }
+
+    @Transactional
+    public List<ClinicEntity> getAllClinics() {
+        return clinicRepository.findAll();
     }
 }
