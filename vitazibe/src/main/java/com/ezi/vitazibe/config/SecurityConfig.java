@@ -26,10 +26,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/login**", "/oauth2/**", "/error**").permitAll()
-                        .requestMatchers("/clinics/**").authenticated()
+                        .requestMatchers("/clinics/**", "/departments/**").authenticated()
                         .anyRequest().authenticated()
                 )
-                .formLogin(withDefaults())
                 .oauth2Login(oauth2 -> oauth2.successHandler(authenticationSuccessHandler()))
                 .logout(logout -> logout.logoutSuccessUrl("/").permitAll())
         ;
