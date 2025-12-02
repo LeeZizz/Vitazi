@@ -4,24 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="42d85e84-b6a1-4e78-ba21-f3147a42bae7" name="Changes" comment="update login google + facebook">
-      <change afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/controller/ClinicController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/controller/DepartmentController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/dto/request/DepartmentRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/dto/response/ApiResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/dto/response/OwnerInformationResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/exceptions/ErrorCode.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/exceptions/GlobalHandleException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/exceptions/WebException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/repositories/ClinicRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/repositories/DepartmentRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/services/ClinicService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/services/DepartmentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/controller/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/controller/LoginController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/entities/ClinicEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/entities/ClinicEntity.java" afterDir="false" />
-    </list>
+    <list default="true" id="42d85e84-b6a1-4e78-ba21-f3147a42bae7" name="Changes" comment="update login google + facebook" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
