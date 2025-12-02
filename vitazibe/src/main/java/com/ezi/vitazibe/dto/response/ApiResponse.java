@@ -15,4 +15,8 @@ public class ApiResponse <T> {
     private int code;
     private String message;
     private T result;
+
+    public static <T> ApiResponse<T> success(T data) {
+        return new ApiResponse<>(888, "Success", data);
+    }
 }

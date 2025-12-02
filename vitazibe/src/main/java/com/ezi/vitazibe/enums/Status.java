@@ -6,13 +6,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum Status {
-    PENDING(1, "Đang chờ xác nhận"),
+    PENDING(1, "Chờ xử lý"),
     CONFIRMED(2, "Đã xác nhận"),
-    COMPLETED(3, "Đã hoàn thành"),
-    CANCELED(4, "Đã hủy bởi người dùng"),
-    REJECTED(5, "Bị từ chối bởi phòng khám"),
-    NO_SHOW(6, "Người bệnh không đến"),
-    RESCHEDULED(7, "Đã được dời lịch");
+    CANCELED(3, "Đã hủy");
 
     private final int code;
     private final String description;

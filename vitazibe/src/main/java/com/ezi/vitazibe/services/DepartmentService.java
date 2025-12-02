@@ -11,6 +11,7 @@ import com.ezi.vitazibe.repositories.ClinicRepository;
 import com.ezi.vitazibe.repositories.DepartmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class DepartmentService {
         }
     }
 
+    @Transactional
     public DepartmentEntity createDepartment(DepartmentRequest departmentRequest) {
         ClinicEntity clinicEntity = clinicRepository.findById(departmentRequest.getClinicId())
                 .orElseThrow(() -> new WebException(ErrorCode.CLINIC_NOT_FOUND));
@@ -38,6 +40,7 @@ public class DepartmentService {
         return departmentRepository.save(departmentEntity);
     }
 
+    @Transactional
     public List<DepartmentResponse> getListDepartmentsByClinicId(String clinicId) {
         ClinicEntity clinic = clinicRepository.findById(clinicId)
                 .orElseThrow(() -> new WebException(ErrorCode.CLINIC_NOT_FOUND));
@@ -55,6 +58,7 @@ public class DepartmentService {
                 .toList();
     }
 
+    @Transactional
     public DepartmentResponse updateDepartment(String departmentId, DepartmentRequest departmentRequest){
         DepartmentEntity departmentEntity = departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new WebException(ErrorCode.DEPARTMENT_NOT_FOUND));
@@ -81,6 +85,7 @@ public class DepartmentService {
         return response;
     }
 
+    @Transactional
     public void deleteDepartment(String departmentId){
         DepartmentEntity departmentEntity = departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new WebException(ErrorCode.DEPARTMENT_NOT_FOUND));
