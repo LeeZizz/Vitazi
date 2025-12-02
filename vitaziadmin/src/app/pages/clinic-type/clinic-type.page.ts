@@ -25,7 +25,6 @@ export class ClinicTypePage implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Nếu trước đó đã chọn loại phòng khám thì set lại
     const mode = this.clinicSvc.currentMode;
     if (mode === ClinicMode.SPECIALTY) this.selectedType = 'specialized';
     if (mode === ClinicMode.GENERAL)   this.selectedType = 'general';
@@ -50,16 +49,12 @@ export class ClinicTypePage implements OnInit {
       return;
     }
 
-    // Map UI -> enum ClinicMode
     const mode: ClinicMode =
-      this.selectedType === 'specialized'
-        ? ClinicMode.SPECIALTY
-        : ClinicMode.GENERAL;
+        this.selectedType === 'specialized'
+          ? ClinicMode.SPECIALTY
+          : ClinicMode.GENERAL;
 
-    // Lưu vào service (service tự lưu vào localStorage)
-    this.clinicSvc.setMode(mode);
-
-    // Chuyển sang tab booking / lịch làm việc
-    this.navCtrl.navigateRoot('/tabs/booking');
+      this.clinicSvc.setMode(mode);
+      this.navCtrl.navigateRoot('/tabs/booking');
   }
 }
