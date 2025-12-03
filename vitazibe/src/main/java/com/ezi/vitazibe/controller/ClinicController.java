@@ -41,7 +41,7 @@ public class ClinicController {
                     .build();
             return ResponseEntity.status(401).body(apiResponse);
         }
-        ClinicEntity createdClinic = clinicService.createSpecializedClinic(oAuth2User);
+        ClinicEntity createdClinic = clinicService.createGeneralClinic(oAuth2User);
         ApiResponse<ClinicEntity> response = ApiResponse.<ClinicEntity>builder()
                 .message("Clinic created successfully")
                 .result(createdClinic)

@@ -4,8 +4,6 @@ import { Department } from '../../models/clinic.models';
 import { DepartmentsService } from '../../services/departments.service';
 import {
   IonIcon,
-  IonButton,
-  IonButtons,
   IonSpinner
 } from '@ionic/angular/standalone';
 import { add, close } from 'ionicons/icons';
@@ -14,7 +12,7 @@ import { AlertController } from '@ionic/angular';
 @Component({
   selector: 'app-clinic-department-list',
   standalone: true,
-  imports: [CommonModule, IonIcon, IonButton, IonButtons, IonSpinner],
+  imports: [CommonModule, IonIcon, IonSpinner],
   templateUrl: './clinic-department-list.component.html',
   styleUrls: ['./clinic-department-list.component.scss']
 })

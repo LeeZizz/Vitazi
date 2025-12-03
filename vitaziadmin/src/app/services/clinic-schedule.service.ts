@@ -1,98 +1,50 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
-import {
-  ClinicMode,
-  DaySchedule,
-  SaveDayScheduleRequest,
-  WorkSchedule,
-  Shift
-} from '../models/clinic.models';
-import { environment } from '../../environments/environment';
+import { ClinicProfile, ClinicType } from '../models/clinic.models';
 
 @Injectable({ providedIn: 'root' })
 export class ClinicScheduleService {
   private readonly MODE_KEY = 'clinic_mode';
-  private baseUrl = `${environment.apiUrl}/work-schedules`;
+  private readonly CLINIC_ID_KEY = 'clinic_id';
+  private readonly CLINIC_NAME_KEY = 'clinic_name';
 
-  // mode đang chọn: CHUYEN_KHOA / DA_KHOA
-  currentMode: ClinicMode | null;
+  currentMode: ClinicType | null = null;
+  currentClinicId: string | null = null;
+  currentClinicName: string | null = null;
 
-  constructor(private http: HttpClient) {
-    this.currentMode = this.loadInitialMode();
+  constructor() {
+    const rawMode = localStorage.getItem(this.MODE_KEY) as ClinicType | null;
+    if (rawMode === 'GENERAL' || rawMode === 'SPECIALTY') {
+      this.currentMode = rawMode;
+    }
+
+    this.currentClinicId = localStorage.getItem(this.CLINIC_ID_KEY);
+    this.currentClinicName = localStorage.getItem(this.CLINIC_NAME_KEY);
   }
 
-  // ================== MODE ==================
-
-  setMode(mode: ClinicMode) {
+  /** Set mode trực tiếp */
+  setMode(mode: ClinicType) {
     this.currentMode = mode;
     localStorage.setItem(this.MODE_KEY, mode);
   }
 
-  private loadInitialMode(): ClinicMode | null {
-    const raw = localStorage.getItem(this.MODE_KEY) as ClinicMode | null;
-    if (raw === ClinicMode.SPECIALTY || raw === ClinicMode.GENERAL) {
-      return raw;
-    }
-    return null;
+  /** Sau khi tạo/đọc clinic từ backend, gọi hàm này để set context */
+  setClinicContext(clinic: ClinicProfile) {
+    const mode = this.mapRawClinicType(clinic.clinicType);
+    this.currentMode = mode;
+    this.currentClinicId = clinic.id;
+    this.currentClinicName = clinic.clinicName;
+
+    localStorage.setItem(this.MODE_KEY, mode);
+    localStorage.setItem(this.CLINIC_ID_KEY, clinic.id);
+    localStorage.setItem(this.CLINIC_NAME_KEY, clinic.clinicName);
   }
 
-  // ================== LỊCH LÀM VIỆC ==================
-
-  /**
-   * Lấy lịch 1 ngày cho 1 phòng khám (có thể kèm 1 khoa nếu đa khoa)
-   */
-  getDaySchedule(
-    clinicId: string,
-    date: string,
-    departmentId?: string | null
-  ): Observable<DaySchedule> {
-    const params: any = { clinicId, date };
-    if (departmentId) {
-      params.departmentId = departmentId;
+  /** Map string từ backend về 2 mode FE */
+  private mapRawClinicType(raw: string): ClinicType {
+    if (raw === 'GENERAL' || raw === 'DA_KHOA') return 'GENERAL';
+    if (raw === 'SPECIALTY' || raw === 'SPECIALIZED' || raw === 'CHUYEN_KHOA') {
+      return 'SPECIALTY';
     }
-
-    return this.http
-      .get<WorkSchedule[]>(this.baseUrl, { params })
-      .pipe(
-        map((rows) => {
-          const shifts: Shift[] = rows.map((row) => ({
-            id: row.id,
-            startTime: row.start_time.substring(0, 5), // HH:mm
-            endTime: row.end_time.substring(0, 5),
-            capacity: row.capacity,
-            maxCapacity: row.max_capacity ?? undefined
-          }));
-
-          const schedule: DaySchedule = {
-            clinic_id: clinicId,
-            department_id: departmentId ?? null,
-            date,
-            shifts
-          };
-
-          return schedule;
-        })
-      );
-  }
-
-  /**
-   * Lưu lịch 1 ngày: tạo/cập nhật nhiều dòng work_schedules
-   */
-  saveDaySchedule(schedule: DaySchedule): Observable<void> {
-    const payload: SaveDayScheduleRequest = {
-      clinic_id: schedule.clinic_id,
-      department_id: schedule.department_id ?? null,
-      date: schedule.date,
-      shifts: schedule.shifts.map((s) => ({
-        start_time:
-          s.startTime.length === 5 ? s.startTime + ':00' : s.startTime,
-        end_time: s.endTime.length === 5 ? s.endTime + ':00' : s.endTime,
-        capacity: s.capacity ?? 10,          // default fake
-        max_capacity: s.maxCapacity ?? 20    // default fake
-      }))
-    };
-
-    return this.http.post<void>(`${this.baseUrl}/bulk`, payload);
+    return 'GENERAL';
   }
 }

@@ -7,7 +7,7 @@
       <select [(ngModel)]="departmentId" (change)="onDepartmentChange()">
         <option [ngValue]="null" disabled>Chọn khoa</option>
         <option *ngFor="let d of departments" [ngValue]="d.id">
-          {{ d.name }}
+          {{ d.departmentName  }}
         </option>
       </select>
     </div>

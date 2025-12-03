@@ -1,23 +1,46 @@
+// src/app/pages/booking/booking.page.ts
 import { Component, OnInit } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { ClinicMode } from '../../models/clinic.models';
+
+import { ClinicType, Department } from '../../models/clinic.models';
 import { ClinicScheduleService } from '../../services/clinic-schedule.service';
+import { ClinicDepartmentListComponent } from '../../components/clinic-department-list/clinic-department-list.component';
+import { ClinicWorkScheduleComponent } from '../../components/clinic-work-schedule/clinic-work-schedule.component';
 
 @Component({
   selector: 'app-booking',
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [
+    IonicModule,
+    CommonModule,
+    ClinicDepartmentListComponent,
+    ClinicWorkScheduleComponent
+  ],
   templateUrl: './booking.page.html',
-  styleUrls: ['./booking.page.scss'],
+  styleUrls: ['./booking.page.scss']
 })
 export class BookingPage implements OnInit {
-  ClinicMode = ClinicMode;  // để dùng trong template if needed
-  mode: ClinicMode | null = null;
+  mode: ClinicType | null = null;
+  clinicId: string | null = null;
+  clinicName: string | null = null;
+
+  selectedDepartmentId: string | null = null;
 
   constructor(private clinicSvc: ClinicScheduleService) {}
 
   ngOnInit() {
     this.mode = this.clinicSvc.currentMode;
+    this.clinicId = this.clinicSvc.currentClinicId;
+    this.clinicName = this.clinicSvc.currentClinicName;
+  }
+
+  onEditDepartment(dept: Department) {
+    this.selectedDepartmentId = dept.id;
+  }
+
+  onScheduleSaved() {
+    // TODO: show toast nếu muốn
+    console.log('Schedule saved');
   }
 }

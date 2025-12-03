@@ -93,12 +93,11 @@ export class ClinicWorkScheduleComponent implements OnInit, OnChanges {
     if (this.mode === 'GENERAL' && !this.departmentId) return;
 
     this.loading = true;
+    const deptId =
+      this.mode === 'GENERAL' ? (this.departmentId ?? undefined) : undefined;
+
     this.workSchedulesService
-      .getByDate(
-        this.clinicId,
-        this.selectedDate,
-        this.mode === 'GENERAL' ? this.departmentId : undefined
-      )
+      .getByDate(this.clinicId, this.selectedDate, deptId)
       .subscribe({
         next: (schedules) => {
           if (!schedules || !schedules.length) {
@@ -108,7 +107,7 @@ export class ClinicWorkScheduleComponent implements OnInit, OnChanges {
               startTime: s.start_time.substring(0, 5),
               endTime: s.end_time.substring(0, 5),
               capacity: s.capacity,
-              maxCapacity: s.max_capacity
+              maxCapacity: s.max_capacity ?? undefined   // <== fix null
             }));
           }
           this.loading = false;

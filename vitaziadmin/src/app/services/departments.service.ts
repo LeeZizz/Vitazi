@@ -1,35 +1,29 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Department } from '../models/clinic.models';
+import { map, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { ApiResponse, Department } from '../models/clinic.models';
 
 @Injectable({ providedIn: 'root' })
 export class DepartmentsService {
-  private baseUrl = `${environment.apiUrl}/departments`;
+  private baseUrl = environment.apiUrl; // http://localhost:8080
 
   constructor(private http: HttpClient) {}
 
+  /** Lấy danh sách khoa theo clinic */
   getByClinic(clinicId: string): Observable<Department[]> {
-    return this.http.get<Department[]>(`${this.baseUrl}?clinicId=${clinicId}`);
+    return this.http
+      .get<ApiResponse<Department[]>>(
+        `${this.baseUrl}/departments/getListDepartments/${clinicId}`
+      )
+      .pipe(map((res) => res.result));
   }
 
-  getById(id: string): Observable<Department> {
-    return this.http.get<Department>(`${this.baseUrl}/${id}`);
-  }
-
-  create(clinicId: string, dto: Partial<Department>): Observable<Department> {
-    return this.http.post<Department>(this.baseUrl, {
-      clinic_id: clinicId,
-      ...dto
-    });
-  }
-
-  update(id: string, dto: Partial<Department>): Observable<Department> {
-    return this.http.put<Department>(`${this.baseUrl}/${id}`, dto);
-  }
-
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  /** Xoá khoa – tùy endpoint backend */
+  delete(departmentId: string): Observable<void> {
+    // Nếu backend anh đặt kiểu /departments/deleteDepartment/{id} thì sửa lại cho đúng.
+    return this.http.delete<void>(
+      `${this.baseUrl}/departments/deleteDepartment/${departmentId}`
+    );
   }
 }

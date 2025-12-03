@@ -3,8 +3,9 @@ import { IonicModule, NavController, ToastController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { ClinicMode } from '../../models/clinic.models';
+import { ClinicType } from '../../models/clinic.models';
 import { ClinicScheduleService } from '../../services/clinic-schedule.service';
+import { ClinicService } from '../../services/clinic.service';
 
 @Component({
   selector: 'app-clinic-type',
@@ -14,27 +15,27 @@ import { ClinicScheduleService } from '../../services/clinic-schedule.service';
   styleUrls: ['./clinic-type.page.scss'],
 })
 export class ClinicTypePage implements OnInit {
-
-  // UI: 2 lựa chọn, map sang ClinicMode
-  selectedType: 'specialized' | 'general' | null = null;
+  // 'general' = đa khoa, 'specialized' = chuyên khoa
+  selectedType: 'general' | 'specialized' | null = null;
 
   constructor(
     private navCtrl: NavController,
     private toastCtrl: ToastController,
-    private clinicSvc: ClinicScheduleService,
+    private clinicSchedule: ClinicScheduleService,
+    private clinicApi: ClinicService
   ) {}
 
   ngOnInit() {
-    const mode = this.clinicSvc.currentMode;
-    if (mode === ClinicMode.SPECIALTY) this.selectedType = 'specialized';
-    if (mode === ClinicMode.GENERAL)   this.selectedType = 'general';
+    const mode = this.clinicSchedule.currentMode;
+    if (mode === 'GENERAL') this.selectedType = 'general';
+    if (mode === 'SPECIALTY') this.selectedType = 'specialized';
   }
 
   goBack() {
     this.navCtrl.back();
   }
 
-  onSelect(type: 'specialized' | 'general') {
+  onSelect(type: 'general' | 'specialized') {
     this.selectedType = type;
   }
 
@@ -49,12 +50,38 @@ export class ClinicTypePage implements OnInit {
       return;
     }
 
-    const mode: ClinicMode =
-        this.selectedType === 'specialized'
-          ? ClinicMode.SPECIALTY
-          : ClinicMode.GENERAL;
-
-      this.clinicSvc.setMode(mode);
-      this.navCtrl.navigateRoot('/tabs/booking');
+    if (this.selectedType === 'general') {
+      // đa khoa
+      this.clinicApi.createGeneralClinic().subscribe({
+        next: clinic => {
+          this.clinicSchedule.setClinicContext(clinic);
+          this.navCtrl.navigateRoot('/tabs/booking');
+        },
+        error: async () => {
+          const t = await this.toastCtrl.create({
+            message: 'Tạo phòng khám đa khoa thất bại.',
+            duration: 1500,
+            color: 'danger',
+          });
+          await t.present();
+        }
+      });
+    } else {
+      // chuyên khoa
+      this.clinicApi.createSpecializedClinic().subscribe({
+        next: clinic => {
+          this.clinicSchedule.setClinicContext(clinic);
+          this.navCtrl.navigateRoot('/tabs/booking');
+        },
+        error: async () => {
+          const t = await this.toastCtrl.create({
+            message: 'Tạo phòng khám chuyên khoa thất bại.',
+            duration: 1500,
+            color: 'danger',
+          });
+          await t.present();
+        }
+      });
+    }
   }
 }

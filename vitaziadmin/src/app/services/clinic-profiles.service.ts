@@ -1,16 +1,25 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { ClinicProfile } from '../models/clinic.models';
+import { map, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { ApiResponse } from '../models/api-response.model';
+import { ClinicProfile } from '../models/clinic.models';
 
 @Injectable({ providedIn: 'root' })
-export class ClinicProfilesService {
-  private baseUrl = `${environment.apiUrl}/clinic-profiles`;
+export class ClinicProfileService {
+  private baseUrl = environment.apiUrl; // vd: http://localhost:8080
 
   constructor(private http: HttpClient) {}
 
-  getById(id: string): Observable<ClinicProfile> {
-    return this.http.get<ClinicProfile>(`${this.baseUrl}/${id}`);
+  /**
+   * Tạo phòng khám đa khoa: POST /clinics/general
+   * Backend đang lấy info từ token nên body có thể để {}.
+   */
+  createGeneralClinic(): Observable<ClinicProfile> {
+    return this.http
+      .post<ApiResponse<ClinicProfile>>(`${this.baseUrl}/clinics/general`, {})
+      .pipe(map(res => res.result));
   }
+
+  // Sau này nếu có /clinics/specialized thì thêm hàm tương tự
 }
