@@ -1,5 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { IonicModule, NavController, ToastController } from '@ionic/angular';
+import { NavController, ToastController } from '@ionic/angular';
+import {
+  IonContent,
+  IonButton,
+  IonRadioGroup,
+  IonRadio,
+  IonItem
+} from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -10,7 +17,15 @@ import { ClinicService } from '../../services/clinic.service';
 @Component({
   selector: 'app-clinic-type',
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [
+    IonContent,
+    IonButton,
+    IonRadioGroup,
+    IonRadio,
+    IonItem,
+    CommonModule,
+    FormsModule
+  ],
   templateUrl: './clinic-type.page.html',
   styleUrls: ['./clinic-type.page.scss'],
 })
