@@ -27,6 +27,10 @@ public class AppointmentEntity {
     @JoinColumn(name = "department_id", nullable = false)
     private DepartmentEntity departmentId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "schedule_id", nullable = true)
+    private ScheduleEntity scheduleId;
+
     private String userName;
     private String userPhone;
     private String userEmail;
@@ -49,7 +53,7 @@ public class AppointmentEntity {
     protected void onCreate() {
         this.createdAt = LocalDate.now();
         this.updatedAt = LocalDate.now();
-        this.appointmentDate = LocalDate.now();
+//        this.appointmentDate = LocalDate.now();
     }
 
     @PreUpdate

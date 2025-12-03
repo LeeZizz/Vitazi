@@ -1,0 +1,82 @@
+package com.ezi.vitazibe.services;
+
+import com.ezi.vitazibe.dto.response.NotificationResponse;
+import com.ezi.vitazibe.entities.AppointmentEntity;
+import com.ezi.vitazibe.entities.NotificationEntity;
+import com.ezi.vitazibe.enums.Status;
+import com.ezi.vitazibe.exceptions.ErrorCode;
+import com.ezi.vitazibe.exceptions.WebException;
+import com.ezi.vitazibe.repositories.AppointmentRepository;
+import com.ezi.vitazibe.repositories.NotificationRespository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class NotificationService {
+    private final NotificationRespository notificationRespository;
+    private final AppointmentRepository appointmentRepository;
+
+    public List<NotificationResponse> getNotificationsByClinicId(String clinicId, Status status) {
+        List<NotificationEntity> notifications;
+        if (status != null) {
+            notifications = notificationRespository.findByClinicId_IdAndStatusOrderByCreatedAtDesc(clinicId, status);
+        } else {
+            notifications = notificationRespository.findByClinicId_IdOrderByCreatedAtDesc(clinicId);
+        }
+        return notifications.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public NotificationResponse updateNotificationStatus(String notificationId, Status status) {
+        NotificationEntity notification = notificationRespository.findById(notificationId)
+                .orElseThrow(() -> new WebException(ErrorCode.NOTIFICATION_NOT_FOUND));
+        notification.setStatus(status);
+        NotificationEntity updatedNotification = notificationRespository.save(notification);
+        if (notification.getAppointmentId() != null){
+            AppointmentEntity appointment = notification.getAppointmentId();
+            appointment.setStatus(status);
+            appointmentRepository.save(appointment);
+        }
+        return  mapToResponse(updatedNotification);
+    }
+
+    public Long countPending(String clinicId) {
+        return notificationRespository.countByClinicId_IdAndStatus(clinicId, Status.PENDING);
+    }
+
+    public Long countConfirmed(String clinicId) {
+        return notificationRespository.countByClinicId_IdAndStatus(clinicId, Status.CONFIRMED);
+    }
+
+    public Long countCanceled(String clinicId) {
+        return notificationRespository.countByClinicId_IdAndStatus(clinicId, Status.CANCELED);
+    }
+
+    @Transactional
+    public void markAsProcessed(String apointmentId) {
+        List<NotificationEntity> notifications = notificationRespository.findByClinicId_IdAndStatusOrderByCreatedAtDesc(apointmentId, Status.PENDING);
+        notifications.forEach(n -> {
+            n.setStatus(Status.CONFIRMED);
+            notificationRespository.save(n);
+        });
+    }
+
+    private NotificationResponse mapToResponse(NotificationEntity entity) {
+        return NotificationResponse.builder()
+                .id(entity.getId())
+                .clinicId(entity.getClinicId().getId())
+                .userEmail(entity.getUserEmail())
+                .title(entity.getTitle())
+                .message(entity.getMessage())
+                .status(entity.getStatus())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+}
