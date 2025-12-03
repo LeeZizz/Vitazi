@@ -49,7 +49,7 @@ public class ClinicService {
 
         DepartmentEntity defaultDepartment = new DepartmentEntity();
         defaultDepartment.setClinicId(savedClinic);
-        defaultDepartment.setDepartmentName("General Department");
+        defaultDepartment.setDepartmentName("Specialized Department");
         defaultDepartment.setDesciption("This support for specialized health issues");
 
         departmentRepository.save(defaultDepartment);
@@ -86,5 +86,11 @@ public class ClinicService {
     @Transactional
     public List<ClinicEntity> getAllClinics() {
         return clinicRepository.findAll();
+    }
+
+
+    @Transactional
+    public  boolean hasClinic(String oauthSub) {
+        return clinicRepository.findByOauthSub(oauthSub).isPresent();
     }
 }

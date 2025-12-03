@@ -52,12 +52,32 @@ public class ClinicController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
+    @GetMapping("/getAllClinics")
     public ResponseEntity<ApiResponse<List<ClinicEntity>>> getAllClinics() {
         List<ClinicEntity> clinics = clinicService.getAllClinics();
         ApiResponse<List<ClinicEntity>> response = ApiResponse.<List<ClinicEntity>>builder()
                 .message("Clinics retrieved successfully")
                 .result(clinics)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<ApiResponse<Boolean>> checkClinicExists(@AuthenticationPrincipal OAuth2User oAuth2User) {
+        if(oAuth2User == null) {
+            ApiResponse<Boolean> apiResponse = ApiResponse.<Boolean>builder()
+                    .message("Unauthorized")
+                    .build();
+            return ResponseEntity.status(401).body(apiResponse);
+        }
+        String sub = oAuth2User.getAttribute("sub");
+        if (sub == null) {
+            sub = oAuth2User.getAttribute("id");
+        }
+        boolean exists = clinicService.hasClinic(sub);
+        ApiResponse<Boolean> response = ApiResponse.<Boolean>builder()
+                .message("Check completed successfully")
+                .result(exists)
                 .build();
         return ResponseEntity.ok(response);
     }

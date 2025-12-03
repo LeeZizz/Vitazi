@@ -31,7 +31,13 @@ public class NotificationEntity {
     @Size(max = 5000, message = "Description cannot exceed 5000 characters")
     private String message;
 
+    @Enumerated(EnumType.STRING)
     private Status status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "appointment_id", nullable = true)
+    private AppointmentEntity appointmentId;
+
 
     private LocalDate createdAt;
     private LocalDate updatedAt;
