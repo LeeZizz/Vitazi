@@ -1,0 +1,33 @@
+/* src/app/pages/profile/profile.page.scss */
+
+:host {
+  display: block;
+}
+
+ion-content {
+  --background: #000000; // hoặc màu anh thích làm nền
+}
+
+.page-container {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 16px;
+}
+
+/* Box thông báo khi không có clinic / chuyên khoa */
+.info-box {
+  margin: 32px 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #ffffff;
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+}
+
+/* Đảm bảo không có overlay vô tình chặn click */
+.page-container,
+.page-container * {
+  pointer-events: auto;
+}

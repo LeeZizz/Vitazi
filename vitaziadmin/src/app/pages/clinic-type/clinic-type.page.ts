@@ -1,36 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController, ToastController } from '@ionic/angular';
-import {
-  IonContent,
-  IonButton,
-  IonRadioGroup,
-  IonRadio,
-  IonItem
-} from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { IonContent, IonButton, IonItem, IonRadioGroup, IonRadio } from '@ionic/angular/standalone';
 
-import { ClinicType } from '../../models/clinic.models';
 import { ClinicScheduleService } from '../../services/clinic-schedule.service';
 import { ClinicService } from '../../services/clinic.service';
 
 @Component({
   selector: 'app-clinic-type',
   standalone: true,
-  imports: [
-    IonContent,
-    IonButton,
-    IonRadioGroup,
-    IonRadio,
-    IonItem,
-    CommonModule,
-    FormsModule
-  ],
+  imports: [IonContent, IonButton, IonItem, IonRadioGroup, IonRadio, CommonModule, FormsModule],
   templateUrl: './clinic-type.page.html',
   styleUrls: ['./clinic-type.page.scss'],
 })
 export class ClinicTypePage implements OnInit {
-  // 'general' = đa khoa, 'specialized' = chuyên khoa
   selectedType: 'general' | 'specialized' | null = null;
 
   constructor(
@@ -66,11 +50,11 @@ export class ClinicTypePage implements OnInit {
     }
 
     if (this.selectedType === 'general') {
-      // đa khoa
+      // ĐA KHOA -> tạo clinic xong vào tab PROFILE
       this.clinicApi.createGeneralClinic().subscribe({
         next: clinic => {
           this.clinicSchedule.setClinicContext(clinic);
-          this.navCtrl.navigateRoot('/tabs/booking');
+          this.navCtrl.navigateRoot('/tabs/profile');
         },
         error: async () => {
           const t = await this.toastCtrl.create({
@@ -82,10 +66,10 @@ export class ClinicTypePage implements OnInit {
         }
       });
     } else {
-      // chuyên khoa
+      // CHUYÊN KHOA
       this.clinicApi.createSpecializedClinic().subscribe({
         next: clinic => {
-          this.clinicSchedule.setClinicContext(clinic);
+          this.clinicSchedule.setClinicContext(clinic); // set currentMode = 'SPECIALTY'
           this.navCtrl.navigateRoot('/tabs/booking');
         },
         error: async () => {

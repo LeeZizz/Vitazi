@@ -1,13 +1,46 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>profile</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content fullscreen>
+  <div class="page-container" *ngIf="clinicId; else noClinicTpl">
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">profile</ion-title>
-    </ion-toolbar>
-  </ion-header>
+    <!-- ĐA KHOA: cho phép quản lý khoa -->
+    <ng-container *ngIf="mode === 'GENERAL'; else specialtyTpl">
+
+      <!-- Khi KHÔNG mở form thì hiển thị danh sách khoa -->
+      <ng-container *ngIf="!showDeptForm; else deptFormTpl">
+        <app-clinic-department-list
+          #deptList
+          [clinicId]="clinicId!"
+          (createRequested)="onCreateDepartment()"
+          (editRequested)="onEditDepartment($event)">
+        </app-clinic-department-list>
+      </ng-container>
+
+      <!-- Khi bấm + hoặc chỉnh sửa -> hiển thị form khoa -->
+      <ng-template #deptFormTpl>
+        <app-clinic-department-form
+          [clinicId]="clinicId!"
+          [department]="editingDept"
+          (saved)="onDeptFormSaved()"
+          (cancelled)="onDeptFormCancelled()">
+        </app-clinic-department-form>
+      </ng-template>
+
+    </ng-container>
+
+    <!-- CHUYÊN KHOA: chỉ hiển thị thông báo -->
+    <ng-template #specialtyTpl>
+      <div class="info-box">
+        <p>
+          Phòng khám chuyên khoa – cấu hình lịch làm việc trong tab
+          <strong>"Lịch làm việc"</strong>.
+        </p>
+      </div>
+    </ng-template>
+
+  </div>
+
+  <ng-template #noClinicTpl>
+    <div class="info-box">
+      <p>Chưa có thông tin phòng khám. Vui lòng đăng nhập lại.</p>
+    </div>
+  </ng-template>
 </ion-content>

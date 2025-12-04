@@ -4,9 +4,15 @@ import { map, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ApiResponse, Department } from '../models/clinic.models';
 
+export interface SaveDepartmentPayload {
+  clinicId: string;
+  departmentName: string;
+  description?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class DepartmentsService {
-  private baseUrl = environment.apiUrl; // http://localhost:8080
+  private baseUrl = environment.apiUrl; // 'http://localhost:8080'
 
   constructor(private http: HttpClient) {}
 
@@ -14,16 +20,39 @@ export class DepartmentsService {
   getByClinic(clinicId: string): Observable<Department[]> {
     return this.http
       .get<ApiResponse<Department[]>>(
-        `${this.baseUrl}/departments/getListDepartments/${clinicId}`
+        `${this.baseUrl}/departments/getListDepartments/${clinicId}`,
+        { withCredentials: true }
       )
-      .pipe(map((res) => res.result));
+      .pipe(map(res => res.result));
   }
 
-  /** Xoá khoa – tùy endpoint backend */
+  /** Tạo khoa mới */
+  create(payload: SaveDepartmentPayload): Observable<Department> {
+    return this.http
+      .post<ApiResponse<Department>>(
+        `${this.baseUrl}/departments/createDepartment`,
+        payload,                                          // { clinicId, departmentName, description }
+        { withCredentials: true }
+      )
+      .pipe(map(res => res.result));
+  }
+
+  /** Cập nhật khoa */
+  update(id: string, payload: SaveDepartmentPayload): Observable<Department> {
+    return this.http
+      .put<ApiResponse<Department>>(
+        `${this.baseUrl}/departments/updateDepartment/${id}`,
+        payload,
+        { withCredentials: true }
+      )
+      .pipe(map(res => res.result));
+  }
+
+  /** Xoá khoa */
   delete(departmentId: string): Observable<void> {
-    // Nếu backend anh đặt kiểu /departments/deleteDepartment/{id} thì sửa lại cho đúng.
     return this.http.delete<void>(
-      `${this.baseUrl}/departments/deleteDepartment/${departmentId}`
+      `${this.baseUrl}/departments/deleteDepartment/${departmentId}`,
+      { withCredentials: true }
     );
   }
 }

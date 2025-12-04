@@ -1,43 +1,37 @@
-<div class="dept-form-wrapper">
-  <h1 class="title">Các khoa bệnh</h1>
+<!-- src/app/components/clinic-department-form/clinic-department-form.component.html -->
+<div class="dept-form-overlay">
+  <div class="dept-form-card">
+    <div class="card-header">
+      <h2>Thêm / Chỉnh sửa khoa</h2>
+      <button type="button" class="close-form-btn" (click)="onCancel()">✕</button>
+    </div>
 
-  <div class="avatar-wrapper">
-    <img
-      src="assets/images/clinic-default.png"
-      alt="Ảnh khoa"
-      class="avatar"
-    />
-  </div>
+    <div class="card-body">
+      <label class="field-label">Tên khoa</label>
+      <ion-input [(ngModel)]="name" placeholder="Nhập tên khoa"></ion-input>
 
-  <div class="form-card">
-    <h2 class="form-title">Thông tin Khoa bệnh</h2>
+      <label class="field-label">Mô tả (tùy chọn)</label>
+      <ion-textarea [(ngModel)]="description" placeholder="Mô tả"></ion-textarea>
 
-    <label class="field">
-      <span>Tên đầy đủ</span>
-      <input
-        type="text"
-        [(ngModel)]="model.name"
-        placeholder="Nhập tên đầy đủ của khoa"
-      />
-    </label>
+      <div class="actions">
+        <ion-button
+          expand="block"
+          color="primary"
+          (click)="onSubmit()"
+          [disabled]="submitting"
+        >
+          <ion-spinner *ngIf="submitting" slot="start"></ion-spinner>
+          Lưu
+        </ion-button>
 
-    <label class="field">
-      <span>Mô tả</span>
-      <textarea
-        rows="3"
-        [(ngModel)]="model.description"
-        placeholder="Nhập mô tả khoa bệnh"
-      ></textarea>
-    </label>
-  </div>
-
-  <div class="btn-row">
-    <button class="secondary-btn" type="button" (click)="onCancel()">
-      Hủy
-    </button>
-
-    <button class="primary-btn" type="button" (click)="onSave()">
-      Lưu
-    </button>
+        <ion-button
+          expand="block"
+          fill="clear"
+          (click)="onCancel()"
+        >
+          Hủy
+        </ion-button>
+      </div>
+    </div>
   </div>
 </div>

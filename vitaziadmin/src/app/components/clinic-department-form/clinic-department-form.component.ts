@@ -1,86 +1,111 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import {
+  IonButton,
+  IonInput,
+  IonTextarea,
+  IonSpinner,
+} from '@ionic/angular/standalone';
+import { ToastController } from '@ionic/angular';
+
 import { Department } from '../../models/clinic.models';
 import { DepartmentsService } from '../../services/departments.service';
 
 @Component({
   selector: 'app-clinic-department-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonButton,
+    IonInput,
+    IonTextarea,
+    IonSpinner,
+  ],
   templateUrl: './clinic-department-form.component.html',
-  styleUrls: ['./clinic-department-form.component.scss']
+  styleUrls: ['./clinic-department-form.component.scss'],
 })
-export class ClinicDepartmentFormComponent implements OnInit {
-  /** Bắt buộc */
+export class ClinicDepartmentFormComponent implements OnChanges {
   @Input() clinicId!: string;
+  @Input() department: Department | null = null; // null = tạo mới
 
-  /** Nếu có -> chế độ edit, nếu null -> chế độ tạo mới */
-  @Input() departmentId: string | null = null;
-
-  /** Emit khi lưu thành công */
-  @Output() saved = new EventEmitter<Department>();
-
-  /** Emit khi bấm Hủy (nếu muốn) */
+  @Output() saved = new EventEmitter<void>();
   @Output() cancelled = new EventEmitter<void>();
 
-  model: Partial<Department> = {
-    name: '',
-    description: ''
-  };
+  name = '';
+  description = '';
+  submitting = false;
 
-  isEditing = false;
-  loading = false;
+  constructor(
+    private deptService: DepartmentsService,
+    private toastCtrl: ToastController
+  ) {}
 
-  constructor(private departmentsService: DepartmentsService) {}
-
-  ngOnInit() {
-    if (this.departmentId) {
-      this.isEditing = true;
-      this.loadDepartment();
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['department']) {
+      if (this.department) {
+        this.name = this.department.departmentName;
+        this.description = this.department.description || '';
+      } else {
+        this.name = '';
+        this.description = '';
+      }
     }
   }
 
-  private loadDepartment() {
-    this.loading = true;
-    this.departmentsService.getById(this.departmentId!).subscribe({
-      next: (dept) => {
-        this.model = {
-          name: dept.name,
-          description: dept.description
-        };
-        this.loading = false;
+  async onSubmit() {
+    if (!this.name.trim()) {
+      const t = await this.toastCtrl.create({
+        message: 'Tên khoa không được để trống',
+        duration: 1500,
+        color: 'warning',
+      });
+      await t.present();
+      return;
+    }
+
+    this.submitting = true;
+    const payload = {
+      clinicId: this.clinicId,
+      departmentName: this.name.trim(),
+      description: this.description.trim(),
+    };
+
+    const request$ = this.department
+      ? this.deptService.update(this.department.id, payload)
+      : this.deptService.create(payload);
+
+    request$.subscribe({
+      next: async () => {
+        this.submitting = false;
+        const t = await this.toastCtrl.create({
+          message: this.department
+            ? 'Cập nhật khoa thành công'
+            : 'Tạo khoa thành công',
+          duration: 1500,
+          color: 'success',
+        });
+        await t.present();
+        this.saved.emit();
       },
-      error: () => (this.loading = false)
+      error: async () => {
+        this.submitting = false;
+        const t = await this.toastCtrl.create({
+          message: 'Lưu khoa thất bại',
+          duration: 1500,
+          color: 'danger',
+        });
+        await t.present();
+      },
     });
-  }
-
-  onSave() {
-    if (!this.model.name) return;
-
-    this.loading = true;
-
-    if (this.isEditing && this.departmentId) {
-      this.departmentsService
-        .update(this.departmentId, this.model)
-        .subscribe({
-          next: (dept) => {
-            this.loading = false;
-            this.saved.emit(dept);
-          },
-          error: () => (this.loading = false)
-        });
-    } else {
-      this.departmentsService
-        .create(this.clinicId, this.model)
-        .subscribe({
-          next: (dept) => {
-            this.loading = false;
-            this.saved.emit(dept);
-          },
-          error: () => (this.loading = false)
-        });
-    }
   }
 
   onCancel() {
