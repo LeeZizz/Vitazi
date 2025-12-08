@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   IonIcon,
-  IonButton,
   IonSpinner,
 } from '@ionic/angular/standalone';
 import { AlertController } from '@ionic/angular';
@@ -14,7 +13,7 @@ import { DepartmentsService } from '../../services/departments.service';
 @Component({
   selector: 'app-clinic-department-list',
   standalone: true,
-  imports: [CommonModule, IonIcon, IonButton, IonSpinner],
+  imports: [CommonModule, IonIcon, IonSpinner],
   templateUrl: './clinic-department-list.component.html',
   styleUrls: ['./clinic-department-list.component.scss'],
 })

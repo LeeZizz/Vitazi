@@ -1,53 +1,116 @@
-<div class="schedule-wrapper">
-  <h1 class="title">Chỉnh sửa lịch làm việc</h1>
+<div class="work-page">
+  <!-- HEADER XANH -->
+  <div class="header-banner">
+    <h1 class="header-title">Chỉnh sửa lịch làm việc</h1>
+  </div>
 
-  <div class="filter-row">
-    <div class="filter-item" *ngIf="mode === 'GENERAL' && allowDepartmentSelect">
-      <label>Khoa</label>
-      <select [(ngModel)]="departmentId" (change)="onDepartmentChange()">
-        <option [ngValue]="null" disabled>Chọn khoa</option>
-        <option *ngFor="let d of departments" [ngValue]="d.id">
-          {{ d.departmentName  }}
-        </option>
-      </select>
+  <!-- CARD TRẮNG CHỨA LỊCH + CA LÀM VIỆC -->
+  <div class="card">
+
+    <!-- HÀNG 3 DROPDOWN: KHOA / THÁNG / NĂM -->
+    <div class="top-filters">
+      <!-- Khoa -->
+
+      <div class="filter-item" *ngIf="allowDepartmentSelect">
+        <select [(ngModel)]="departmentId" (change)="onDepartmentChange()">
+          <option [ngValue]="null" disabled>Khoa</option>
+          <option *ngFor="let d of departments" [ngValue]="d.id">
+            {{ d.departmentName }}
+          </option>
+        </select>
+      </div>
+
+
+      <!-- Tháng -->
+      <div class="filter-item">
+        <select [(ngModel)]="selectedMonth" (change)="onMonthOrYearChange()">
+          <option *ngFor="let m of months" [ngValue]="m.value">
+            Tháng {{ m.value }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Năm -->
+      <div class="filter-item">
+        <select [(ngModel)]="selectedYear" (change)="onMonthOrYearChange()">
+          <option *ngFor="let y of years" [ngValue]="y">
+            Năm {{ y }}
+          </option>
+        </select>
+      </div>
     </div>
 
-    <div class="filter-item">
-      <label>Ngày</label>
+    <!-- LỊCH THÁNG (ION-DATETIME) -->
+    <div class="calendar-wrapper">
       <ion-datetime
         presentation="date"
         [value]="selectedDate"
+        locale="vi-VN"
         (ionChange)="onDateChange($event)"
       ></ion-datetime>
     </div>
-  </div>
 
-  <div class="section-title">Ca làm việc</div>
-
-  <div class="shift-list">
-    <div class="shift-row" *ngFor="let shift of shifts; let i = index">
-      <div class="time-group">
-        <input type="time" [(ngModel)]="shift.startTime" class="time-input" />
-        <span class="dash">-</span>
-        <input type="time" [(ngModel)]="shift.endTime" class="time-input" />
+    <!-- CA LÀM VIỆC -->
+    <div class="shift-section">
+      <div class="shift-title-row">
+        <span class="shift-title">Ca làm việc</span>
       </div>
 
-      <button
-        class="remove-btn"
-        type="button"
-        (click)="removeShift(i)"
-        *ngIf="shifts.length > 1"
-      >
-        -
-      </button>
+      <!-- LIST CÁC CA -->
+      <div class="shift-list">
+        <div class="shift-row" *ngFor="let shift of shifts; let i = index">
+          <!-- Giờ bắt đầu -->
+          <div class="time-pill start-pill">
+            <input
+              type="time"
+              [(ngModel)]="shift.startTime"
+              class="time-input"
+            />
+          </div>
+
+          <span class="dash">-</span>
+
+          <!-- Giờ kết thúc -->
+          <div class="time-pill end-pill">
+            <input
+              type="time"
+              [(ngModel)]="shift.endTime"
+              class="time-input"
+            />
+          </div>
+
+          <!-- Nút xoá ca -->
+          <button
+            type="button"
+            class="delete-btn"
+            *ngIf="shifts.length > 1"
+            (click)="removeShift(i)"
+          >
+            –
+          </button>
+
+          <!-- MaxCapacity dạng nút tròn -->
+          <div class="capacity-dot">
+            <input
+              type="number"
+              min="1"
+              [(ngModel)]="shift.maxCapacity"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Nút + thêm ca -->
+      <div class="add-row">
+        <button type="button" class="add-btn" (click)="addShift()">
+          +
+        </button>
+      </div>
     </div>
   </div>
 
-  <button class="add-btn" type="button" (click)="addShift()">
-    + Thêm ca làm việc
-  </button>
-
-  <button class="primary-btn" type="button" (click)="save()">
+  <!-- NÚT LƯU CA LÀM VIỆC -->
+  <button type="button" class="save-btn" (click)="save()">
     Lưu ca làm việc
   </button>
 </div>

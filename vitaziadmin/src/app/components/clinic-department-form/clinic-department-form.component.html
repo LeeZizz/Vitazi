@@ -1,17 +1,22 @@
-<!-- src/app/components/clinic-department-form/clinic-department-form.component.html -->
 <div class="dept-form-overlay">
   <div class="dept-form-card">
+    <div class="card-top"></div>
+
+    <div class="avatar-wrapper">
+      <img src="assets/img/clinic-dept-placeholder.png" alt="avatar" class="avatar" />
+    </div>
+
     <div class="card-header">
-      <h2>Thêm / Chỉnh sửa khoa</h2>
+      <h2>Thông tin Khoa bệnh</h2>
       <button type="button" class="close-form-btn" (click)="onCancel()">✕</button>
     </div>
 
     <div class="card-body">
-      <label class="field-label">Tên khoa</label>
-      <ion-input [(ngModel)]="name" placeholder="Nhập tên khoa"></ion-input>
+      <label class="field-label">Tên đầy đủ</label>
+      <ion-input [(ngModel)]="name" placeholder="Nhập tên đầy đủ của khoa"></ion-input>
 
-      <label class="field-label">Mô tả (tùy chọn)</label>
-      <ion-textarea [(ngModel)]="description" placeholder="Mô tả"></ion-textarea>
+      <label class="field-label">Mô tả</label>
+      <ion-textarea [(ngModel)]="description" placeholder="Nhập mô tả khoa bệnh"></ion-textarea>
 
       <div class="actions">
         <ion-button
@@ -22,14 +27,6 @@
         >
           <ion-spinner *ngIf="submitting" slot="start"></ion-spinner>
           Lưu
-        </ion-button>
-
-        <ion-button
-          expand="block"
-          fill="clear"
-          (click)="onCancel()"
-        >
-          Hủy
         </ion-button>
       </div>
     </div>

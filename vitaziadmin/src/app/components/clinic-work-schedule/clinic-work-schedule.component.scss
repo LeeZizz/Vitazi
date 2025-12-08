@@ -1,106 +1,215 @@
-.schedule-wrapper {
-  .title {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 12px;
-  }
+:host {
+  display: block;
+  height: 100%;
+}
 
-  .filter-row {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-  }
+/* NỀN TRANG: HEADER XANH Ở TRÊN, DƯỚI LÀ BACKGROUND NHẠT */
+.work-page {
+  min-height: 100%;
+  padding: 24px 16px 32px;
+  background:
+    linear-gradient(#5eb8ff, #5eb8ff) 0 0 / 100% 150px no-repeat,
+    #f5f7ff;
+}
 
-  .filter-item {
-    flex: 1 1 45%;
-    display: flex;
-    flex-direction: column;
+/* HEADER */
+.header-banner {
+  margin-bottom: 12px;
+}
 
-    label {
-      font-size: 12px;
-      margin-bottom: 4px;
-    }
+.header-title {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+}
 
-    select {
-      border-radius: 10px;
-      border: 1px solid #dde1f2;
-      padding: 6px 8px;
-      font-size: 14px;
-    }
+/* CARD TRẮNG */
+.card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 16px 14px 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
 
-    ion-datetime {
-      --background: #ffffff;
-      --border-radius: 10px;
-      border: 1px solid #dde1f2;
-      padding: 4px 0;
-    }
-  }
+/* 3 DROPDOWN TRÊN CÙNG */
+.top-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
 
-  .section-title {
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
+.filter-item {
+  flex: 0 0 30%;
+}
 
-  .shift-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
+.filter-item.wide {
+  flex: 1 1 auto;
+}
 
-  .shift-row {
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 8px 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+.filter-item select {
+  width: 100%;
+  border-radius: 18px;
+  border: 1px solid #dde2f3;
+  padding: 6px 10px;
+  font-size: 13px;
+  background: #ffffff;
+  color: #333;
+  outline: none;
+}
 
-  .time-group {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
+/* LỊCH THÁNG */
+.calendar-wrapper {
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  margin-bottom: 14px;
+}
 
-  .time-input {
-    border-radius: 10px;
-    border: 1px solid #dde1f2;
-    padding: 4px 6px;
-    font-size: 14px;
-  }
+ion-datetime {
+  width: 100%;
+  --background: #ffffff;
+  --border-radius: 0;
+  --wheel-highlight-background: transparent;
+}
 
-  .dash {
-    font-size: 16px;
-  }
+/* CA LÀM VIỆC */
+.shift-section {
+  margin-top: 4px;
+}
 
-  .remove-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: none;
-    background: #ff6b6b;
-    color: #fff;
-    font-weight: 700;
-  }
+.shift-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
 
-  .add-btn {
-    margin-bottom: 16px;
-    border: none;
-    background: transparent;
-    color: #5e8bff;
-    font-weight: 600;
-  }
+.shift-title {
+  font-size: 14px;
+  font-weight: 600;
+}
 
-  .primary-btn {
-    width: 100%;
-    border: none;
-    border-radius: 999px;
-    padding: 10px;
-    background: linear-gradient(90deg, #5e8bff, #7b5bff);
-    color: #fff;
-    font-weight: 600;
-    font-size: 15px;
-  }
+/* LIST CA */
+.shift-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* MỖI CA */
+.shift-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* PILL THỜI GIAN */
+.time-pill {
+  position: relative;
+  flex: 1 1 auto;
+  height: 34px;
+  border-radius: 999px;
+  background: #e0f1ff;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+}
+
+.time-pill::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  height: 4px;
+  border-radius: 999px;
+  background: #64a8ff;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.4;
+}
+
+.time-input {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: #0b3c6f;
+  outline: none;
+}
+
+/* GẠCH NỐI GIỮA GIỜ BĐ / KT */
+.dash {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* NÚT XOÁ ĐỎ */
+.delete-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: #ff6b6b;
+  color: #ffffff;
+  font-size: 18px;
+  line-height: 30px;
+  text-align: center;
+}
+
+/* CHẤM TRÒN MAX CAPACITY */
+.capacity-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #f3f5ff;
+  border: 1px solid #d5daf7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.capacity-dot input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4153b8;
+  outline: none;
+}
+
+/* NÚT + THÊM CA */
+.add-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.add-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #5e8bff;
+  color: #ffffff;
+  font-size: 24px;
+  line-height: 36px;
+}
+
+/* NÚT LƯU CA LÀM VIỆC */
+.save-btn {
+  margin-top: 20px;
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 0;
+  background: linear-gradient(90deg, #5e8bff, #7b5bff);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
 }

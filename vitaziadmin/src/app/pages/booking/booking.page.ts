@@ -1,28 +1,35 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
-import { IonContent } from '@ionic/angular/standalone';
+import { Component, OnInit } from '@angular/core';
+import { IonContent, IonToast } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 
-import { ClinicType, Department } from '../../models/clinic.models';
+import { ClinicType } from '../../models/clinic.models';
 import { ClinicScheduleService } from '../../services/clinic-schedule.service';
-import { ClinicDepartmentListComponent } from '../../components/clinic-department-list/clinic-department-list.component';
 import { ClinicWorkScheduleComponent } from '../../components/clinic-work-schedule/clinic-work-schedule.component';
-import { ClinicDepartmentFormComponent } from '../../components/clinic-department-form/clinic-department-form.component';
 
 @Component({
   selector: 'app-booking',
   standalone: true,
-  imports: [
-    IonContent,
-    CommonModule,
-    ClinicDepartmentListComponent,
-    ClinicWorkScheduleComponent,
-    ClinicDepartmentFormComponent
-  ],
+  imports: [IonContent, IonToast, CommonModule, ClinicWorkScheduleComponent],
   templateUrl: './booking.page.html',
   styleUrls: ['./booking.page.scss']
 })
 export class BookingPage implements OnInit {
+  clinicId: string | null = null;
+  mode: ClinicType = 'SPECIALTY';
+
+  // state cho toast
+  toastOpen = false;
+  toastMessage = '';
+
+  constructor(private clinicSchedule: ClinicScheduleService) {}
 
   ngOnInit() {
+    this.clinicId = this.clinicSchedule.currentClinicId;
+    this.mode = this.clinicSchedule.currentMode ?? 'SPECIALTY';
+  }
+
+  onSaved() {
+    this.toastMessage = 'Lưu ca làm việc thành công';
+    this.toastOpen = true;
   }
 }

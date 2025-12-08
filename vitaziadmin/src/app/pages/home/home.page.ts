@@ -5,8 +5,6 @@ import { IonContent } from '@ionic/angular/standalone';
 
 import { ClinicScheduleService } from '../../services/clinic-schedule.service';
 import { ClinicType, Department } from '../../models/clinic.models';
-import { ClinicDepartmentListComponent } from '../../components/clinic-department-list/clinic-department-list.component';
-import { ClinicDepartmentFormComponent } from '../../components/clinic-department-form/clinic-department-form.component';
 
 @Component({
   selector: 'app-home',
@@ -14,8 +12,6 @@ import { ClinicDepartmentFormComponent } from '../../components/clinic-departmen
   imports: [
     CommonModule,
     IonContent,
-    ClinicDepartmentListComponent,
-    ClinicDepartmentFormComponent,
   ],
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],

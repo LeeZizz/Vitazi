@@ -1,125 +1,179 @@
 // src/app/services/work-schedules.service.ts
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, forkJoin, of } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
+
 import {
   SaveSchedulesPayload,
-  WorkScheduleDto
+  WorkScheduleDto,
+  WorkShiftInput
 } from '../models/clinic.models';
+
+interface WorkScheduleApiDto {
+  id: string;
+  clinicId: string;
+  departmentId: string | null;
+  capacity: number;
+  maxCapacity: number;
+  isActive: boolean;
+  startTime: string;
+  endTime: string;
+  date: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ApiResponse<T> {
+  code: number;
+  message: string;
+  result: T;
+}
 
 @Injectable({ providedIn: 'root' })
 export class WorkSchedulesService {
-  // Fake database trong FE
-  private schedules: WorkScheduleDto[] = [
-    // Ví dụ: phòng khám chuyên khoa CLINIC_SPEC_1
-    {
-      id: 'WS1',
-      clinic_id: 'CLINIC_SPEC_1',
-      department_id: null,
-      date: '2025-12-01',
-      start_time: '08:00:00',
-      end_time: '11:00:00',
-      capacity: 10,
-      max_capacity: 20,
-      is_active: true,
-      created_at: '2025-12-01T00:00:00',
-      updated_at: '2025-12-01T00:00:00'
-    },
-    {
-      id: 'WS2',
-      clinic_id: 'CLINIC_SPEC_1',
-      department_id: null,
-      date: '2025-12-01',
-      start_time: '13:30:00',
-      end_time: '16:30:00',
-      capacity: 10,
-      max_capacity: 20,
-      is_active: true,
-      created_at: '2025-12-01T00:00:00',
-      updated_at: '2025-12-01T00:00:00'
-    },
+  private readonly baseUrl = 'http://localhost:8080';
 
-    // Ví dụ phòng khám đa khoa CLINIC_GEN_1, khoa id = DEPT_1
-    {
-      id: 'WS3',
-      clinic_id: 'CLINIC_GEN_1',
-      department_id: 'DEPT_1',
-      date: '2025-12-01',
-      start_time: '08:00:00',
-      end_time: '12:00:00',
-      capacity: 15,
-      max_capacity: 30,
-      is_active: true,
-      created_at: '2025-12-01T00:00:00',
-      updated_at: '2025-12-01T00:00:00'
-    }
-  ];
+  constructor(private http: HttpClient) {}
 
-  private nextId = 100;
-
-  constructor() {}
-
-  /**
-   * Lấy lịch theo ngày cho 1 phòng khám (và option 1 khoa)
-   */
   getByDate(
     clinicId: string,
     date: string,
     departmentId?: string
   ): Observable<WorkScheduleDto[]> {
-    const result = this.schedules.filter((s) => {
-      if (s.clinic_id !== clinicId) return false;
-      if (s.date !== date) return false;
+    let params = new HttpParams().set('clinicId', clinicId);
+    if (departmentId) {
+      params = params.set('departmentId', departmentId);
+    }
 
-      // nếu có departmentId thì lọc đúng khoa, ngược lại là chuyên khoa (department_id null)
-      if (departmentId) {
-        return s.department_id === departmentId;
-      } else {
-        return !s.department_id;
-      }
-    });
+    console.log('[WorkSchedulesService] listSchedules params =', params.toString());
 
-    // delay 300ms cho giống gọi API
-    return of(result).pipe(delay(300));
+    return this.http
+      .get<ApiResponse<WorkScheduleApiDto[]>>(
+        `${this.baseUrl}/schedules/listSchedules`,
+        { params, withCredentials: true }
+      )
+      .pipe(
+        tap((res) =>
+          console.log('[WorkSchedulesService] listSchedules response =', res)
+        ),
+        map((res) => res.result || []),
+        map((list) => list.filter((item) => item.date === date)),
+        map((list) => list.map((item) => this.mapFromApi(item)))
+      );
   }
 
-  /**
-   * Lưu lịch 1 ngày (ghi đè toàn bộ ca của ngày đó)
-   */
-  saveForDate(payload: SaveSchedulesPayload): Observable<void> {
+  /** Tạo 1 hoặc nhiều ca (ở component hiện giờ luôn truyền 1 ca) */
+  saveForDate(payload: SaveSchedulesPayload): Observable<WorkScheduleDto[]> {
     const { clinicId, departmentId, date, shifts } = payload;
 
-    // Xoá hết lịch cũ của ngày đó
-    this.schedules = this.schedules.filter(
-      (s) =>
-        !(
-          s.clinic_id === clinicId &&
-          s.date === date &&
-          (s.department_id || null) === (departmentId || null)
-        )
-    );
+    if (!shifts || !shifts.length) {
+      console.log('[WorkSchedulesService] saveForDate: no shifts');
+      return of([]);
+    }
 
-    // Thêm các ca mới
-    shifts.forEach((shift) => {
-      this.schedules.push({
-        id: 'WS' + this.nextId++,
-        clinic_id: clinicId,
-        department_id: departmentId,
-        date,
-        start_time:
-          shift.startTime.length === 5
-            ? shift.startTime + ':00'
-            : shift.startTime,
-        end_time:
-          shift.endTime.length === 5 ? shift.endTime + ':00' : shift.endTime,
-        capacity: shift.capacity ?? 10,
-        max_capacity: shift.maxCapacity ?? 20,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      });
+    const requests = shifts.map((shift, idx) => {
+      const body = {
+        clinicId,
+        departmentId,
+        capacity: shift.capacity ?? 0,
+        maxCapacity: shift.maxCapacity ?? 0,
+        startTime: this.toBackendTime(shift.startTime),
+        endTime: this.toBackendTime(shift.endTime),
+        date
+      };
+
+      console.log(`[WorkSchedulesService] createSchedule body[${idx}] =`, body);
+
+      return this.http
+        .post<ApiResponse<WorkScheduleApiDto>>(
+          `${this.baseUrl}/schedules/createSchedule`,
+          body,
+          { withCredentials: true }
+        )
+        .pipe(
+          tap((res) =>
+            console.log(
+              `[WorkSchedulesService] createSchedule response[${idx}] =`,
+              res
+            )
+          ),
+          map((res) => this.mapFromApi(res.result))
+        );
     });
 
-    return of(void 0).pipe(delay(300));
+    return forkJoin(requests);
+  }
+
+  /** Cập nhật 1 ca */
+  updateSchedule(
+    scheduleId: string,
+    clinicId: string,
+    date: string,
+    departmentId: string | null,
+    shift: WorkShiftInput
+  ): Observable<WorkScheduleDto> {
+    const body = {
+      clinicId,
+      departmentId,
+      capacity: shift.capacity ?? 0,
+      maxCapacity: shift.maxCapacity ?? 0,
+      startTime: this.toBackendTime(shift.startTime),
+      endTime: this.toBackendTime(shift.endTime),
+      date
+    };
+
+    console.log('[WorkSchedulesService] updateSchedule body =', body);
+
+    return this.http
+      .put<ApiResponse<WorkScheduleApiDto>>(
+        `${this.baseUrl}/schedules/update/${scheduleId}`,
+        body,
+        { withCredentials: true }
+      )
+      .pipe(
+        tap((res) =>
+          console.log('[WorkSchedulesService] updateSchedule response =', res)
+        ),
+        map((res) => this.mapFromApi(res.result))
+      );
+  }
+
+  /** Xóa 1 ca */
+  deleteSchedule(scheduleId: string): Observable<void> {
+    console.log('[WorkSchedulesService] deleteSchedule id =', scheduleId);
+
+    return this.http
+      .delete<ApiResponse<WorkScheduleApiDto>>(
+        `${this.baseUrl}/schedules/delete/${scheduleId}`,
+        { withCredentials: true }
+      )
+      .pipe(
+        tap((res) =>
+          console.log('[WorkSchedulesService] deleteSchedule response =', res)
+        ),
+        map(() => void 0)
+      );
+  }
+
+  private toBackendTime(t: string): string {
+    if (!t) return t;
+    return t.length === 5 ? `${t}:00` : t;
+  }
+
+  private mapFromApi(api: WorkScheduleApiDto): WorkScheduleDto {
+    return {
+      id: api.id,
+      clinic_id: api.clinicId,
+      department_id: api.departmentId,
+      capacity: api.capacity,
+      max_capacity: api.maxCapacity,
+      is_active: api.isActive,
+      start_time: api.startTime,
+      end_time: api.endTime,
+      date: api.date,
+      created_at: api.createdAt,
+      updated_at: api.updatedAt
+    };
   }
 }
