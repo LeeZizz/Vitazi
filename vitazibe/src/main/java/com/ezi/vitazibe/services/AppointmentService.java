@@ -2,6 +2,7 @@ package com.ezi.vitazibe.services;
 
 import com.ezi.vitazibe.dto.request.AppointmentRequest;
 import com.ezi.vitazibe.dto.response.AppointmentResponse;
+import com.ezi.vitazibe.dto.response.MonthlyCountResponse;
 import com.ezi.vitazibe.entities.*;
 import com.ezi.vitazibe.enums.Status;
 import com.ezi.vitazibe.exceptions.ErrorCode;
@@ -11,8 +12,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -100,6 +106,24 @@ public class AppointmentService {
         AppointmentEntity updatedAppointment = appointmentRepository.save(appointmentEntity);
         return mapToResponse(updatedAppointment);
     }
+
+
+//    public Map<Integer, Long> getMonthlyAppointmentCounts(String clinicId, int year) {
+//        List<MonthlyCountResponse> counts = appointmentRepository.countAppointmentsByMonth(clinicId, year);
+//        Map<Integer, Long> countsMap = counts.stream()
+//                .collect(Collectors.toMap(MonthlyCountResponse::getMonth, MonthlyCountResponse::getCount));
+//
+//        return IntStream.rangeClosed(1, 12).boxed()
+//                .collect(Collectors.toMap(Function.identity(), month -> countsMap.getOrDefault(month, 0L)));
+//    }
+
+
+    public Long countAppointmentsForCurrentMonthToDate(String clinicId) {
+        LocalDate today = LocalDate.now();
+        LocalDate firstDayOfMonth = today.with(TemporalAdjusters.firstDayOfMonth());
+        return appointmentRepository.countAppointmentsBetweenDates(clinicId, firstDayOfMonth, today);
+    }
+
 
 
 

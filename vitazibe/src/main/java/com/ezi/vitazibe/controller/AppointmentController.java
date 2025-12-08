@@ -17,7 +17,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Year;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/appointments")
@@ -71,6 +74,46 @@ public class AppointmentController {
         ApiResponse<AppointmentResponse> response = ApiResponse.<AppointmentResponse>builder()
                 .message("Appointment status updated successfully")
                 .result(appointmentResponse)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+//    @GetMapping("/monthlyCountsInYear")
+//    public ResponseEntity<ApiResponse<Map<Integer, Long>>> getMonthlyAppointmentCounts(
+//            @AuthenticationPrincipal OAuth2User oAuth2User,
+//            @RequestParam Optional<Integer> year) {
+//        String sub = oAuth2User.getAttribute("sub");
+//        if (sub == null) {
+//            sub = oAuth2User.getAttribute("id");
+//        }
+//        ClinicEntity clinic = clinicRepository.findByOauthSub(sub)
+//                .orElseThrow(() -> new WebException(ErrorCode.CLINIC_NOT_FOUND));
+//
+//        int targetYear = year.orElse(Year.now().getValue());
+//
+//        Map<Integer, Long> monthlyCounts = appointmentService.getMonthlyAppointmentCounts(clinic.getId(), targetYear);
+//        ApiResponse<Map<Integer, Long>> response = ApiResponse.<Map<Integer, Long>>builder()
+//                .message("Monthly appointment counts retrieved successfully for year " + targetYear)
+//                .result(monthlyCounts)
+//                .build();
+//        return ResponseEntity.ok(response);
+//    }
+
+    @GetMapping("/count-current-month")
+    public ResponseEntity<ApiResponse<Long>> countAppointmentsForCurrentMonth(
+            @AuthenticationPrincipal OAuth2User oAuth2User) {
+        String sub = oAuth2User.getAttribute("sub");
+        if (sub == null) {
+            sub = oAuth2User.getAttribute("id");
+        }
+        ClinicEntity clinic = clinicRepository.findByOauthSub(sub)
+                .orElseThrow(() -> new WebException(ErrorCode.CLINIC_NOT_FOUND));
+
+        Long count = appointmentService.countAppointmentsForCurrentMonthToDate(clinic.getId());
+
+        ApiResponse<Long> response = ApiResponse.<Long>builder()
+                .message("Successfully retrieved appointment count for the current month to date.")
+                .result(count)
                 .build();
         return ResponseEntity.ok(response);
     }

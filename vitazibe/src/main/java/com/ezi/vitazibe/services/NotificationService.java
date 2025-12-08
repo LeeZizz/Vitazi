@@ -12,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,16 +49,12 @@ public class NotificationService {
         return  mapToResponse(updatedNotification);
     }
 
-    public Long countPending(String clinicId) {
-        return notificationRespository.countByClinicId_IdAndStatus(clinicId, Status.PENDING);
-    }
-
-    public Long countConfirmed(String clinicId) {
-        return notificationRespository.countByClinicId_IdAndStatus(clinicId, Status.CONFIRMED);
-    }
-
-    public Long countCanceled(String clinicId) {
-        return notificationRespository.countByClinicId_IdAndStatus(clinicId, Status.CANCELED);
+    public Map<String, Long> getNotificationCountsByStatus(String clinicId){
+        Map<String, Long> counts = new HashMap<>();
+        counts.put("PENDING", notificationRespository.countByClinicId_IdAndStatus(clinicId, Status.PENDING));
+        counts.put("CONFIRMED", notificationRespository.countByClinicId_IdAndStatus(clinicId, Status.CONFIRMED));
+        counts.put("CANCELLED", notificationRespository.countByClinicId_IdAndStatus(clinicId, Status.CANCELED));
+        return counts;
     }
 
     @Transactional
