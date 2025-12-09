@@ -1,8 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { ApiResponse, ClinicProfile } from '../models/clinic.models';
+import {
+  ApiResponse,
+  ClinicProfile,
+  ClinicSummary,
+  ClinicType
+} from '../models/clinic.models';
 
 @Injectable({ providedIn: 'root' })
 export class ClinicService {
@@ -16,9 +21,7 @@ export class ClinicService {
       .post<ApiResponse<ClinicProfile>>(
         `${this.baseUrl}/clinics/general`,
         {},
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       )
       .pipe(map((res) => res.result));
   }
@@ -29,10 +32,38 @@ export class ClinicService {
       .post<ApiResponse<ClinicProfile>>(
         `${this.baseUrl}/clinics/specialized`,
         {},
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       )
       .pipe(map((res) => res.result));
+  }
+
+  /** Lấy tất cả phòng khám của user đang đăng nhập */
+  getMyClinics(): Observable<ClinicSummary[]> {
+    return this.http
+      .get<ApiResponse<any[]>>(
+        `${this.baseUrl}/clinics/getAllClinics`,
+        { withCredentials: true }
+      )
+      .pipe(
+        tap((res) =>
+          console.log('[ClinicService] getMyClinics response =', res)
+        ),
+        map((res) =>
+          (res.result || []).map((c) => ({
+            id: c.id,
+            clinicName: c.clinicName,
+            clinicType: c.clinicType === 'SPECIALIZED' ? 'SPECIALTY' : 'GENERAL'
+          }))
+        )
+      );
+  }
+
+  checkClinicExists(): Observable<boolean> {
+    return this.http
+      .get<ApiResponse<boolean>>(
+        `${this.baseUrl}/clinics/check`,
+        { withCredentials: true }
+      )
+      .pipe(map(res => !!res.result));
   }
 }

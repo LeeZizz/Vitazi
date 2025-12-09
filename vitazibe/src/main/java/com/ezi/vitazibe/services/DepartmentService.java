@@ -44,7 +44,7 @@ public class DepartmentService {
     public List<DepartmentResponse> getListDepartmentsByClinicId(String clinicId) {
         ClinicEntity clinic = clinicRepository.findById(clinicId)
                 .orElseThrow(() -> new WebException(ErrorCode.CLINIC_NOT_FOUND));
-        validateDepartmentRequest(clinic);
+       // validateDepartmentRequest(clinic);
         return departmentRepository.findByClinicIdId(clinicId).stream()
                 .map(dept -> {
                     DepartmentResponse response = new DepartmentResponse();

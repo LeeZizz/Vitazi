@@ -13,6 +13,12 @@ export interface ClinicProfile {
   updatedAt: string;
 }
 
+export interface ClinicSummary {
+  id: string;
+  clinicName: string;
+  clinicType: ClinicType;
+}
+
 // Khoa bệnh – map đúng JSON getListDepartments
 export interface Department {
   id: string;

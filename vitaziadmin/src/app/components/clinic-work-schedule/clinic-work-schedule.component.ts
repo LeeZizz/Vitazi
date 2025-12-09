@@ -142,15 +142,17 @@ export class ClinicWorkScheduleComponent implements OnInit, OnChanges {
         this.departments = depts || [];
         console.log('[ClinicWorkSchedule] departments loaded:', this.departments);
 
-        // Nếu departmentId chưa có mà backend trả về >= 1 khoa
+        // CHUYÊN KHOA: backend auto tạo 1 department → chọn luôn
+        // ĐA KHOA: nếu chưa chọn khoa nào thì cũng chọn khoa đầu tiên
         if (!this.departmentId && this.departments.length) {
           this.departmentId = this.departments[0].id;
           console.log(
-            '[ClinicWorkSchedule] auto set departmentId=',
+            '[ClinicWorkSchedule] auto set departmentId =',
             this.departmentId
           );
         }
 
+        // Sau khi đã có departmentId → load lịch
         this.loadSchedulesForDate();
       },
       error: (err) => {
@@ -158,6 +160,7 @@ export class ClinicWorkScheduleComponent implements OnInit, OnChanges {
       }
     });
   }
+
 
   /** Khi đổi tháng hoặc năm từ dropdown */
   onMonthOrYearChange() {
@@ -269,12 +272,19 @@ export class ClinicWorkScheduleComponent implements OnInit, OnChanges {
   // LƯU: CREATE + UPDATE + DELETE
   // ---------------------------------------------------
   save() {
-    if (!this.departmentId) {
-      console.warn(
-        '[ClinicWorkSchedule] save: departmentId is null -> không gửi được lên backend'
-      );
-      return;
-    }
+     if (!this.departmentId) {
+        console.warn(
+          '[ClinicWorkSchedule] save: departmentId is null -> kiểm tra lại loadDepartments()/403'
+        );
+        return;
+      }
+
+      const payload: SaveSchedulesPayload = {
+        clinicId: this.clinicId,
+        departmentId: this.departmentId,   // SPECIALTY dùng luôn khoa auto
+        date: this.selectedDate,
+        shifts: this.shifts
+      };
 
     const deptId = this.departmentId;
     const newShifts = this.shifts.filter((s) => !s.id);
