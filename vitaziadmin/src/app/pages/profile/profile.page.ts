@@ -1,11 +1,37 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
-  ToastController
-} from '@ionic/angular';
-import { IonContent } from '@ionic/angular/standalone';
+  IonContent,
+  IonButton,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonBackButton,
+  IonIcon,
+  IonSpinner
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  camera,
+  person,
+  mail,
+  logOutOutline,
+  add,
+  createOutline,
+  trashOutline,
+  close
+} from 'ionicons/icons';
+
+import {
+  ClinicType,
+  OwnerInformation,
+  ClinicSummary,
+  Department
+} from '../../models/clinic.models';
+import { ClinicService } from '../../services/clinic.service';
 import { ClinicScheduleService } from '../../services/clinic-schedule.service';
-import { ClinicType, Department } from '../../models/clinic.models';
+
 import { ClinicDepartmentListComponent } from '../../components/clinic-department-list/clinic-department-list.component';
 import { ClinicDepartmentFormComponent } from '../../components/clinic-department-form/clinic-department-form.component';
 
@@ -15,6 +41,14 @@ import { ClinicDepartmentFormComponent } from '../../components/clinic-departmen
   imports: [
     CommonModule,
     IonContent,
+    IonButton,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonBackButton,
+    IonIcon,
+    IonSpinner,
     ClinicDepartmentListComponent,
     ClinicDepartmentFormComponent,
   ],
@@ -22,60 +56,95 @@ import { ClinicDepartmentFormComponent } from '../../components/clinic-departmen
   styleUrls: ['./profile.page.scss'],
 })
 export class ProfilePage implements OnInit {
-   @ViewChild(ClinicDepartmentListComponent)
-   deptList?: ClinicDepartmentListComponent;
+  @ViewChild(ClinicDepartmentListComponent)
+  deptList?: ClinicDepartmentListComponent;
 
-  mode: ClinicType | null = null;
+  owner: OwnerInformation | null = null;
+
   clinicId: string | null = null;
-  clinicName: string | null = null;
+  clinicName = '';
+  clinicType: ClinicType = 'SPECIALTY';
 
+  // state cho form khoa
   showDeptForm = false;
-  editingDept: Department | null = null; // null = tạo mới
+  editingDept: Department | null = null;
 
-   constructor(
-     private clinicSchedule: ClinicScheduleService,
-     private toastCtrl: ToastController
-   ) {}
+  constructor(
+    private clinicApi: ClinicService,
+    private clinicCtx: ClinicScheduleService
+  ) {
+    addIcons({
+      camera,
+      person,
+      mail,
+      logOutOutline,
+      add,
+      createOutline,
+      trashOutline,
+      close
+    });
+  }
 
   ngOnInit() {
-    this.mode = this.clinicSchedule.currentMode;
-    this.clinicId = this.clinicSchedule.currentClinicId;
-    this.clinicName = this.clinicSchedule.currentClinicName;
-   }
+    // 1) Lấy clinicId + mode từ ClinicScheduleService
+    this.clinicId = this.clinicCtx.currentClinicId;
+    const mode = this.clinicCtx.currentMode;
+    this.clinicType = mode ?? 'SPECIALTY';
 
-  // ===== EVENT từ LIST =====
+    // 2) Lấy tên phòng khám từ getMyClinics() (lọc theo clinicId)
+    if (this.clinicId) {
+      this.clinicApi.getMyClinics().subscribe({
+        next: (clinics: ClinicSummary[]) => {
+          const found = clinics.find(c => c.id === this.clinicId);
+          if (found) {
+            this.clinicName = found.clinicName;
+            this.clinicType = found.clinicType; // cập nhật lại cho chắc
+          }
+        },
+        error: (err) => {
+          console.error('[Profile] getMyClinics error', err);
+        }
+      });
+    }
 
-  // bấm dấu +
+    // 3) Lấy thông tin chủ phòng khám
+    this.clinicApi.getOwnerInformation().subscribe({
+      next: (owner) => (this.owner = owner),
+      error: (err) =>
+        console.error('[Profile] getOwnerInformation error', err),
+    });
+  }
+
+  // ====== QUẢN LÝ KHOA (chỉ dùng khi clinicType = GENERAL) ======
+
   onCreateDepartment() {
-    console.log('Profile: onCreateDepartment');
+    if (!this.clinicId) return;
     this.editingDept = null;
     this.showDeptForm = true;
   }
 
-  // bấm "Chỉnh sửa" trên 1 khoa
   onEditDepartment(dept: Department) {
+    if (!this.clinicId) return;
     this.editingDept = dept;
     this.showDeptForm = true;
   }
 
-  // ===== EVENT từ FORM =====
-
-  async onDeptFormSaved() {
+  onDepartmentSaved() {
     this.showDeptForm = false;
     this.editingDept = null;
-
+    // Reload list khoa
     this.deptList?.reload();
-
-    const t = await this.toastCtrl.create({
-      message: 'Đã lưu khoa bệnh',
-      duration: 1200,
-      color: 'success',
-    });
-    await t.present();
   }
 
-  onDeptFormCancelled() {
+  onDepartmentCancelled() {
     this.showDeptForm = false;
     this.editingDept = null;
+  }
+
+  logout() {
+    // Điều hướng logout
+    window.location.href = 'http://localhost:8080/logout';
+    // Sau đó redirect về login (thường backend sẽ handle redirect, hoặc dùng router)
+     window.location.href = 'http://localhost:8100/login';
   }
 }

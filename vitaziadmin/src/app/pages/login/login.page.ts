@@ -3,67 +3,80 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonButton } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
 import { ClinicService } from '../../services/clinic.service';
-import { ClinicContextService } from '../../services/clinic-context.service';
-import { ClinicSummary } from '../../models/clinic.models';
+import { ClinicScheduleService } from '../../services/clinic-schedule.service';
+import {
+  ClinicSummary,
+  OwnerInformation,
+} from '../../models/clinic.models';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
+  standalone: true,
   imports: [IonContent, CommonModule, FormsModule, IonButton],
 })
 export class LoginPage implements OnInit {
+  /** Đang kiểm tra xem user đã login + đã có phòng khám chưa */
   checkingSession = true;
 
   constructor(
     private router: Router,
-    private clinicService: ClinicService,
-    private clinicCtx: ClinicContextService
+    private clinicApi: ClinicService,
+    private clinicSchedule: ClinicScheduleService
   ) {}
 
   ngOnInit() {
-    this.clinicService.getMyClinics().subscribe({
-      next: (clinics) => {
-        this.checkingSession = false;
-
-        if (!clinics.length) {
-          // chưa có clinic -> cho user chọn tạo GENERAL / SPECIALIZED
-          return;
-        }
-
-        const current = clinics[0];  // hoặc cho user chọn nếu > 1
-        this.clinicCtx.setClinic(current);
-        this.router.navigateByUrl('/tabs/booking', { replaceUrl: true });
-      },
-      error: (err) => {
-        this.checkingSession = false;
-        // 401/403 => chưa login -> show nút Google
-      }
-    });
+    this.tryAutoSelectClinic();
   }
 
-  private checkExistingSession() {
-    this.clinicService.getMyClinics().subscribe({
-      next: (clinics: ClinicSummary[]) => {
+  /**
+   * Nếu user đã login + đã có clinic trong DB:
+   *  - Lọc đúng clinic theo oauthEmail/oauthSub
+   *  - Set context
+   *  - Chuyển thẳng vào tabs
+   * Nếu chưa có clinic -> chuyển sang /clinic-type
+   * Nếu chưa login -> hiện nút Google/Facebook
+   */
+  private tryAutoSelectClinic() {
+    forkJoin({
+      owner: this.clinicApi.getOwnerInformation(),
+      clinics: this.clinicApi.getMyClinics(),
+    }).subscribe({
+      next: ({ owner, clinics }: { owner: OwnerInformation; clinics: ClinicSummary[] }) => {
         this.checkingSession = false;
-        console.log('[LoginPage] getMyClinics =', clinics);
+        console.log('[Login] owner =', owner);
+        console.log('[Login] all clinics =', clinics);
 
-        if (!clinics.length) {
-          return; // chưa có phòng khám -> giữ màn login
+        const myClinics = clinics.filter(
+          (c) =>
+            (c.oauthEmail === owner.ownerEmail) ||
+            (c.oauthSub && c.oauthSub === owner.ownerSub)
+        );
+
+        if (myClinics.length) {
+          const clinic = myClinics[0];
+          console.log('[Login] matched clinic =', clinic);
+
+          this.clinicSchedule.setClinicContext(clinic as any);
+
+          if (clinic.clinicType === 'GENERAL') {
+            this.router.navigateByUrl('/tabs/profile', { replaceUrl: true });
+          } else {
+            this.router.navigateByUrl('/tabs/booking', { replaceUrl: true });
+          }
+        } else {
+          // User đã login nhưng chưa có clinic -> vào trang chọn loại phòng khám
+          this.router.navigateByUrl('/clinic-type', { replaceUrl: true });
         }
-
-        const current = clinics[0];
-        this.clinicCtx.setClinic(current);
-        this.router.navigateByUrl('/tabs/booking', { replaceUrl: true });
       },
-      error: (err: any) => {              // <== thêm kiểu any cho err
+      error: (err) => {
+        // 401/403: chưa login -> hiện nút login
         this.checkingSession = false;
-        if (err.status !== 401 && err.status !== 403) {
-          console.error('[LoginPage] checkExistingSession error', err);
-        }
+        console.error('[Login] tryAutoSelectClinic error', err);
       },
     });
   }

@@ -47,4 +47,16 @@ export class ClinicScheduleService {
     }
     return 'GENERAL';
   }
+
+  clear() {
+    this.currentMode = null;
+    this.currentClinicId = null;
+    this.currentClinicName = null;
+
+    localStorage.removeItem(this.MODE_KEY);
+    localStorage.removeItem(this.CLINIC_ID_KEY);
+    localStorage.removeItem(this.CLINIC_NAME_KEY);
+
+    }
+
 }

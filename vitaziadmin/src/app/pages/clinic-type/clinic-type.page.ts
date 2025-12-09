@@ -9,10 +9,14 @@ import {
   IonRadioGroup,
   IonRadio,
 } from '@ionic/angular/standalone';
+import { forkJoin } from 'rxjs';
 
 import { ClinicScheduleService } from '../../services/clinic-schedule.service';
 import { ClinicService } from '../../services/clinic.service';
-import { ClinicSummary } from '../../models/clinic.models';
+import {
+  ClinicSummary,
+  OwnerInformation,
+} from '../../models/clinic.models';
 
 @Component({
   selector: 'app-clinic-type',
@@ -41,60 +45,54 @@ export class ClinicTypePage implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.checkExistingClinic();
+    this.resolveClinicForCurrentUser();
   }
 
-  /** Check xem tài khoản hiện tại đã có phòng khám trong DB chưa */
-  private checkExistingClinic() {
-    this.clinicApi.checkClinicExists().subscribe({
-      next: (exists: boolean) => {
-        if (exists) {
-          // Đã có clinic -> lấy danh sách clinic của user này
-          this.clinicApi.getMyClinics().subscribe({
-            next: (clinics: ClinicSummary[]) => {
-              this.loading = false;
-              console.log('[ClinicTypePage] getMyClinics =', clinics);
+  /**
+   * Nếu user đã có clinic trong DB:
+   *  - Lọc đúng clinic theo oauthEmail/oauthSub
+   *  - Set context
+   *  - Điều hướng thẳng vào tabs
+   * Nếu chưa có -> hiển thị UI chọn loại phòng khám để tạo mới
+   */
+  private resolveClinicForCurrentUser() {
+    forkJoin({
+      owner: this.clinicApi.getOwnerInformation(),
+      clinics: this.clinicApi.getMyClinics(),
+    }).subscribe({
+      next: ({ owner, clinics }: { owner: OwnerInformation; clinics: ClinicSummary[] }) => {
+        this.loading = false;
+        console.log('[ClinicType] owner =', owner);
+        console.log('[ClinicType] all clinics =', clinics);
 
-              if (!clinics || !clinics.length) {
-                // BE báo exists=true nhưng list rỗng -> fallback cho user tự tạo
-                return;
-              }
+        const myClinics = clinics.filter(
+          (c) =>
+            (c.oauthEmail === owner.ownerEmail) ||
+            (c.oauthSub && c.oauthSub === owner.ownerSub)
+        );
 
-              const clinic = clinics[0]; // tạm lấy clinic đầu tiên
-              // set context cho toàn app (clinicId + mode)
-              this.clinicSchedule.setClinicContext(clinic as any);
+        if (myClinics.length) {
+          const clinic = myClinics[0];
+          console.log('[ClinicType] matched clinic =', clinic);
 
-              if (clinic.clinicType === 'GENERAL') {
-                // Đa khoa -> vào tab hồ sơ phòng khám
-                this.navCtrl.navigateRoot('/tabs/profile');
-              } else {
-                // Chuyên khoa -> vào tab lịch làm việc
-                this.navCtrl.navigateRoot('/tabs/booking');
-              }
-            },
-            error: async (err) => {
-              this.loading = false;
-              console.error('[ClinicTypePage] getMyClinics error', err);
-              const t = await this.toastCtrl.create({
-                message: 'Không tải được thông tin phòng khám.',
-                duration: 1500,
-                color: 'danger',
-              });
-              await t.present();
-            },
-          });
-        } else {
-          // Chưa có clinic -> cho user chọn loại rồi tạo
-          this.loading = false;
+          this.clinicSchedule.setClinicContext(clinic as any);
 
-          const mode = this.clinicSchedule.currentMode;
-          if (mode === 'GENERAL') this.selectedType = 'general';
-          if (mode === 'SPECIALTY') this.selectedType = 'specialized';
+          if (clinic.clinicType === 'GENERAL') {
+            this.navCtrl.navigateRoot('/tabs/profile');
+          } else {
+            this.navCtrl.navigateRoot('/tabs/booking');
+          }
+          return;
         }
+
+        // Không có clinic thuộc user này -> cho chọn loại phòng khám
+        const mode = this.clinicSchedule.currentMode;
+        if (mode === 'GENERAL') this.selectedType = 'general';
+        if (mode === 'SPECIALTY') this.selectedType = 'specialized';
       },
       error: async (err) => {
         this.loading = false;
-        console.error('[ClinicTypePage] checkClinicExists error', err);
+        console.error('[ClinicType] resolveClinicForCurrentUser error', err);
         const t = await this.toastCtrl.create({
           message: 'Không kiểm tra được trạng thái phòng khám.',
           duration: 1500,
@@ -125,7 +123,7 @@ export class ClinicTypePage implements OnInit {
     }
 
     if (this.selectedType === 'general') {
-      // ĐA KHOA -> tạo clinic xong vào tab PROFILE
+      // ĐA KHOA
       this.clinicApi.createGeneralClinic().subscribe({
         next: (clinic) => {
           this.clinicSchedule.setClinicContext(clinic);
@@ -144,7 +142,7 @@ export class ClinicTypePage implements OnInit {
       // CHUYÊN KHOA
       this.clinicApi.createSpecializedClinic().subscribe({
         next: (clinic) => {
-          this.clinicSchedule.setClinicContext(clinic); // set currentMode = 'SPECIALTY'
+          this.clinicSchedule.setClinicContext(clinic); // currentMode = 'SPECIALTY'
           this.navCtrl.navigateRoot('/tabs/booking');
         },
         error: async () => {

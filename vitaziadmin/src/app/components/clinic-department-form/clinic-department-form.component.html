@@ -1,34 +1,35 @@
-<div class="dept-form-overlay">
-  <div class="dept-form-card">
-    <div class="card-top"></div>
+<div class="dept-form-overlay" (click)="onCancel()">
 
-    <div class="avatar-wrapper">
-      <img src="assets/img/clinic-dept-placeholder.png" alt="avatar" class="avatar" />
-    </div>
+  <div class="form-container" (click)="$event.stopPropagation()">
 
-    <div class="card-header">
-      <h2>Thông tin Khoa bệnh</h2>
-      <button type="button" class="close-form-btn" (click)="onCancel()">✕</button>
-    </div>
+    <div class="dept-card-blue">
+      <h3 class="form-title">Thông tin Khoa bệnh</h3>
 
-    <div class="card-body">
-      <label class="field-label">Tên đầy đủ</label>
-      <ion-input [(ngModel)]="name" placeholder="Nhập tên đầy đủ của khoa"></ion-input>
+      <div class="input-group">
+        <label>Tên đầy đủ</label>
+        <input
+          type="text"
+          [(ngModel)]="name"
+          placeholder="Nhập tên đầy đủ của khoa"
+          class="custom-input"
+        />
+      </div>
 
-      <label class="field-label">Mô tả</label>
-      <ion-textarea [(ngModel)]="description" placeholder="Nhập mô tả khoa bệnh"></ion-textarea>
-
-      <div class="actions">
-        <ion-button
-          expand="block"
-          color="primary"
-          (click)="onSubmit()"
-          [disabled]="submitting"
-        >
-          <ion-spinner *ngIf="submitting" slot="start"></ion-spinner>
-          Lưu
-        </ion-button>
+      <div class="input-group">
+        <label>Mô tả</label>
+        <textarea
+          [(ngModel)]="description"
+          placeholder="Nhập mô tả khoa bệnh"
+          rows="4"
+          class="custom-input area"
+        ></textarea>
       </div>
     </div>
+
+    <button class="save-floating-btn" (click)="onSubmit()" [disabled]="submitting">
+      <ion-spinner name="crescent" *ngIf="submitting"></ion-spinner>
+      <span *ngIf="!submitting">Lưu</span>
+    </button>
+
   </div>
 </div>

@@ -5,12 +5,15 @@ import {
   OnChanges,
   SimpleChanges,
   Output,
-  EventEmitter
+  EventEmitter,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonDatetime } from '@ionic/angular/standalone';
+import { IonDatetime, IonIcon, ToastController } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { trashOutline, addOutline, saveOutline, alertCircleOutline, checkmarkCircleOutline, informationCircleOutline } from 'ionicons/icons';
 import { forkJoin } from 'rxjs';
+import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 
 import {
   ClinicType,
@@ -21,291 +24,259 @@ import {
 import { DepartmentsService } from '../../services/departments.service';
 import { WorkSchedulesService } from '../../services/work-schedules.service';
 
-/** Ca hiển thị trên UI – có thể có id nếu là ca đã tồn tại trong DB */
+/** Mở rộng interface để hỗ trợ validate UI */
 interface ShiftView extends WorkShiftInput {
   id?: string;
+  isValid?: boolean; // True: hợp lệ, False: hiện lỗi đỏ
+  errorMsg?: string; // Nội dung lỗi hiển thị
 }
 
 @Component({
   selector: 'app-clinic-work-schedule',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonDatetime],
+  imports: [CommonModule, FormsModule, IonDatetime, IonIcon],
   templateUrl: './clinic-work-schedule.component.html',
-  styleUrls: ['./clinic-work-schedule.component.scss']
+  styleUrls: ['./clinic-work-schedule.component.scss'],
+  // ANIMATION: Hiệu ứng xuất hiện mượt mà cho danh sách
+  animations: [
+    trigger('listAnimation', [
+      transition('* => *', [
+        query(':enter', [
+          style({ opacity: 0, transform: 'translateY(-15px)' }),
+          stagger(50, [
+            animate('300ms cubic-bezier(0.35, 0, 0.25, 1)', style({ opacity: 1, transform: 'none' }))
+          ])
+        ], { optional: true }),
+        query(':leave', [
+          animate('200ms ease-out', style({ opacity: 0, height: 0, margin: 0, transform: 'scale(0.9)' }))
+        ], { optional: true })
+      ])
+    ])
+  ]
 })
 export class ClinicWorkScheduleComponent implements OnInit, OnChanges {
-  /** ID phòng khám – bắt buộc */
   @Input() clinicId!: string;
-
-  /** 'SPECIALTY' (chuyên khoa) hoặc 'GENERAL' (đa khoa) */
   @Input() mode: ClinicType = 'SPECIALTY';
-
-  /** departmentId hiện chọn – dùng cho cả chuyên khoa và đa khoa */
   @Input() departmentId: string | null = null;
-
-  /** Có cho phép user chọn khoa từ dropdown hay không */
   @Input() allowDepartmentSelect = true;
-
-  /** Emit khi lưu lịch thành công */
   @Output() saved = new EventEmitter<void>();
 
-  /** Danh sách khoa của phòng khám */
   departments: Department[] = [];
 
-  /** Ngày đang chọn – dạng 'YYYY-MM-DD' */
+  // Mặc định lấy ngày hôm nay
   selectedDate: string = new Date().toISOString().substring(0, 10);
 
-  /** Dropdown tháng/năm */
-  months = [
-    { value: 1 }, { value: 2 }, { value: 3 }, { value: 4 },
-    { value: 5 }, { value: 6 }, { value: 7 }, { value: 8 },
-    { value: 9 }, { value: 10 }, { value: 11 }, { value: 12 }
-  ];
+  // Dữ liệu cho Dropdown
+  months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1 }));
   years: number[] = [];
   selectedMonth!: number;
   selectedYear!: number;
 
-  /** Tất cả ca hiển thị trên UI (cả cũ và mới) */
   shifts: ShiftView[] = [];
-
-  /** Lưu danh sách id ca đã xóa trên UI, sẽ gửi DELETE khi bấm Lưu */
   deletedShiftIds: string[] = [];
-
   loading = false;
 
   constructor(
     private departmentsService: DepartmentsService,
-    private workSchedulesService: WorkSchedulesService
-  ) {}
+    private workSchedulesService: WorkSchedulesService,
+    private toastController: ToastController
+  ) {
+    // Đăng ký icon sử dụng trong HTML
+    addIcons({
+      trashOutline,
+      addOutline,
+      saveOutline,
+      alertCircleOutline,
+      checkmarkCircleOutline,
+      informationCircleOutline
+    });
+  }
 
   // ---------------------------------------------------
-  // LIFECYCLE
+  // LIFECYCLE & INIT
   // ---------------------------------------------------
   ngOnInit() {
-    console.log(
-      '[ClinicWorkSchedule] ngOnInit clinicId=',
-      this.clinicId,
-      'mode=',
-      this.mode,
-      'departmentId(input)=',
-      this.departmentId
-    );
-
-    // Khởi tạo dropdown tháng/năm theo selectedDate
     const d = new Date(this.selectedDate);
     this.selectedMonth = d.getMonth() + 1;
     this.selectedYear = d.getFullYear();
 
     const baseYear = this.selectedYear;
-    this.years = [];
-    for (let y = baseYear - 1; y <= baseYear + 2; y++) {
-      this.years.push(y);
-    }
+    // Tạo danh sách năm: Năm ngoái, năm nay, 2 năm tới
+    this.years = [baseYear - 1, baseYear, baseYear + 1, baseYear + 2];
 
-    // Luôn load danh sách khoa cho cả chuyên khoa & đa khoa,
-    // để luôn có departmentId gửi xuống backend.
     this.loadDepartments();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['clinicId'] && !changes['clinicId'].firstChange) {
-      console.log(
-        '[ClinicWorkSchedule] clinicId changed to',
-        this.clinicId
-      );
       this.loadDepartments();
     }
-
     if (changes['departmentId'] && !changes['departmentId'].firstChange) {
-      console.log(
-        '[ClinicWorkSchedule] departmentId input changed to',
-        this.departmentId
-      );
       this.loadSchedulesForDate();
     }
   }
 
   // ---------------------------------------------------
-  // LOAD KHOA + LỊCH
+  // DATA LOADING
   // ---------------------------------------------------
-  /** Load tất cả khoa của phòng khám, auto chọn khoa đầu tiên nếu chưa có */
   private loadDepartments() {
     if (!this.clinicId) return;
-
-    console.log(
-      '[ClinicWorkSchedule] loadDepartments clinicId=',
-      this.clinicId
-    );
 
     this.departmentsService.getByClinic(this.clinicId).subscribe({
       next: (depts) => {
         this.departments = depts || [];
-        console.log('[ClinicWorkSchedule] departments loaded:', this.departments);
 
-        // CHUYÊN KHOA: backend auto tạo 1 department → chọn luôn
-        // ĐA KHOA: nếu chưa chọn khoa nào thì cũng chọn khoa đầu tiên
+        // Nếu chưa có departmentId (lần đầu vào), tự chọn cái đầu tiên
         if (!this.departmentId && this.departments.length) {
           this.departmentId = this.departments[0].id;
-          console.log(
-            '[ClinicWorkSchedule] auto set departmentId =',
-            this.departmentId
-          );
         }
-
-        // Sau khi đã có departmentId → load lịch
         this.loadSchedulesForDate();
       },
-      error: (err) => {
-        console.error('[ClinicWorkSchedule] loadDepartments error', err);
-      }
+      error: (err) => console.error('Lỗi tải danh sách khoa', err)
     });
   }
 
-
-  /** Khi đổi tháng hoặc năm từ dropdown */
+  /** Xử lý khi đổi Tháng/Năm từ dropdown */
   onMonthOrYearChange() {
-    const d = new Date(this.selectedYear, this.selectedMonth - 1, 1);
+    // Tạo ngày mùng 1 của tháng/năm đã chọn để cập nhật Calendar
+    const d = new Date(this.selectedYear, this.selectedMonth - 1, 1, 12); // giờ 12 để tránh lệch múi giờ
     this.selectedDate = d.toISOString().substring(0, 10);
-    console.log(
-      '[ClinicWorkSchedule] onMonthOrYearChange -> selectedDate=',
-      this.selectedDate
-    );
     this.loadSchedulesForDate();
   }
 
-  /** Khi chọn ngày trên ion-datetime */
+  /** Xử lý khi click chọn ngày trên Calendar */
   onDateChange(ev: any) {
     if (!ev?.detail?.value) return;
     this.selectedDate = ev.detail.value.substring(0, 10);
 
+    // Cập nhật lại dropdown tháng/năm cho khớp với ngày vừa chọn
     const d = new Date(this.selectedDate);
     this.selectedMonth = d.getMonth() + 1;
     this.selectedYear = d.getFullYear();
 
-    console.log('[ClinicWorkSchedule] onDateChange -> selectedDate=', this.selectedDate);
     this.loadSchedulesForDate();
   }
 
-  /** Khi chọn khoa trong dropdown */
   onDepartmentChange() {
-    console.log(
-      '[ClinicWorkSchedule] onDepartmentChange departmentId=',
-      this.departmentId
-    );
     this.loadSchedulesForDate();
   }
 
-  /** Load lịch làm việc cho clinic + department + date */
   private loadSchedulesForDate() {
-    if (!this.clinicId) {
-      console.warn('[ClinicWorkSchedule] loadSchedulesForDate: missing clinicId');
-      return;
-    }
-    if (!this.departmentId) {
-      console.warn(
-        '[ClinicWorkSchedule] loadSchedulesForDate: missing departmentId (cần kiểm tra backend đã có khoa cho phòng khám chưa)'
-      );
-      return;
-    }
-
-    console.log(
-      '[ClinicWorkSchedule] loadSchedulesForDate clinicId=',
-      this.clinicId,
-      'date=',
-      this.selectedDate,
-      'departmentId=',
-      this.departmentId
-    );
+    if (!this.clinicId || !this.departmentId) return;
 
     this.loading = true;
     this.workSchedulesService
       .getByDate(this.clinicId, this.selectedDate, this.departmentId)
       .subscribe({
         next: (schedules) => {
-          console.log(
-            '[ClinicWorkSchedule] getByDate result=',
-            schedules
-          );
-
+          // Map dữ liệu từ DB sang View
           this.shifts = (schedules || []).map((s) => ({
             id: s.id,
             startTime: s.start_time.substring(0, 5),
             endTime: s.end_time.substring(0, 5),
             capacity: s.capacity,
-            maxCapacity: s.max_capacity ?? 5
+            maxCapacity: s.max_capacity ?? 5,
+            isValid: true // Mặc định dữ liệu DB là hợp lệ
           }));
 
           this.deletedShiftIds = [];
           this.loading = false;
         },
         error: (err) => {
-          console.error('[ClinicWorkSchedule] getByDate error', err);
+          console.error('Lỗi tải lịch làm việc', err);
           this.loading = false;
+          this.presentToast('Không tải được dữ liệu lịch.', 'danger');
         }
       });
   }
 
   // ---------------------------------------------------
-  // THAO TÁC LIST CA
+  // USER ACTIONS (ADD, REMOVE, VALIDATE)
   // ---------------------------------------------------
+
   addShift() {
+    // Tạo ca mới TRỐNG theo yêu cầu (không tự tính giờ)
     const s: ShiftView = {
-      startTime: '09:00',
-      endTime: '11:00',
-      maxCapacity: 5
+      startTime: '',
+      endTime: '',
+      maxCapacity: 5,
+      isValid: true // Chưa đỏ vội, đợi user nhập
     };
     this.shifts.push(s);
-    console.log('[ClinicWorkSchedule] addShift', s);
   }
 
   removeShift(index: number) {
     const removed = this.shifts[index];
-    console.log('[ClinicWorkSchedule] removeShift index=', index, 'shift=', removed);
 
+    // Nếu ca đã có ID (đã lưu trong DB), đưa vào danh sách cần xóa
     if (removed && removed.id) {
       this.deletedShiftIds.push(removed.id);
     }
+
     this.shifts.splice(index, 1);
   }
 
-  // ---------------------------------------------------
-  // LƯU: CREATE + UPDATE + DELETE
-  // ---------------------------------------------------
-  save() {
-     if (!this.departmentId) {
-        console.warn(
-          '[ClinicWorkSchedule] save: departmentId is null -> kiểm tra lại loadDepartments()/403'
-        );
-        return;
+  /** Kiểm tra logic: Giờ Bắt đầu < Giờ Kết thúc */
+  validateShift(shift: ShiftView) {
+    // Reset trạng thái
+    shift.isValid = true;
+    shift.errorMsg = undefined;
+
+    // Chỉ kiểm tra khi đã nhập đủ cả 2
+    if (shift.startTime && shift.endTime) {
+      if (shift.startTime >= shift.endTime) {
+        shift.isValid = false;
+        shift.errorMsg = 'Giờ kết thúc phải lớn hơn giờ bắt đầu';
       }
+    }
+  }
 
-      const payload: SaveSchedulesPayload = {
-        clinicId: this.clinicId,
-        departmentId: this.departmentId,   // SPECIALTY dùng luôn khoa auto
-        date: this.selectedDate,
-        shifts: this.shifts
-      };
+  // ---------------------------------------------------
+  // SAVE LOGIC
+  // ---------------------------------------------------
+  async save() {
+    if (!this.departmentId) {
+      this.presentToast('Vui lòng chọn Khoa trước khi lưu.', 'warning');
+      return;
+    }
 
+    // 1. VALIDATION TOÀN BỘ
+    let hasError = false;
+    let hasEmpty = false;
+
+    this.shifts.forEach(s => {
+      if (!s.startTime || !s.endTime) {
+        s.isValid = false;
+        hasEmpty = true;
+      } else if (s.startTime >= s.endTime) {
+        s.isValid = false;
+        s.errorMsg = 'Giờ không hợp lệ';
+        hasError = true;
+      }
+    });
+
+    if (hasEmpty) {
+      this.presentToast('Vui lòng nhập đầy đủ giờ Bắt đầu và Kết thúc.', 'danger');
+      return;
+    }
+    if (hasError) {
+      this.presentToast('Có ca làm việc bị sai giờ. Vui lòng kiểm tra lại.', 'danger');
+      return;
+    }
+
+    // 2. PREPARE REQUESTS
     const deptId = this.departmentId;
     const newShifts = this.shifts.filter((s) => !s.id);
     const existingShifts = this.shifts.filter((s) => !!s.id) as ShiftView[];
 
-    console.log('[ClinicWorkSchedule] save() start', {
-      selectedDate: this.selectedDate,
-      deptId,
-      newShifts,
-      existingShifts,
-      deletedShiftIds: this.deletedShiftIds
-    });
-
     const ops = [];
 
-    // XÓA các ca bị remove
+    // DELETE requests
     for (const id of this.deletedShiftIds) {
       ops.push(this.workSchedulesService.deleteSchedule(id));
     }
 
-    // UPDATE các ca đã tồn tại
+    // UPDATE requests
     for (const s of existingShifts) {
       ops.push(
         this.workSchedulesService.updateSchedule(
@@ -323,7 +294,7 @@ export class ClinicWorkScheduleComponent implements OnInit, OnChanges {
       );
     }
 
-    // CREATE các ca mới
+    // CREATE request (batch)
     if (newShifts.length) {
       const payload: SaveSchedulesPayload = {
         clinicId: this.clinicId,
@@ -336,32 +307,59 @@ export class ClinicWorkScheduleComponent implements OnInit, OnChanges {
           maxCapacity: s.maxCapacity ?? 0
         }))
       };
-
-      console.log('[ClinicWorkSchedule] save() new shift payload', payload);
       ops.push(this.workSchedulesService.saveForDate(payload));
     }
 
-    if (!ops.length) {
-      console.log('[ClinicWorkSchedule] save() no changes -> skip');
+    // Nếu không có thay đổi gì
+    if (ops.length === 0) {
+      this.presentToast('Không có thay đổi nào để lưu.', 'warning');
       return;
     }
 
+    // 3. EXECUTE
     this.loading = true;
     forkJoin(ops).subscribe({
-      next: (results) => {
-        console.log('[ClinicWorkSchedule] save() success results=', results);
-
-        // Sau khi tạo/cập nhật/xóa xong, reload danh sách ca từ DB
+      next: async () => {
+        // Reset danh sách xóa và tải lại dữ liệu mới nhất từ DB
         this.deletedShiftIds = [];
         this.loadSchedulesForDate();
 
         this.loading = false;
-        this.saved.emit(); // BookingPage show IonToast "Lưu ca làm việc thành công"
+        this.saved.emit(); // Bắn event ra ngoài (nếu cần parent component biết)
+        await this.presentToast('Lưu lịch làm việc thành công!', 'success');
       },
-      error: (err) => {
-        console.error('[ClinicWorkSchedule] save() error', err);
+      error: async (err) => {
+        console.error('Save error', err);
         this.loading = false;
+        await this.presentToast('Đã xảy ra lỗi khi lưu. Vui lòng thử lại.', 'danger');
       }
     });
+  }
+
+  // ---------------------------------------------------
+  // HELPER: TOAST NOTIFICATION
+  // ---------------------------------------------------
+  async presentToast(message: string, type: 'success' | 'danger' | 'warning') {
+    let iconName = 'information-circle-outline';
+    let cssClass = 'toast-info';
+
+    if (type === 'success') {
+      iconName = 'checkmark-circle-outline';
+      cssClass = 'toast-success';
+    } else if (type === 'danger') {
+      iconName = 'alert-circle-outline';
+      cssClass = 'toast-error';
+    }
+
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 3000,
+      position: 'top', // Hiển thị trên cùng để dễ thấy trên mobile
+      color: type,
+      icon: iconName,
+      buttons: [{ text: 'Đóng', role: 'cancel' }]
+    });
+
+    await toast.present();
   }
 }

@@ -13,10 +13,19 @@ export interface ClinicProfile {
   updatedAt: string;
 }
 
+export interface OwnerInformation {
+  ownerName: string;
+  ownerEmail: string;
+  ownerAvatar: string;
+  ownerSub: string;
+}
+
 export interface ClinicSummary {
   id: string;
   clinicName: string;
   clinicType: ClinicType;
+  oauthSub?: string;
+  oauthEmail?: string;
 }
 
 // Khoa bệnh – map đúng JSON getListDepartments

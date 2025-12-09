@@ -32,7 +32,7 @@ public class DepartmentService {
     public DepartmentEntity createDepartment(DepartmentRequest departmentRequest) {
         ClinicEntity clinicEntity = clinicRepository.findById(departmentRequest.getClinicId())
                 .orElseThrow(() -> new WebException(ErrorCode.CLINIC_NOT_FOUND));
-//        validateDepartmentRequest(clinicEntity);
+        validateDepartmentRequest(clinicEntity);
         DepartmentEntity departmentEntity = new DepartmentEntity();
         departmentEntity.setClinicId(clinicEntity);
         departmentEntity.setDepartmentName(departmentRequest.getDepartmentName());

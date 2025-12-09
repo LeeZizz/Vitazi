@@ -6,7 +6,8 @@ import {
   ApiResponse,
   ClinicProfile,
   ClinicSummary,
-  ClinicType
+  ClinicType,
+  OwnerInformation
 } from '../models/clinic.models';
 
 @Injectable({ providedIn: 'root' })
@@ -52,11 +53,16 @@ export class ClinicService {
           (res.result || []).map((c) => ({
             id: c.id,
             clinicName: c.clinicName,
-            clinicType: c.clinicType === 'SPECIALIZED' ? 'SPECIALTY' : 'GENERAL'
-          }))
+            clinicType: c.clinicType === 'SPECIALIZED' ? 'SPECIALTY' : 'GENERAL',
+
+            oauthEmail: c.oauthEmail,
+            oauthSub: c.oauthSub
+          }) as ClinicSummary)
         )
       );
   }
+
+
 
   checkClinicExists(): Observable<boolean> {
     return this.http
@@ -66,4 +72,14 @@ export class ClinicService {
       )
       .pipe(map(res => !!res.result));
   }
+
+  getOwnerInformation(): Observable<OwnerInformation> {
+      return this.http
+        .get<ApiResponse<OwnerInformation>>(
+          `${this.baseUrl}/ownerInformation`,
+          { withCredentials: true }
+        )
+        .pipe(map((res) => res.result));
+    }
+
 }

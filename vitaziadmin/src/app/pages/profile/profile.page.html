@@ -1,46 +1,86 @@
-<ion-content fullscreen>
-  <div class="page-container" *ngIf="clinicId; else noClinicTpl">
+<ion-header class="ion-no-border">
+  <ion-toolbar class="profile-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/" text="<-" color="#333"></ion-back-button>
+    </ion-buttons>
 
-    <!-- ĐA KHOA: cho phép quản lý khoa -->
-    <ng-container *ngIf="mode === 'GENERAL'; else specialtyTpl">
+    <ion-title>Phòng khám của tôi</ion-title>
 
-      <!-- Khi KHÔNG mở form thì hiển thị danh sách khoa -->
-      <ng-container *ngIf="!showDeptForm; else deptFormTpl">
-        <app-clinic-department-list
-          #deptList
-          [clinicId]="clinicId!"
-          (createRequested)="onCreateDepartment()"
-          (editRequested)="onEditDepartment($event)">
-        </app-clinic-department-list>
-      </ng-container>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()" color="danger">
+        <ion-icon name="log-out-outline" style="font-size: 24px;"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
 
-      <!-- Khi bấm + hoặc chỉnh sửa -> hiển thị form khoa -->
-      <ng-template #deptFormTpl>
-        <app-clinic-department-form
-          [clinicId]="clinicId!"
-          [department]="editingDept"
-          (saved)="onDeptFormSaved()"
-          (cancelled)="onDeptFormCancelled()">
-        </app-clinic-department-form>
-      </ng-template>
+<ion-content class="profile-content">
+  <div class="profile-container" *ngIf="clinicId && owner; else noClinicTpl">
 
-    </ng-container>
-
-    <!-- CHUYÊN KHOA: chỉ hiển thị thông báo -->
-    <ng-template #specialtyTpl>
-      <div class="info-box">
-        <p>
-          Phòng khám chuyên khoa – cấu hình lịch làm việc trong tab
-          <strong>"Lịch làm việc"</strong>.
-        </p>
+    <div class="avatar-section">
+      <div class="avatar-wrapper">
+        <img [src]="owner.ownerAvatar || 'assets/img/default-avatar.png'" alt="avatar" class="avatar-img" />
+        <button class="camera-btn">
+          <ion-icon name="camera"></ion-icon>
+        </button>
       </div>
-    </ng-template>
+      <h2 class="owner-name">{{ owner.ownerName }}</h2>
+      <p class="clinic-subtext">{{ clinicName }}</p>
+    </div>
+
+    <div class="info-group">
+      <div class="info-card">
+        <div class="icon-box blue">
+          <ion-icon name="person"></ion-icon>
+        </div>
+        <div class="info-text">
+          <span class="label">Name</span>
+          <span class="value">{{ owner.ownerName }}</span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="icon-box teal">
+          <ion-icon name="mail"></ion-icon>
+        </div>
+        <div class="info-text">
+          <span class="label">Email Address</span>
+          <span class="value">{{ owner.ownerEmail }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="department-section" *ngIf="clinicType === 'GENERAL'">
+      <div class="section-header">
+        <h3>Danh sách phòng khám</h3>
+        <button class="add-mini-btn" (click)="onCreateDepartment()">
+          + Thêm
+        </button>
+      </div>
+
+      <app-clinic-department-list
+        *ngIf="clinicId"
+        [clinicId]="clinicId"
+        [showHeader]="false"
+        (createRequested)="onCreateDepartment()"
+        (editRequested)="onEditDepartment($event)"
+        (deleted)="deptList?.reload()"
+      ></app-clinic-department-list>
+    </div>
+
+    <app-clinic-department-form
+      *ngIf="showDeptForm && clinicId"
+      [clinicId]="clinicId"
+      [department]="editingDept"
+      (saved)="onDepartmentSaved()"
+      (cancelled)="onDepartmentCancelled()"
+    ></app-clinic-department-form>
 
   </div>
 
   <ng-template #noClinicTpl>
-    <div class="info-box">
-      <p>Chưa có thông tin phòng khám. Vui lòng đăng nhập lại.</p>
+    <div class="empty-state">
+      <p>No clinic information available.</p>
     </div>
   </ng-template>
 </ion-content>
