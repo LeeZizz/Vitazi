@@ -1,6 +1,35 @@
 // FE dùng 2 mode: CHUYÊN KHOA / ĐA KHOA
 export type ClinicType = 'SPECIALTY' | 'GENERAL';
 
+export interface NotificationResponse {
+  id: string;
+  title: string;
+  message: string;
+  patientName: string;
+  patientPhone: string;
+  bookingDate: string; // ISO string
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  avatarUrl?: string; // Giả sử có avatar
+  clinicName?: string;
+}
+
+export interface AppointmentResponse {
+  id: string;
+  appointmentDate: string;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  patientName: string;
+  phone: string;
+  reason?: string;
+  // Các trường khác tương ứng với Backend
+}
+
+export interface DashboardCounts {
+  PENDING: number;
+  CONFIRMED: number;
+  CANCELLED: number;
+  TOTAL?: number;
+}
+
 // Thông tin phòng khám – backend trả clinicType là string (GENERAL / DA_KHOA / ...)
 export interface ClinicProfile {
   id: string;

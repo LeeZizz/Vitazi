@@ -25,7 +25,7 @@ import { DepartmentsService } from '../../services/departments.service';
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule, // <--- Bắt buộc phải có dòng này để fix lỗi NG8002
+    FormsModule,
     IonButton,
     IonSpinner,
     IonIcon
@@ -48,7 +48,7 @@ export class ClinicDepartmentFormComponent implements OnChanges {
     private deptService: DepartmentsService,
     private toastCtrl: ToastController
   ) {
-    // Đăng ký icon 'close' để dùng trong HTML <ion-icon name="close">
+
     addIcons({ close });
   }
 

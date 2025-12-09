@@ -31,6 +31,7 @@ import {
 } from '../../models/clinic.models';
 import { ClinicService } from '../../services/clinic.service';
 import { ClinicScheduleService } from '../../services/clinic-schedule.service';
+import { AuthService } from '../../services/auth.service';
 
 import { ClinicDepartmentListComponent } from '../../components/clinic-department-list/clinic-department-list.component';
 import { ClinicDepartmentFormComponent } from '../../components/clinic-department-form/clinic-department-form.component';
@@ -71,7 +72,8 @@ export class ProfilePage implements OnInit {
 
   constructor(
     private clinicApi: ClinicService,
-    private clinicCtx: ClinicScheduleService
+    private clinicCtx: ClinicScheduleService,
+    private authService: AuthService,
   ) {
     addIcons({
       camera,
@@ -142,9 +144,6 @@ export class ProfilePage implements OnInit {
   }
 
   logout() {
-    // Điều hướng logout
-    window.location.href = 'http://localhost:8080/logout';
-    // Sau đó redirect về login (thường backend sẽ handle redirect, hoặc dùng router)
-     window.location.href = 'http://localhost:8100/login';
+    this.authService.logout();
   }
 }

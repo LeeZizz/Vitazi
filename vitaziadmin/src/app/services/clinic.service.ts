@@ -62,8 +62,7 @@ export class ClinicService {
       );
   }
 
-
-
+  /** Kiểm tra user hiện tại đã có phòng khám chưa */
   checkClinicExists(): Observable<boolean> {
     return this.http
       .get<ApiResponse<boolean>>(
@@ -73,6 +72,7 @@ export class ClinicService {
       .pipe(map(res => !!res.result));
   }
 
+  /** Lấy thông tin chủ phòng khám */
   getOwnerInformation(): Observable<OwnerInformation> {
       return this.http
         .get<ApiResponse<OwnerInformation>>(

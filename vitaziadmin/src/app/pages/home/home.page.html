@@ -1,0 +1,92 @@
+<ion-content [fullscreen]="true" class="home-content">
+  <div class="header-banner">
+    <div class="header-top">
+    </div>
+    <h1 class="page-title">Quản lý lịch khám</h1>
+  </div>
+
+  <div class="stats-container">
+    <div class="stats-grid">
+      <div class="stat-card purple">
+        <div class="card-icon-row">
+          <ion-icon name="person-outline"></ion-icon>
+          <span>Số người đặt lịch</span>
+        </div>
+        <div class="stat-value text-purple">{{ totalCount }}</div>
+      </div>
+
+      <div class="stat-card yellow">
+        <div class="card-icon-row">
+          <ion-icon name="time-outline"></ion-icon>
+          <span>Chờ xử lý</span>
+        </div>
+        <div class="stat-value text-yellow">{{ counts.PENDING || 0 }}</div>
+      </div>
+
+      <div class="stat-card green">
+        <div class="card-icon-row">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <span>Đã xác nhận</span>
+        </div>
+        <div class="stat-value text-green">{{ counts.CONFIRMED || 0 }}</div>
+      </div>
+
+      <div class="stat-card red">
+        <div class="card-icon-row">
+          <ion-icon name="close-circle-outline"></ion-icon>
+          <span>Đã hủy</span>
+        </div>
+        <div class="stat-value text-red">{{ counts.CANCELLED || 0 }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="segment-section">
+    <ion-segment [(ngModel)]="currentTab" (ionChange)="loadListData()" mode="ios">
+      <ion-segment-button value="PENDING">
+        <ion-label>Chờ xử lý</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="CONFIRMED">
+        <ion-label>Đã xác nhận</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="CANCELLED">
+        <ion-label>Đã hủy</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <div class="list-container">
+    <ion-card class="appointment-card" *ngFor="let item of listData">
+      <div class="card-header-row">
+        <div class="header-left">
+          <img src="assets/img/clinic-dept-placeholder.png" class="dept-avatar" />
+          <div class="info-col">
+            <div class="main-title">{{ item.title || 'Lịch khám' }}</div>
+            <div class="time-row">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>{{ (item.bookingDate || item.appointmentDate) | date:'dd/MM/yyyy, hh:mm a' }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="menu-icon">
+          <ion-icon name="ellipsis-vertical"></ion-icon>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <p>Người đặt: {{ item.patientName }}</p>
+        <p>Số điện thoại: {{ item.patientPhone || item.phone }}</p>
+        <p *ngIf="item.reason">Lý do: {{ item.reason }}</p>
+      </div>
+
+      <div class="card-actions" *ngIf="currentTab === 'PENDING'">
+        <button class="action-btn confirm" (click)="updateStatus(item, 'CONFIRMED')">Xác nhận</button>
+        <button class="action-btn cancel" (click)="updateStatus(item, 'CANCELLED')">Hủy</button>
+      </div>
+    </ion-card>
+
+    <div class="empty-state" *ngIf="!loading && listData.length === 0">
+      <p>Chưa có dữ liệu cho mục này.</p>
+    </div>
+  </div>
+</ion-content>

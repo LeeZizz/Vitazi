@@ -7,6 +7,7 @@ import { forkJoin } from 'rxjs';
 
 import { ClinicService } from '../../services/clinic.service';
 import { ClinicScheduleService } from '../../services/clinic-schedule.service';
+import { AuthService } from '../../services/auth.service';
 import {
   ClinicSummary,
   OwnerInformation,
@@ -26,7 +27,8 @@ export class LoginPage implements OnInit {
   constructor(
     private router: Router,
     private clinicApi: ClinicService,
-    private clinicSchedule: ClinicScheduleService
+    private clinicSchedule: ClinicScheduleService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit() {
@@ -82,12 +84,10 @@ export class LoginPage implements OnInit {
   }
 
   loginWithGoogle() {
-    window.location.href =
-      'http://localhost:8080/oauth2/authorization/google';
+    this.authService.loginWithProvider('google');
   }
 
   loginWithFacebook() {
-    window.location.href =
-      'http://localhost:8080/oauth2/authorization/facebook';
+    this.authService.loginWithProvider('facebook');
   }
 }

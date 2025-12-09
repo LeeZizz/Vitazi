@@ -2,12 +2,19 @@ ion-content {
   --background: #F8FAFC;
 }
 
+ion-back-button {
+  color: #1e293b;
+}
+
 .profile-toolbar {
   --background: #F8FAFC;
   ion-title {
     font-weight: 700;
     font-size: 18px;
     color: #1e293b;
+    display: center;
+    align-items: center;
+    justify-content: center;
   }
 }
 

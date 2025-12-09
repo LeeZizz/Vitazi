@@ -1,0 +1,234 @@
+/* --- CẤU TRÚC CHUNG --- */
+.home-content {
+  --background: #ffffff; /* Nền trắng */
+}
+
+/* --- 1. HEADER BANNER (MÀU XANH) --- */
+.header-banner {
+  background-color: #63b8ff; /* Màu xanh da trời giống ảnh mẫu */
+  /* Hoặc dùng gradient nếu muốn bóng bẩy hơn:
+     background: linear-gradient(180deg, #6ec1ff 0%, #58afff 100%); */
+
+  height: 220px; /* Chiều cao cố định đủ lớn */
+  padding: 50px 20px 0; /* Padding top để tránh tai thỏ điện thoại */
+
+  border-bottom-left-radius: 45px; /* Bo góc dưới thật mạnh */
+  border-bottom-right-radius: 45px;
+
+  color: white;
+  position: relative;
+  z-index: 0;
+}
+
+.header-top {
+  height: 20px; /* Khoảng trống trên cùng */
+}
+
+.page-title {
+  font-size: 26px;
+  font-weight: 800; /* Chữ đậm */
+  margin: 10px 0 0 4px;
+  letter-spacing: -0.5px;
+}
+
+/* --- 2. STATS GRID (THỐNG KÊ) --- */
+.stats-container {
+  padding: 0 16px;
+  margin-top: -90px; /* Kéo ngược lên để đè vào phần xanh */
+  position: relative;
+  z-index: 10;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 cột */
+  gap: 12px;
+}
+
+.stat-card {
+  background: #ffffff;
+  border-radius: 24px; /* Bo tròn card */
+  padding: 14px 16px;
+
+  /* Đổ bóng mềm mại */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 90px;
+
+  /* Viền màu (quan trọng trong ảnh mẫu) */
+  border: 1.5px solid transparent;
+
+  &.purple { border-color: #a78bfa; background: linear-gradient(#fff, #f5f3ff); }
+  &.yellow { border-color: #fde047; background: linear-gradient(#fff, #fefce8); }
+  &.green  { border-color: #4ade80; background: linear-gradient(#fff, #f0fdf4); }
+  &.red    { border-color: #f87171; background: linear-gradient(#fff, #fef2f2); }
+
+  .card-icon-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 6px;
+
+    ion-icon { font-size: 18px; }
+  }
+
+  .stat-value {
+    font-size: 22px;
+    font-weight: 800;
+    text-align: center;
+
+    &.text-purple { color: #7c3aed; }
+    &.text-yellow { color: #d97706; }
+    &.text-green  { color: #16a34a; }
+    &.text-red    { color: #dc2626; }
+  }
+}
+
+/* --- 3. SEGMENT (THANH TRẠNG THÁI) --- */
+.segment-section {
+  padding: 30px 24px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Style đặc biệt cho Segment giống "viên thuốc" */
+ion-segment {
+  background: #e5e7eb; /* Màu nền xám của thanh */
+  border-radius: 50px;
+  padding: 4px;
+  height: auto;
+  --background: #e5e7eb;
+}
+
+ion-segment-button {
+  --indicator-color: #ffffff; /* Màu trắng cho nút đang chọn */
+  --indicator-box-shadow: 0 2px 6px rgba(0,0,0,0.15); /* Bóng cho nút đang chọn */
+  --color: #6b7280; /* Màu chữ chưa chọn (xám) */
+  --color-checked: #000000; /* Màu chữ đã chọn (đen) */
+
+  min-height: 36px;
+  border-radius: 40px; /* Bo tròn nút con */
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: none; /* Không viết hoa */
+  margin: 0;
+
+  /* Fix layout text */
+  ion-label {
+    margin: 2px 0;
+    letter-spacing: 0;
+  }
+}
+
+/* --- 4. APPOINTMENT CARD (LIST) --- */
+.list-container {
+  padding-bottom: 40px;
+}
+
+.appointment-card {
+  margin: 10px 16px 20px;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  /* Border xanh nhạt bao quanh card giống ảnh */
+  border: 1px solid #bfdbfe;
+  overflow: hidden;
+
+  /* Header card màu xanh rất nhạt */
+  .card-header-row {
+    background: #93c5fd; /* Xanh đậm vừa phải */
+    /* Hoặc gradient như ảnh mẫu */
+    background: linear-gradient(180deg, #a5d3fe 0%, #93c5fd 100%);
+
+    padding: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    .header-left {
+      display: flex;
+      gap: 12px;
+
+      .dept-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        object-fit: cover;
+      }
+
+      .info-col {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        .main-title {
+          font-weight: 800;
+          font-size: 16px;
+          color: #1e3a8a; /* Xanh đen */
+          margin-bottom: 4px;
+        }
+
+        .time-row {
+          font-size: 12px;
+          color: #1e3a8a;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  .card-body {
+    background: #eff6ff; /* Xanh cực nhạt cho phần thân */
+    padding: 16px;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.6;
+
+    p { margin: 4px 0; }
+  }
+
+  .card-actions {
+    background: #eff6ff;
+    padding: 0 16px 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+
+    .action-btn {
+      padding: 8px 24px;
+      border-radius: 50px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+
+      &.confirm {
+        background: #ffffff;
+        color: #1e3a8a;
+        border: 1px solid #bfdbfe;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      }
+
+      &.cancel {
+        background: #ef4444;
+        color: white;
+        box-shadow: 0 2px 5px rgba(239, 68, 68, 0.3);
+      }
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #94a3b8;
+}
