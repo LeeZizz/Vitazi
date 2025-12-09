@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/notifications")
@@ -52,8 +53,8 @@ public class NotificationController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @GetMapping("/getPendingCount")
-    public ResponseEntity<ApiResponse<Long>> getUnreadCount(@AuthenticationPrincipal OAuth2User oAuth2User) {
+    @GetMapping("/getCountsByStatus")
+    public ResponseEntity<ApiResponse<Map<String, Long>>> getNotificationCounts(@AuthenticationPrincipal OAuth2User oAuth2User) {
         String sub = oAuth2User.getAttribute("sub");
         if (sub == null) {
             sub = oAuth2User.getAttribute("id");
@@ -62,46 +63,10 @@ public class NotificationController {
         ClinicEntity clinic = clinicRepository.findByOauthSub(sub)
                 .orElseThrow(() -> new WebException(ErrorCode.CLINIC_NOT_FOUND));
 
-        Long count = notificationService.countPending(clinic.getId());
-        ApiResponse<Long> response = ApiResponse.<Long>builder()
-                .message("Get PENDING count successfully")
-                .result(count)
-                .build();
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/getConfirmedCount")
-    public ResponseEntity<ApiResponse<Long>> getConfirmCount(@AuthenticationPrincipal OAuth2User oAuth2User) {
-        String sub = oAuth2User.getAttribute("sub");
-        if (sub == null) {
-            sub = oAuth2User.getAttribute("id");
-        }
-
-        ClinicEntity clinic = clinicRepository.findByOauthSub(sub)
-                .orElseThrow(() -> new WebException(ErrorCode.CLINIC_NOT_FOUND));
-
-        Long count = notificationService.countConfirmed(clinic.getId());
-        ApiResponse<Long> response = ApiResponse.<Long>builder()
-                .message("Get CONFIRM count successfully")
-                .result(count)
-                .build();
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/getCanceledCount")
-    public ResponseEntity<ApiResponse<Long>> getCanceledCount(@AuthenticationPrincipal OAuth2User oAuth2User) {
-        String sub = oAuth2User.getAttribute("sub");
-        if (sub == null) {
-            sub = oAuth2User.getAttribute("id");
-        }
-
-        ClinicEntity clinic = clinicRepository.findByOauthSub(sub)
-                .orElseThrow(() -> new WebException(ErrorCode.CLINIC_NOT_FOUND));
-
-        Long count = notificationService.countCanceled(clinic.getId());
-        ApiResponse<Long> response = ApiResponse.<Long>builder()
-                .message("Get CONFIRM count successfully")
-                .result(count)
+        Map<String, Long> counts = notificationService.getNotificationCountsByStatus(clinic.getId());
+        ApiResponse<Map<String, Long>> response = ApiResponse.<Map<String, Long>>builder()
+                .message("Get notification counts successfully")
+                .result(counts)
                 .build();
         return ResponseEntity.ok(response);
     }
