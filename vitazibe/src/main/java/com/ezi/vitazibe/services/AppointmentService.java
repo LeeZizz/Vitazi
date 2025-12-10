@@ -67,12 +67,13 @@ public class AppointmentService {
         notification.setUserEmail(appointmentRequest.getUserEmail());
         notification.setTitle("Yêu cầu đặt lịch khám mới");
         notification.setMessage(String.format(
-                "Có yêu cầu đặt lịch từ %s - SĐT: %s tại khoa %s - Ca khám: %s đến %s",
+                "Có yêu cầu đặt lịch từ %s - SĐT: %s tại khoa %s - Ca khám: %s đến %s - Dấu hiệu: %s",
                 appointmentRequest.getUserName(),
                 appointmentRequest.getUserPhone(),
                 departmentEntity.getDepartmentName(),
                 scheduleEntity.getStartTime(),
-                scheduleEntity.getEndTime()
+                scheduleEntity.getEndTime(),
+                appointmentRequest.getDescription()
         ));
         notification.setStatus(Status.PENDING);
         notificationRespository.save(notification);
@@ -106,7 +107,6 @@ public class AppointmentService {
         AppointmentEntity updatedAppointment = appointmentRepository.save(appointmentEntity);
         return mapToResponse(updatedAppointment);
     }
-
 
 //    public Map<Integer, Long> getMonthlyAppointmentCounts(String clinicId, int year) {
 //        List<MonthlyCountResponse> counts = appointmentRepository.countAppointmentsByMonth(clinicId, year);

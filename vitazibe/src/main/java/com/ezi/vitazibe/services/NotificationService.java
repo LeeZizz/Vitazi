@@ -3,11 +3,13 @@ package com.ezi.vitazibe.services;
 import com.ezi.vitazibe.dto.response.NotificationResponse;
 import com.ezi.vitazibe.entities.AppointmentEntity;
 import com.ezi.vitazibe.entities.NotificationEntity;
+import com.ezi.vitazibe.entities.ScheduleEntity;
 import com.ezi.vitazibe.enums.Status;
 import com.ezi.vitazibe.exceptions.ErrorCode;
 import com.ezi.vitazibe.exceptions.WebException;
 import com.ezi.vitazibe.repositories.AppointmentRepository;
 import com.ezi.vitazibe.repositories.NotificationRespository;
+import com.ezi.vitazibe.repositories.ScheduleRespository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class NotificationService {
     private final NotificationRespository notificationRespository;
     private final AppointmentRepository appointmentRepository;
+    private final ScheduleRespository scheduleRespository;
 
     public Page<NotificationResponse> getNotificationsByClinicId(String clinicId, Status status, Pageable pageable) {
         Page<NotificationEntity> notifications;
@@ -36,17 +39,41 @@ public class NotificationService {
     }
 
     @Transactional
-    public NotificationResponse updateNotificationStatus(String notificationId, Status status) {
+    public NotificationResponse updateNotificationStatus(String notificationId, Status newStatus) {
         NotificationEntity notification = notificationRespository.findById(notificationId)
                 .orElseThrow(() -> new WebException(ErrorCode.NOTIFICATION_NOT_FOUND));
-        notification.setStatus(status);
-        NotificationEntity updatedNotification = notificationRespository.save(notification);
-        if (notification.getAppointmentId() != null){
+        if (notification.getAppointmentId() != null) {
             AppointmentEntity appointment = notification.getAppointmentId();
-            appointment.setStatus(status);
-            appointmentRepository.save(appointment);
+            Status oldStatus = appointment.getStatus();
+            if (oldStatus != newStatus) {
+                ScheduleEntity scheduleEntity = appointment.getScheduleId();
+                if (scheduleEntity != null) {
+                    if (newStatus == Status.CANCELED) {
+                        int newCapacity = Math.max(0, scheduleEntity.getCapacity() - 1);
+                        scheduleEntity.setCapacity(newCapacity);
+                        if (!scheduleEntity.getIsActive() && newCapacity < scheduleEntity.getMaxCapacity()) {
+                            scheduleEntity.setIsActive(true);
+                        }
+                    }
+                    else if (oldStatus == Status.CANCELED && newStatus == Status.CONFIRMED) {
+                        if (scheduleEntity.getCapacity() >= scheduleEntity.getMaxCapacity()) {
+                            throw new WebException(ErrorCode.SCHEDULE_FULL);
+                        }
+                        int newCapacity = scheduleEntity.getCapacity() + 1;
+                        scheduleEntity.setCapacity(newCapacity);
+                        if (newCapacity >= scheduleEntity.getMaxCapacity()) {
+                            scheduleEntity.setIsActive(false);
+                        }
+                    }
+                    scheduleRespository.save(scheduleEntity);
+                }
+                appointment.setStatus(newStatus);
+                appointmentRepository.save(appointment);
+            }
         }
-        return  mapToResponse(updatedNotification);
+        notification.setStatus(newStatus);
+        NotificationEntity updatedNotification = notificationRespository.save(notification);
+        return mapToResponse(updatedNotification);
     }
 
     public Map<String, Long> getNotificationCountsByStatus(String clinicId){
