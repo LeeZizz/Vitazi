@@ -1,40 +1,39 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { BookingRequest, Clinic, Department, WorkSchedule } from '../models/booking.models';
+import { map } from 'rxjs/operators';
+import { ApiResponse, WorkSchedule, Clinic, Department, BookingRequest } from '../models/client-booking.models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BookingService {
+  // Nếu localhost bị lỗi connection refused, hãy đổi thành 'http://127.0.0.1:8080'
   private apiUrl = 'http://localhost:8080';
 
   constructor(private http: HttpClient) { }
 
-  // 1. Lấy danh sách phòng khám
-  getAllClinics(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/clinics/getAllClinic`);
+  getAllClinics(): Observable<Clinic[]> {
+    return this.http.get<ApiResponse<Clinic[]>>(`${this.apiUrl}/clinics/getAllClinics`)
+      .pipe(map(res => res.result || []));
   }
 
-  // 2. Lấy danh sách khoa theo phòng khám
-  getDepartmentsByClinic(clinicId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/departments/getListDepartments/${clinicId}`);
+  getDepartmentsByClinic(clinicId: string): Observable<Department[]> {
+    return this.http.get<ApiResponse<Department[]>>(`${this.apiUrl}/departments/getListDepartments/${clinicId}`)
+      .pipe(map(res => res.result || []));
   }
 
-  // 3. Lấy lịch làm việc theo Khoa và Ngày
-  getSchedules(clinicId: string, departmentId: string, date: string): Observable<any> {
-    // API giả định: /work-schedules/filter?clinicId=...&departmentId=...&date=...
-    let params = new HttpParams()
+  getSchedules(clinicId: string, departmentId: string, date: string): Observable<WorkSchedule[]> {
+    const params = new HttpParams()
       .set('clinicId', clinicId)
       .set('departmentId', departmentId)
-      .set('date', date);
+      .set('date', date); // Format: YYYY-MM-DD
 
-    return this.http.get(`${this.apiUrl}/work-schedules/filter`, { params });
+    return this.http.get<ApiResponse<WorkSchedule[]>>(`${this.apiUrl}/schedules/listActiveSchedules`, { params })
+      .pipe(map(res => res.result || []));
   }
 
-  // 4. Tạo lịch khám (POST)
-  createAppointment(payload: BookingRequest): Observable<any> {
-    return this.http.post(`${this.apiUrl}/appointments/createAppointment`, payload);
+  createAppointment(payload: BookingRequest): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/appointments/createAppointment`, payload);
   }
 }

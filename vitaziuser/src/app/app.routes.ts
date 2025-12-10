@@ -1,14 +1,20 @@
 import { Routes } from '@angular/router';
-import { DepartmentListComponent } from './component/department-list/department-list';
 import { BookingFormComponent } from './component/booking-form/booking-form';
 
 export const routes: Routes = [
-  // Trang chủ: hiện list các khoa bệnh
-  { path: '', component: DepartmentListComponent },
+  {
+    path: '',
+    component: BookingFormComponent,
+    title: 'Đặt lịch khám bệnh' // Tiêu đề tab trình duyệt (Angular 14+)
+  },
 
-  // Đặt lịch theo khoa: /booking/:clinicId
-  { path: 'booking/:clinicId', component: BookingFormComponent },
+//   2. (Tùy chọn) Support trường hợp truy cập qua link có sẵn ID phòng khám
+//    Ví dụ: người dùng click vào link được chia sẻ: domain.com/booking/clinic_123
+//   {
+//     path: 'booking/:clinicId',
+//     component: BookingFormComponent
+//   },
 
-  // Nếu muốn, có thể thêm wildcard
-  // { path: '**', redirectTo: '', pathMatch: 'full' },
+  // Redirect các đường dẫn không tồn tại về trang chủ
+  { path: '**', redirectTo: '', pathMatch: 'full' },
 ];

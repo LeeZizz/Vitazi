@@ -61,76 +61,127 @@ export class HomePage implements OnInit {
     this.loadListData();
   }
 
+// Helper: Format giờ hiển thị
+  // Input: "14:30:00" -> Output: "02:30 PM"
+  // Input: "2025-12-10T14:30:00" -> Output: "02:30 PM"
+  formatTime(timeString: string | undefined): string {
+    if (!timeString) return '';
+
+    // Trường hợp 1: Nếu là chuỗi text từ Notification (VD: "10:00 đến 12:00")
+    // Giữ nguyên không format
+    if (timeString.includes('đến')) {
+      return timeString;
+    }
+
+    // Trường hợp 2: Nếu là ISO Date string (VD: "2025-12-10T14:30:00")
+    if (timeString.includes('T')) {
+      const date = new Date(timeString);
+      // Format theo locale Việt Nam, 12h (AM/PM)
+      return date.toLocaleTimeString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    }
+
+    // Trường hợp 3: Nếu là chuỗi giờ SQL (VD: "14:30:00" hoặc "09:00")
+    const parts = timeString.split(':');
+    if (parts.length >= 2) {
+      const h = parseInt(parts[0], 10);
+      const m = parts[1];
+
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const h12 = h % 12 || 12; // Chuyển 0h hoặc 12h thành 12, 13h thành 1
+      const hString = h12 < 10 ? '0' + h12 : h12; // Thêm số 0 đằng trước nếu cần
+
+      return `${hString}:${m} ${ampm}`;
+    }
+
+    // Trường hợp không khớp format nào, trả về nguyên gốc
+    return timeString;
+  }
+
   // --- 1. HÀM CẮT CHUỖI MESSAGE ---
   // Mẫu message: "Có yêu cầu đặt lịch từ Nguyễn Văn K - SĐT: 0912345620 tại khoa d - Ca khám: 10:00 đến 12:00"
   parseNotificationMessage(msg: string) {
-    if (!msg) return {};
+      if (!msg) return {};
 
-    // Regex bắt các nhóm thông tin
-    const nameMatch = msg.match(/từ\s+(.*?)\s+-\s+SĐT/);
-    const phoneMatch = msg.match(/SĐT:\s+(\d+)\s+tại/);
-    const deptMatch = msg.match(/tại\s+(.*?)\s+-/);
-    const timeMatch = msg.match(/Ca khám:\s+(.*)/);
+      // 1. Lấy tên
+      const nameMatch = msg.match(/từ\s+(.*?)\s+-\s+SĐT/);
+      // 2. Lấy SĐT
+      const phoneMatch = msg.match(/SĐT:\s+(\d+)\s+tại/);
+      // 3. Lấy Khoa
+      const deptMatch = msg.match(/tại\s+(.*?)\s+-/);
 
-    return {
-      userName: nameMatch ? nameMatch[1].trim() : 'Khách vãng lai',
-      userPhone: phoneMatch ? phoneMatch[1].trim() : 'Không có SĐT',
-      departmentName: deptMatch ? deptMatch[1].trim() : 'Phòng khám chung',
-      startTime: timeMatch ? timeMatch[1].trim() : '' // "10:00 đến 12:00"
-    };
-  }
+      // 4. Lấy Giờ (Sửa lại: Lấy đến trước chữ "- Dấu hiệu" hoặc hết câu)
+      const timeMatch = msg.match(/Ca khám:\s+(.*?)(?:\s+-\s+Dấu hiệu|$)/);
+
+      // 5. Lấy Dấu hiệu (Mới)
+      const signMatch = msg.match(/Dấu hiệu:\s+(.*)/);
+
+      return {
+        userName: nameMatch ? nameMatch[1].trim() : 'Khách vãng lai',
+        userPhone: phoneMatch ? phoneMatch[1].trim() : '',
+        departmentName: deptMatch ? deptMatch[1].trim() : 'Phòng khám chung',
+        startTime: timeMatch ? timeMatch[1].trim() : '',
+        signs: signMatch ? signMatch[1].trim() : 'Không có mô tả dấu hiệu' // <--- MỚI
+      };
+    }
 
   // --- 2. LOAD DỮ LIỆU ---
   loadListData(event?: any, isRefresh = false) {
-    if (!event) this.loading = true;
+      if (!event) this.loading = true;
 
-    // Gọi API Notification cho TẤT CẢ CÁC TAB
-    this.dashboardService.getNotifications(this.currentTab, this.currentPage, this.pageSize).subscribe({
-      next: (pageData) => {
-        const rawItems = pageData.content || [];
+      this.dashboardService.getNotifications(this.currentTab, this.currentPage, this.pageSize).subscribe({
+        next: (pageData) => {
+          const rawItems = pageData.content || [];
 
-        // Map dữ liệu: Cắt chuỗi message -> Gán vào các biến hiển thị
-        const newItems = rawItems.map((notif) => {
-          const info = this.parseNotificationMessage(notif.message);
-          return {
-            ...notif,
-            departmentName: info.departmentName,
-            userName: info.userName,
-            userPhone: info.userPhone,
-            startTime: info.startTime,
-            expanded: false
-          };
-        });
+          const newItems = rawItems.map((notif) => {
+            // Luôn parse vì giờ chúng ta dùng Notification cho cả 3 tab
+            const parsedInfo = this.parseNotificationMessage(notif.message);
 
-        // Logic phân trang: Nối đuôi hoặc Gán mới
-        if (this.currentPage === 0) {
-          this.listData = newItems;
-        } else {
-          this.listData = [...this.listData, ...newItems];
-        }
+            return {
+              ...notif,
+              departmentName: parsedInfo.departmentName,
+              userName: parsedInfo.userName,
+              userPhone: parsedInfo.userPhone,
+              startTime: parsedInfo.startTime,
+              signs: parsedInfo.signs,
 
-        this.totalPages = pageData.totalPages;
-        this.loading = false;
+              // Gán ngày tạo thành ngày hẹn để hiển thị
+              appointmentDate: notif.createdAt,
 
-        // Tắt loading UI
-        if (event) {
-          event.target.complete();
-          // Nếu hết trang -> tắt infinite scroll
-          if (this.currentPage >= this.totalPages - 1) {
-            event.target.disabled = true;
+              // Mặc định email rỗng nếu không parse được
+              userEmail: '',
+
+              expanded: false
+            } as NotificationResponse; // Ép kiểu về NotificationResponse
+          });
+
+          if (this.currentPage === 0) {
+            this.listData = newItems;
+          } else {
+            this.listData = [...this.listData, ...newItems];
           }
+
+          this.totalPages = pageData.totalPages;
+          this.loading = false;
+
+          if (event) {
+            event.target.complete();
+            if (this.currentPage >= this.totalPages - 1) {
+              event.target.disabled = true;
+            }
+          }
+        },
+        error: (err) => {
+          this.loading = false;
+          if (event) event.target.complete();
         }
-      },
-      error: (err) => {
-        console.error('Load data error:', err);
-        this.loading = false;
-        if (event) event.target.complete();
-      }
-    });
+      });
   }
 
   // --- 3. CÁC HÀM SỰ KIỆN ---
-
   handleRefresh(event: any) {
     this.currentPage = 0;
     // Reset Infinite Scroll

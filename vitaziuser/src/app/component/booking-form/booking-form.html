@@ -1,94 +1,88 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home" color="dark"></ion-back-button>
-    </ion-buttons>
-    <ion-title class="header-title">Đặt lịch khám</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="booking-content">
-
+<ion-content class="main-bg">
   <div class="container">
 
-    <div class="section-card">
-      <h3 class="section-title">Thông tin cơ sở</h3>
+    <div class="header-section">
+      <h2>📅 Đăng ký khám bệnh</h2>
+    </div>
 
-      <div class="input-group">
-        <label>Phòng khám</label>
-        <div class="select-wrapper">
-          <ion-select [(ngModel)]="selectedClinicId" (ionChange)="onClinicChange()" placeholder="Chọn phòng khám" interface="action-sheet">
-            <ion-select-option *ngFor="let c of clinics" [value]="c.id">{{ c.clinicName }}</ion-select-option>
-          </ion-select>
+    <div class="card-section">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Phòng khám</label>
+          <div class="custom-select">
+            <ion-select [(ngModel)]="selectedClinicId" (ionChange)="onClinicChange()" placeholder="Chọn phòng khám" interface="popover">
+              <ion-select-option *ngFor="let c of clinics" [value]="c.id">{{ c.clinicName }}</ion-select-option>
+            </ion-select>
+          </div>
         </div>
-      </div>
 
-      <div class="input-group">
-        <label>Chuyên khoa</label>
-        <div class="select-wrapper" [class.disabled]="!selectedClinicId">
-          <ion-select [(ngModel)]="selectedDepartmentId" (ionChange)="onDepartmentOrDateChange()" placeholder="Chọn khoa khám" interface="action-sheet" [disabled]="!selectedClinicId">
-            <ion-select-option *ngFor="let d of departments" [value]="d.id">{{ d.departmentName }}</ion-select-option>
-          </ion-select>
+        <div class="form-group">
+          <label>Chuyên khoa</label>
+          <div class="custom-select" [class.disabled]="!selectedClinicId">
+            <ion-select [(ngModel)]="selectedDepartmentId" (ionChange)="onDepartmentChange()" placeholder="Chọn khoa" interface="popover" [disabled]="!selectedClinicId">
+              <ion-select-option *ngFor="let d of departments" [value]="d.id">{{ d.departmentName }}</ion-select-option>
+            </ion-select>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="section-card" *ngIf="selectedDepartmentId">
-      <h3 class="section-title">Thời gian khám</h3>
-
-      <div class="date-picker-wrapper">
-        <ion-datetime
-          presentation="date"
-          [(ngModel)]="selectedDate"
-          (ionChange)="onDepartmentOrDateChange()"
-          locale="vi-VN"
-          [min]="selectedDate"
-        ></ion-datetime>
-      </div>
-
-      <div class="schedule-grid" *ngIf="schedules.length > 0; else noSchedule">
+    <div class="date-section" *ngIf="selectedDepartmentId">
+      <div class="date-scroller">
         <div
-          class="time-slot"
-          *ngFor="let s of schedules"
-          [class.active]="selectedSchedule?.id === s.id"
-          (click)="selectSchedule(s)">
-          {{ formatTime(s.startTime) }} - {{ formatTime(s.endTime) }}
+          class="date-card"
+          *ngFor="let day of weekDays"
+          [class.active]="selectedDate === day.fullDate"
+          (click)="selectDate(day)">
+          <span class="day-name">{{ day.dayName }}</span>
+          <span class="day-number">{{ day.dayNumber }}</span>
+          <span class="month-name">{{ day.displayMonth }}</span>
         </div>
+      </div>
+    </div>
+
+    <div class="time-section" *ngIf="selectedDepartmentId">
+      <h4>🕒 Ca khám còn trống</h4>
+
+      <div class="time-grid" *ngIf="schedules.length > 0; else noSchedule">
+        <button
+          class="time-chip"
+          *ngFor="let s of schedules"
+          [class.selected]="selectedSchedule?.id === s.id"
+          (click)="selectTimeSlot(s)">
+          {{ formatTime(s.startTime) }} - {{ formatTime(s.endTime) }}
+        </button>
       </div>
 
       <ng-template #noSchedule>
-        <div class="empty-msg" *ngIf="schedules.length === 0">
-          Không có ca khám nào trong ngày này.
-        </div>
+        <p class="empty-msg">Không có lịch khám nào trong ngày {{selectedDate}}</p>
       </ng-template>
     </div>
 
-    <div class="section-card" *ngIf="selectedSchedule">
-      <h3 class="section-title">Thông tin bệnh nhân</h3>
+    <div class="info-section" *ngIf="selectedSchedule">
+      <h4>Thông tin người khám</h4>
 
-      <div class="form-group">
-        <div class="input-item">
-          <ion-input label="Họ và Tên" labelPlacement="stacked" [(ngModel)]="patientName" placeholder="Nhập họ tên" fill="outline"></ion-input>
-        </div>
-
-        <div class="input-item">
-          <ion-input label="Số điện thoại" labelPlacement="stacked" [(ngModel)]="patientPhone" type="tel" placeholder="Nhập SĐT" fill="outline"></ion-input>
-        </div>
-
-        <div class="input-item">
-          <ion-input label="Email" labelPlacement="stacked" [(ngModel)]="patientEmail" type="email" placeholder="Nhập email (tuỳ chọn)" fill="outline"></ion-input>
-        </div>
-
-        <div class="input-item">
-          <ion-textarea label="Lý do khám" labelPlacement="stacked" [(ngModel)]="description" placeholder="Mô tả triệu chứng..." fill="outline" rows="3"></ion-textarea>
-        </div>
+      <div class="input-box">
+        <label>Họ và Tên</label>
+        <input type="text" [(ngModel)]="patientName" placeholder="Nguyễn Văn A">
       </div>
-    </div>
 
-    <div class="footer-action" *ngIf="selectedSchedule">
-      <ion-button expand="block" class="submit-btn" (click)="onSubmit()">
-        Xác nhận đặt lịch
-      </ion-button>
+      <div class="input-box">
+        <label>Số điện thoại</label>
+        <input type="tel" [(ngModel)]="patientPhone" placeholder="09xxxx">
+      </div>
+
+      <div class="input-box">
+        <label>Email (Tuỳ chọn)</label>
+        <input type="email" [(ngModel)]="patientEmail" placeholder="email@example.com">
+      </div>
+
+      <div class="input-box">
+        <label>Lý do khám</label>
+        <input type="text" [(ngModel)]="description" placeholder="Triệu chứng...">
+      </div>
+
+      <button class="btn-submit" (click)="onSubmit()">Xác nhận Đặt lịch</button>
     </div>
 
   </div>
