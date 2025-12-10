@@ -1,8 +1,7 @@
 <ion-content [fullscreen]="true" class="home-content">
 
   <div class="header-banner">
-    <div class="header-top">
-    </div>
+    <div class="header-top"></div>
     <h1 class="page-title">Quản lý lịch khám</h1>
   </div>
 
@@ -10,32 +9,25 @@
     <div class="stats-grid">
       <div class="stat-card purple">
         <div class="card-icon-row">
-          <ion-icon name="person-outline"></ion-icon>
-          <span>Số người đặt lịch</span>
+          <ion-icon name="person-outline"></ion-icon> <span>Số người đặt lịch</span>
         </div>
         <div class="stat-value text-purple">{{ totalCount }}</div>
       </div>
-
       <div class="stat-card yellow">
         <div class="card-icon-row">
-          <ion-icon name="time-outline"></ion-icon>
-          <span>Chờ xử lý</span>
+          <ion-icon name="time-outline"></ion-icon> <span>Chờ xử lý</span>
         </div>
         <div class="stat-value text-yellow">{{ counts.PENDING || 0 }}</div>
       </div>
-
       <div class="stat-card green">
         <div class="card-icon-row">
-          <ion-icon name="checkmark-circle-outline"></ion-icon>
-          <span>Đã xác nhận</span>
+          <ion-icon name="checkmark-circle-outline"></ion-icon> <span>Đã xác nhận</span>
         </div>
         <div class="stat-value text-green">{{ counts.CONFIRMED || 0 }}</div>
       </div>
-
       <div class="stat-card red">
         <div class="card-icon-row">
-          <ion-icon name="close-circle-outline"></ion-icon>
-          <span>Đã hủy</span>
+          <ion-icon name="close-circle-outline"></ion-icon> <span>Đã hủy</span>
         </div>
         <div class="stat-value text-red">{{ counts.CANCELED || 0 }}</div>
       </div>
@@ -44,70 +36,78 @@
 
   <div class="segment-section">
     <ion-segment [(ngModel)]="currentTab" (ionChange)="loadListData()" mode="ios">
-      <ion-segment-button value="PENDING">
-        <ion-label>Chờ xử lý</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="CONFIRMED">
-        <ion-label>Đã xác nhận</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="CANCELED">
-        <ion-label>Đã hủy</ion-label>
-      </ion-segment-button>
+      <ion-segment-button value="PENDING"><ion-label>Chờ xử lý</ion-label></ion-segment-button>
+      <ion-segment-button value="CONFIRMED"><ion-label>Đã xác nhận</ion-label></ion-segment-button>
+      <ion-segment-button value="CANCELED"><ion-label>Đã hủy</ion-label></ion-segment-button>
     </ion-segment>
   </div>
 
   <div class="list-container">
 
-    <ion-card class="appointment-card" *ngFor="let item of listData">
-      <div class="card-header-row">
+    <ion-card class="appointment-card" *ngFor="let item of listData" [class.is-expanded]="item.expanded">
+
+      <div class="card-header-row" (click)="toggleExpand(item)" tappable>
         <div class="header-left">
           <img src="assets/img/clinic-dept-placeholder.jpg" class="dept-avatar" />
-          <div class="info-col">
-            <div class="main-title">{{ item.departmentName || 'Phòng khám' }}</div>
 
-            <div class="time-row">
+          <div class="info-col">
+            <div class="main-title">
+              {{ item.departmentName || 'Phòng khám chung' }}
+            </div>
+
+            <div class="sub-row time">
               <ion-icon name="calendar-outline"></ion-icon>
-              <span>{{ item.appointmentDate | date:'dd/MM/yyyy' }}, {{ formatTime(item.startTime) }}</span>
+              <span>
+              {{ item.appointmentDate | date:'dd/MM/yyyy' }}
+              <span *ngIf="item.startTime"> - {{ formatTime(item.startTime) }}</span>
+            </span>
+            </div>
+
+            <div class="sub-row person">
+              <ion-icon name="person-outline"></ion-icon>
+              <span>{{ item.userName }}</span>
+            </div>
+
+            <div class="sub-row phone">
+              <ion-icon name="call-outline"></ion-icon>
+              <span>{{ item.userPhone }}</span>
             </div>
           </div>
         </div>
 
-        <div class="menu-icon">
-          <ion-icon name="ellipsis-vertical"></ion-icon>
+        <div class="expand-icon">
+          <ion-icon [name]="item.expanded ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
         </div>
       </div>
 
-      <div class="card-body">
-        <div class="info-line">
-          <span class="label">Người đặt:</span>
-          <span class="value">{{ item.userName }}</span>
+      <div class="card-expand-wrapper" *ngIf="item.expanded">
+        <div class="card-body">
+
+          <div class="info-line" *ngIf="item.userEmail">
+            <span class="label">Email:</span>
+            <span class="value email">{{ item.userEmail }}</span>
+          </div>
+
+          <div class="info-line">
+            <span class="label">Lý do khám:</span>
+            <span class="value">{{ item.description || 'Không có mô tả' }}</span>
+          </div>
         </div>
-        <div class="info-line">
-          <span class="label">Số điện thoại:</span>
-          <span class="value phone">{{ item.userPhone }}</span>
-        </div>
-        <div class="info-line">
-          <span class="label">Email:</span>
-          <span class="value">{{ item.userEmail }}</span>
-        </div>
-        <div class="info-line" *ngIf="item.description">
-          <span class="label">Lý do khám:</span>
-          <span class="value">{{ item.description }}</span>
+
+        <div class="card-actions" *ngIf="currentTab === 'PENDING'">
+          <button class="action-btn confirm" (click)="$event.stopPropagation(); updateStatus(item, 'CONFIRMED')">
+            Xác nhận
+          </button>
+          <button class="action-btn cancel" (click)="$event.stopPropagation(); updateStatus(item, 'CANCELLED')">
+            Hủy
+          </button>
         </div>
       </div>
 
-      <div class="card-actions" *ngIf="currentTab === 'PENDING'">
-        <button class="action-btn confirm" (click)="updateStatus(item, 'CONFIRMED')">
-          Xác nhận
-        </button>
-        <button class="action-btn cancel" (click)="updateStatus(item, 'CANCELED')">
-          Hủy
-        </button>
-      </div>
     </ion-card>
 
     <div class="empty-state" *ngIf="!loading && listData.length === 0">
-      <p>Chưa có dữ liệu cho mục này.</p>
+      <p>Chưa có dữ liệu.</p>
     </div>
   </div>
 </ion-content>

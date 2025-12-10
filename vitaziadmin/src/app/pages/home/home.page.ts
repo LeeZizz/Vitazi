@@ -9,7 +9,9 @@ import {
 import { addIcons } from 'ionicons';
 import {
   personOutline, timeOutline, checkmarkCircleOutline,
-  closeCircleOutline, calendarOutline, ellipsisVertical
+  closeCircleOutline, calendarOutline,
+  chevronDownOutline, chevronUpOutline,
+  callOutline
 } from 'ionicons/icons';
 
 import { ClinicDashboardService } from '../../services/clinic-dashboard.service';
@@ -28,26 +30,25 @@ import { DashboardCounts } from '../../models/clinic.models';
   ]
 })
 export class HomePage implements OnInit {
-  // Mặc định tab Chờ xử lý
   currentTab: 'PENDING' | 'CONFIRMED' | 'CANCELED' = 'PENDING';
-
-  // Thống kê
   counts: DashboardCounts = { PENDING: 0, CONFIRMED: 0, CANCELED: 0 };
   totalCount = 0;
-
-  // Dữ liệu danh sách (dùng chung cho cả Appointment và Notification)
   listData: any[] = [];
   loading = false;
 
   constructor(private dashboardService: ClinicDashboardService) {
-    addIcons({ personOutline, timeOutline, checkmarkCircleOutline, closeCircleOutline, calendarOutline, ellipsisVertical });
+    // Đăng ký icon
+    addIcons({
+      personOutline, timeOutline, checkmarkCircleOutline,
+      closeCircleOutline, calendarOutline,
+      chevronDownOutline, chevronUpOutline
+    });
   }
 
   ngOnInit() {
     this.loadAll();
   }
 
-  // Pull to refresh
   handleRefresh(event: any) {
     this.loadAll();
     setTimeout(() => {
@@ -65,8 +66,7 @@ export class HomePage implements OnInit {
       next: (data) => {
         this.counts = data || { PENDING: 0, CONFIRMED: 0, CANCELED: 0 };
         this.totalCount = (this.counts.PENDING || 0) + (this.counts.CONFIRMED || 0) + (this.counts.CANCELED || 0);
-      },
-      error: (err) => console.error('Load stats error', err)
+      }
     });
   }
 
@@ -74,52 +74,53 @@ export class HomePage implements OnInit {
     this.loading = true;
     this.listData = [];
 
+    // Hàm chung xử lý kết quả để thêm thuộc tính 'expanded' = false mặc định
+    const handleResponse = (data: any[]) => {
+      console.log('API Response Data:', data);
+      this.listData = data.map(item => ({
+        ...item,
+        expanded: false // Mặc định đóng
+      }));
+      this.loading = false;
+    };
+
     if (this.currentTab === 'PENDING') {
-      // Tab Chờ xử lý -> Gọi API Notification
       this.dashboardService.getNotifications('PENDING').subscribe({
-        next: (data) => {
-          this.listData = data;
-          this.loading = false;
-        },
+        next: handleResponse,
         error: () => this.loading = false
       });
     } else {
-      // Tab Đã xác nhận / Đã hủy -> Gọi API Appointment
       this.dashboardService.getAllAppointments(this.currentTab).subscribe({
-        next: (data) => {
-          this.listData = data;
-          this.loading = false;
-        },
+        next: handleResponse,
         error: () => this.loading = false
       });
     }
   }
 
-  // Xử lý nút Hành động (Xác nhận / Hủy)
+  // Hàm bật/tắt hiển thị chi tiết
+  toggleExpand(item: any) {
+    item.expanded = !item.expanded;
+  }
+
   updateStatus(item: any, newStatus: string) {
-    // Nếu đang ở tab Pending, item là Notification -> gọi API updateNotification
+    // Logic cập nhật trạng thái giữ nguyên
     if (this.currentTab === 'PENDING') {
       this.dashboardService.updateNotificationStatus(item.id, newStatus).subscribe({
-        next: () => this.loadAll(), // Reload sau khi update
-        error: (err) => console.error(err)
+        next: () => this.loadAll()
       });
     } else {
-      // Nếu là Appointment -> gọi API updateAppointment (nếu cần tính năng hủy lịch đã chốt)
       this.dashboardService.updateAppointmentStatus(item.id, newStatus).subscribe({
-        next: () => this.loadAll(),
-        error: (err) => console.error(err)
+        next: () => this.loadAll()
       });
     }
   }
 
   formatTime(timeString: string): string {
     if (!timeString) return '';
-    // Giả sử timeString dạng "HH:mm:ss"
     const [hours, minutes] = timeString.split(':');
     const h = parseInt(hours, 10);
     const ampm = h >= 12 ? 'PM' : 'AM';
     const h12 = h % 12 || 12;
     return `${h12}:${minutes} ${ampm}`;
   }
-
 }
