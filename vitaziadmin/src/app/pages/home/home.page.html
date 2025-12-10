@@ -1,5 +1,9 @@
 <ion-content [fullscreen]="true" class="home-content">
 
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <div class="header-banner">
     <div class="header-top"></div>
     <h1 class="page-title">Quản lý lịch khám</h1>
@@ -35,7 +39,7 @@
   </div>
 
   <div class="segment-section">
-    <ion-segment [(ngModel)]="currentTab" (ionChange)="loadListData()" mode="ios">
+    <ion-segment [(ngModel)]="currentTab" (ionChange)="onTabChange()" mode="ios">
       <ion-segment-button value="PENDING"><ion-label>Chờ xử lý</ion-label></ion-segment-button>
       <ion-segment-button value="CONFIRMED"><ion-label>Đã xác nhận</ion-label></ion-segment-button>
       <ion-segment-button value="CANCELED"><ion-label>Đã hủy</ion-label></ion-segment-button>
@@ -52,15 +56,15 @@
 
           <div class="info-col">
             <div class="main-title">
-              {{ item.departmentName || 'Phòng khám chung' }}
+              {{ item.departmentName }}
             </div>
 
             <div class="sub-row time">
               <ion-icon name="calendar-outline"></ion-icon>
               <span>
-              {{ item.appointmentDate | date:'dd/MM/yyyy' }}
-              <span *ngIf="item.startTime"> - {{ formatTime(item.startTime) }}</span>
-            </span>
+                {{ item.createdAt | date:'dd/MM/yyyy' }}
+                <span *ngIf="item.startTime"> - {{ item.startTime }}</span>
+              </span>
             </div>
 
             <div class="sub-row person">
@@ -82,15 +86,9 @@
 
       <div class="card-expand-wrapper" *ngIf="item.expanded">
         <div class="card-body">
-
-          <div class="info-line" *ngIf="item.userEmail">
-            <span class="label">Email:</span>
-            <span class="value email">{{ item.userEmail }}</span>
-          </div>
-
           <div class="info-line">
-            <span class="label">Lý do khám:</span>
-            <span class="value">{{ item.description || 'Không có mô tả' }}</span>
+            <span class="label">Nội dung:</span>
+            <span class="value">{{ item.message }}</span>
           </div>
         </div>
 
@@ -98,7 +96,7 @@
           <button class="action-btn confirm" (click)="$event.stopPropagation(); updateStatus(item, 'CONFIRMED')">
             Xác nhận
           </button>
-          <button class="action-btn cancel" (click)="$event.stopPropagation(); updateStatus(item, 'CANCELLED')">
+          <button class="action-btn cancel" (click)="$event.stopPropagation(); updateStatus(item, 'CANCELED')">
             Hủy
           </button>
         </div>
@@ -109,5 +107,13 @@
     <div class="empty-state" *ngIf="!loading && listData.length === 0">
       <p>Chưa có dữ liệu.</p>
     </div>
+
+    <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMore($event)">
+      <ion-infinite-scroll-content
+        loadingSpinner="bubbles"
+        loadingText="Đang tải thêm...">
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+
   </div>
 </ion-content>
