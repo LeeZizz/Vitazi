@@ -164,7 +164,7 @@ ion-segment-button {
           align-items: center;
           gap: 6px;
           font-size: 13px;
-          color: #000000;
+          color: #334155;
           font-weight: 600;
 
           ion-icon {
@@ -174,8 +174,8 @@ ion-segment-button {
           }
         }
 
-        .sub-row.time { color: #000000; }
-        .sub-row.person { color: #000000; }
+        .sub-row.time { color: #1e40af; }
+        .sub-row.person { color: #334155; }
 
         /* 4. SỐ ĐIỆN THOẠI */
         .sub-row.phone span {

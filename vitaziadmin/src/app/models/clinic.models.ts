@@ -1,16 +1,27 @@
 // FE dùng 2 mode: CHUYÊN KHOA / ĐA KHOA
 export type ClinicType = 'SPECIALTY' | 'GENERAL';
 
+export interface Page<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  last: boolean;
+  size: number;
+  number: number;
+}
+
 export interface NotificationResponse {
   id: string;
   title: string;
-  message: string;
-  patientName: string;
-  patientPhone: string;
-  bookingDate: string; // ISO string
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
-  avatarUrl?: string; // Giả sử có avatar
-  clinicName?: string;
+  message: string; // Chuỗi cần cắt
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED';
+  createdAt: string; // Ngày tạo (Dùng làm ngày đặt)
+  // Các field phụ sau khi parse (để hiển thị UI)
+  userName?: string;
+  userPhone?: string;
+  departmentName?: string;
+  startTime?: string;
+  expanded?: boolean; // Trạng thái đóng/mở accordion
 }
 
 export interface AppointmentResponse {

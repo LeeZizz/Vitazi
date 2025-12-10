@@ -1,120 +1,40 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-
-export interface TimeSlot {
-  id: number;
-  start: string;
-  end: string;
-  available: boolean;
-}
-
-export interface DaySchedule {
-  date: string;     // "2025-11-21"
-  weekday: string;  // "Thứ 2" ...
-  slots: TimeSlot[];
-}
-
-export interface CreateBookingRequest {
-  slotId: number;
-  fullName: string;
-  phone: string;
-  email?: string;
-  reason?: string;
-  receiveNotify: boolean;
-}
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
+import { BookingRequest, Clinic, Department, WorkSchedule } from '../models/booking.models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BookingService {
+  private apiUrl = 'http://localhost:8080';
 
-  constructor() {}
+  constructor(private http: HttpClient) { }
 
-  getSchedules(
-    clinicId: number,
-    from: string,
-    to: string
-  ): Observable<DaySchedule[]> {
-
-    // DỮ LIỆU GIẢ: mỗi khoa có lịch khác nhau 1 chút
-    const baseSlotsMorning: TimeSlot[] = [
-      { id: 1, start: '08:00', end: '09:00', available: true },
-      { id: 2, start: '09:00', end: '10:00', available: true },
-      { id: 3, start: '10:00', end: '11:00', available: false },
-    ];
-
-    const baseSlotsAfternoon: TimeSlot[] = [
-      { id: 4, start: '13:00', end: '14:00', available: true },
-      { id: 5, start: '14:00', end: '15:00', available: true },
-      { id: 6, start: '15:00', end: '16:00', available: false },
-    ];
-
-    // tạo 3 ngày fake (bỏ qua from/to cho đơn giản)
-    const fakeSchedulesClinic1: DaySchedule[] = [
-      {
-        date: '2025-11-21',
-        weekday: 'Thứ 6',
-        slots: baseSlotsMorning
-      },
-      {
-        date: '2025-11-22',
-        weekday: 'Thứ 7',
-        slots: baseSlotsAfternoon
-      },
-      {
-        date: '2025-11-23',
-        weekday: 'Chủ nhật',
-        slots: [...baseSlotsMorning, ...baseSlotsAfternoon]
-      }
-    ];
-
-    const fakeSchedulesClinic2: DaySchedule[] = [
-      {
-        date: '2025-11-21',
-        weekday: 'Thứ 6',
-        slots: baseSlotsAfternoon
-      },
-      {
-        date: '2025-11-22',
-        weekday: 'Thứ 7',
-        slots: [...baseSlotsMorning]
-      }
-    ];
-
-    const fakeSchedulesClinic3: DaySchedule[] = [
-      {
-        date: '2025-11-21',
-        weekday: 'Thứ 6',
-        slots: [...baseSlotsMorning, { id: 7, start: '11:00', end: '12:00', available: true }]
-      }
-    ];
-
-    let result: DaySchedule[];
-
-    switch (clinicId) {
-      case 1:
-        result = fakeSchedulesClinic1;
-        break;
-      case 2:
-        result = fakeSchedulesClinic2;
-        break;
-      case 3:
-        result = fakeSchedulesClinic3;
-        break;
-      default:
-        result = fakeSchedulesClinic1;
-    }
-
-    return of(result);
+  // 1. Lấy danh sách phòng khám
+  getAllClinics(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/clinics/getAllClinic`);
   }
 
-  createBooking(payload: CreateBookingRequest): Observable<any> {
-    console.log('FAKE BOOKING SENT:', payload);
-    // giả lập API trả về success
-    return of({
-      success: true,
-      bookingId: 123,
-      message: 'Đặt lịch thành công (fake)'
-    });
+  // 2. Lấy danh sách khoa theo phòng khám
+  getDepartmentsByClinic(clinicId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/departments/getListDepartments/${clinicId}`);
+  }
+
+  // 3. Lấy lịch làm việc theo Khoa và Ngày
+  getSchedules(clinicId: string, departmentId: string, date: string): Observable<any> {
+    // API giả định: /work-schedules/filter?clinicId=...&departmentId=...&date=...
+    let params = new HttpParams()
+      .set('clinicId', clinicId)
+      .set('departmentId', departmentId)
+      .set('date', date);
+
+    return this.http.get(`${this.apiUrl}/work-schedules/filter`, { params });
+  }
+
+  // 4. Tạo lịch khám (POST)
+  createAppointment(payload: BookingRequest): Observable<any> {
+    return this.http.post(`${this.apiUrl}/appointments/createAppointment`, payload);
   }
 }

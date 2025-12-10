@@ -1,117 +1,95 @@
-<div class="booking-page">
-  <div class="page-title">Chọn lịch khám</div>
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" color="dark"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">Đặt lịch khám</ion-title>
+  </ion-toolbar>
+</ion-header>
 
-  <div class="page-container">
+<ion-content class="booking-content">
 
-    <!-- Thanh chọn ngày -->
-    <div class="date-strip" *ngIf="!isLoadingDays; else loadingDays">
-      <div
-        class="date-card"
-        *ngFor="let day of days; trackBy: trackByDate"
-        [class.active]="day === selectedDay"
-        (click)="onSelectDay(day)"
-      >
-        <div class="weekday">{{ day.weekday }}</div>
-        <div class="day-number">{{ day.date | date: 'dd' }}</div>
-        <div class="month">{{ day.date | date: 'MMM, y' }}</div>
+  <div class="container">
+
+    <div class="section-card">
+      <h3 class="section-title">Thông tin cơ sở</h3>
+
+      <div class="input-group">
+        <label>Phòng khám</label>
+        <div class="select-wrapper">
+          <ion-select [(ngModel)]="selectedClinicId" (ionChange)="onClinicChange()" placeholder="Chọn phòng khám" interface="action-sheet">
+            <ion-select-option *ngFor="let c of clinics" [value]="c.id">{{ c.clinicName }}</ion-select-option>
+          </ion-select>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Chuyên khoa</label>
+        <div class="select-wrapper" [class.disabled]="!selectedClinicId">
+          <ion-select [(ngModel)]="selectedDepartmentId" (ionChange)="onDepartmentOrDateChange()" placeholder="Chọn khoa khám" interface="action-sheet" [disabled]="!selectedClinicId">
+            <ion-select-option *ngFor="let d of departments" [value]="d.id">{{ d.departmentName }}</ion-select-option>
+          </ion-select>
+        </div>
       </div>
     </div>
 
-    <ng-template #loadingDays>
-      <div class="loading-center">
-        Đang tải lịch khám...
-      </div>
-    </ng-template>
+    <div class="section-card" *ngIf="selectedDepartmentId">
+      <h3 class="section-title">Thời gian khám</h3>
 
-    <!-- Ca khám -->
-    <div class="slot-section" *ngIf="selectedDay">
-      <div class="slot-header">
-        Ca khám còn trống
+      <div class="date-picker-wrapper">
+        <ion-datetime
+          presentation="date"
+          [(ngModel)]="selectedDate"
+          (ionChange)="onDepartmentOrDateChange()"
+          locale="vi-VN"
+          [min]="selectedDate"
+        ></ion-datetime>
       </div>
-      <div class="slot-list">
-        <button
-          type="button"
-          class="slot-btn"
-          *ngFor="let slot of selectedDay.slots; trackBy: trackBySlot"
-          [class.selected]="slot === selectedSlot"
-          [class.disabled]="!slot.available"
-          (click)="onSelectSlot(slot)"
-        >
-          {{ slot.start }} - {{ slot.end }}
-        </button>
+
+      <div class="schedule-grid" *ngIf="schedules.length > 0; else noSchedule">
+        <div
+          class="time-slot"
+          *ngFor="let s of schedules"
+          [class.active]="selectedSchedule?.id === s.id"
+          (click)="selectSchedule(s)">
+          {{ formatTime(s.startTime) }} - {{ formatTime(s.endTime) }}
+        </div>
+      </div>
+
+      <ng-template #noSchedule>
+        <div class="empty-msg" *ngIf="schedules.length === 0">
+          Không có ca khám nào trong ngày này.
+        </div>
+      </ng-template>
+    </div>
+
+    <div class="section-card" *ngIf="selectedSchedule">
+      <h3 class="section-title">Thông tin bệnh nhân</h3>
+
+      <div class="form-group">
+        <div class="input-item">
+          <ion-input label="Họ và Tên" labelPlacement="stacked" [(ngModel)]="patientName" placeholder="Nhập họ tên" fill="outline"></ion-input>
+        </div>
+
+        <div class="input-item">
+          <ion-input label="Số điện thoại" labelPlacement="stacked" [(ngModel)]="patientPhone" type="tel" placeholder="Nhập SĐT" fill="outline"></ion-input>
+        </div>
+
+        <div class="input-item">
+          <ion-input label="Email" labelPlacement="stacked" [(ngModel)]="patientEmail" type="email" placeholder="Nhập email (tuỳ chọn)" fill="outline"></ion-input>
+        </div>
+
+        <div class="input-item">
+          <ion-textarea label="Lý do khám" labelPlacement="stacked" [(ngModel)]="description" placeholder="Mô tả triệu chứng..." fill="outline" rows="3"></ion-textarea>
+        </div>
       </div>
     </div>
 
-    <!-- Thông tin người khám -->
-    <div class="patient-section">
-      <h2>Thông tin người khám bệnh</h2>
-
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
-
-        <div class="input-group">
-          <label>Họ và tên *</label>
-          <input
-            type="text"
-            formControlName="fullName"
-            placeholder="Nhập họ tên của bạn"
-          />
-        </div>
-
-        <div class="input-group">
-          <label>Số điện thoại *</label>
-          <input
-            type="tel"
-            formControlName="phone"
-            placeholder="Nhập số điện thoại của bạn"
-          />
-        </div>
-
-        <div class="input-group">
-          <label>Email</label>
-          <input
-            type="email"
-            formControlName="email"
-            placeholder="Nhập email của bạn"
-          />
-        </div>
-
-        <div class="input-group">
-          <label>Lý do khám</label>
-          <input
-            type="text"
-            formControlName="reason"
-            placeholder="Nhập lý do khám của bạn"
-          />
-        </div>
-
-        <div class="notify-row">
-          <input type="checkbox" formControlName="receiveNotify" />
-          <span>Tôi muốn nhận thông báo về lịch khám này</span>
-        </div>
-
-        <div class="error" *ngIf="errorMessage">
-          {{ errorMessage }}
-        </div>
-
-        <button
-          type="submit"
-          class="submit-btn"
-          [disabled]="isSubmitting"
-        >
-          <ng-container *ngIf="!isSubmitting; else submitting">
-            Đặt lịch
-          </ng-container>
-        </button>
-
-        <ng-template #submitting>
-          Đang gửi...
-        </ng-template>
-
-      </form>
+    <div class="footer-action" *ngIf="selectedSchedule">
+      <ion-button expand="block" class="submit-btn" (click)="onSubmit()">
+        Xác nhận đặt lịch
+      </ion-button>
     </div>
 
   </div>
-  <div class="toast-success" *ngIf="showSuccessToast">
-    {{ successMessage }}
-  </div>
-</div>
+</ion-content>
