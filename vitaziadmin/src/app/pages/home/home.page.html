@@ -51,19 +51,20 @@
     <ion-card class="appointment-card" *ngFor="let item of listData" [class.is-expanded]="item.expanded">
 
       <div class="card-header-row" (click)="toggleExpand(item)" tappable>
-        <div class="header-left">
+
+        <div class="header-content">
           <img src="assets/img/clinic-dept-placeholder.jpg" class="dept-avatar" />
 
           <div class="info-col">
             <div class="main-title">
-              {{ item.departmentName }}
+              {{ item.departmentName || 'Phòng khám' }}
             </div>
 
             <div class="sub-row time">
               <ion-icon name="calendar-outline"></ion-icon>
               <span>
-                {{ item.createdAt | date:'dd/MM/yyyy' }}
-                <span *ngIf="item.startTime"> - {{ item.startTime }}</span>
+                {{ item.appointmentDate | date:'dd/MM/yyyy' }}
+                <span *ngIf="item.startTime"> - {{ formatTime(item.startTime) }}</span>
               </span>
             </div>
 
@@ -79,26 +80,34 @@
           </div>
         </div>
 
-        <div class="expand-icon">
-          <ion-icon [name]="item.expanded ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
-        </div>
-      </div>
-
-      <div class="card-expand-wrapper" *ngIf="item.expanded">
-        <div class="card-body">
-          <div class="info-line">
-            <span class="label">Nội dung:</span>
-            <span class="value">{{ item.message }}</span>
-          </div>
-        </div>
-
-        <div class="card-actions" *ngIf="currentTab === 'PENDING'">
+        <div class="header-actions" *ngIf="currentTab === 'PENDING'">
           <button class="action-btn confirm" (click)="$event.stopPropagation(); updateStatus(item, 'CONFIRMED')">
             Xác nhận
           </button>
           <button class="action-btn cancel" (click)="$event.stopPropagation(); updateStatus(item, 'CANCELED')">
             Hủy
           </button>
+        </div>
+
+        <div class="expand-icon">
+          <ion-icon [name]="item.expanded ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+        </div>
+
+      </div>
+
+      <div class="card-expand-wrapper" *ngIf="item.expanded">
+        <div class="card-body">
+          <div class="info-line">
+            <span class="label">Dấu hiệu:</span>
+            <span class="value highlight">
+              {{ item.signs || item.description || 'Không có mô tả dấu hiệu' }}
+            </span>
+          </div>
+
+          <div class="info-line" *ngIf="item.userEmail">
+            <span class="label">Email:</span>
+            <span class="value">{{ item.userEmail }}</span>
+          </div>
         </div>
       </div>
 

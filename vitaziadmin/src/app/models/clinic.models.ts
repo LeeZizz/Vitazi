@@ -13,15 +13,19 @@ export interface Page<T> {
 export interface NotificationResponse {
   id: string;
   title: string;
-  message: string; // Chuỗi cần cắt
+  message: string;
   status: 'PENDING' | 'CONFIRMED' | 'CANCELED';
-  createdAt: string; // Ngày tạo (Dùng làm ngày đặt)
-  // Các field phụ sau khi parse (để hiển thị UI)
+  createdAt: string;
+
   userName?: string;
   userPhone?: string;
+  userEmail?: string;
   departmentName?: string;
   startTime?: string;
-  expanded?: boolean; // Trạng thái đóng/mở accordion
+  appointmentDate?: string;
+  signs?: string;
+  description?: string;
+  expanded?: boolean;
 }
 
 export interface AppointmentResponse {

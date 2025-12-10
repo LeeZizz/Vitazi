@@ -1,19 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
 import {
-  IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
-  IonItem, IonLabel, IonSelect, IonSelectOption, IonDatetime, IonInput,
-  IonTextarea, IonButton, IonIcon,
+  IonContent, IonHeader, IonToolbar, IonTitle, IonButton,
+  IonInput, IonTextarea, IonSelect, IonSelectOption,
   ToastController, LoadingController
 } from '@ionic/angular/standalone';
-
-// Import Services & Models
 import { BookingService } from '../../services/booking.service';
-import {
-  Clinic, Department, WorkSchedule, BookingRequest
-} from '../../models/client-booking.models';
+import { Clinic, Department, WorkSchedule, BookingRequest } from '../../models/client-booking.models';
 
 @Component({
   selector: 'app-booking-form',
@@ -21,28 +15,25 @@ import {
   styleUrls: ['./booking-form.css'],
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    // Khai báo các component UI dùng trong HTML
-    IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
-    IonItem, IonLabel, IonSelect, IonSelectOption, IonDatetime,
-    IonButton, IonIcon, IonInput, IonTextarea
+    CommonModule, FormsModule,
+    IonContent, IonHeader, IonToolbar, IonTitle,
+    IonButton, IonInput, IonTextarea, IonSelect, IonSelectOption
   ]
 })
 export class BookingFormComponent implements OnInit {
-  // --- Dữ liệu nguồn ---
   clinics: Clinic[] = [];
   departments: Department[] = [];
   schedules: WorkSchedule[] = [];
 
-  // --- Dữ liệu ng-model (Selection) ---
+  // Danh sách ngày hiển thị trên thanh ngang
+  weekDays: any[] = [];
+
   selectedClinicId: string = '';
   selectedDepartmentId: string = '';
-  // Mặc định lấy ngày hôm nay YYYY-MM-DD
-  selectedDate: string = new Date().toISOString();
+  selectedDate: string = ''; // YYYY-MM-DD
   selectedSchedule: WorkSchedule | null = null;
 
-  // --- Dữ liệu ng-model (Form nhập liệu) ---
+  // Form input
   patientName: string = '';
   patientPhone: string = '';
   patientEmail: string = '';
@@ -55,82 +46,89 @@ export class BookingFormComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadClinics();
+    this.generateWeekDays(); // 1. Tạo ngày
+    this.loadClinics();      // 2. Tải phòng khám
   }
 
-  // 1. Tải danh sách phòng khám khi vào trang
+  // Tạo danh sách 7 ngày từ hôm nay
+  generateWeekDays() {
+    const days = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+    const today = new Date();
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+
+      this.weekDays.push({
+        dayName: days[d.getDay()], // Thứ 2...
+        dayNumber: d.getDate(),    // 11, 12...
+        displayMonth: `Tháng ${d.getMonth() + 1}`,
+        // Format YYYY-MM-DD để gửi API (Lưu ý múi giờ)
+        fullDate: d.toLocaleDateString('en-CA')
+      });
+    }
+    // Mặc định chọn ngày đầu tiên
+    this.selectedDate = this.weekDays[0].fullDate;
+  }
+
   loadClinics() {
     this.bookingService.getAllClinics().subscribe({
-          next: (data: Clinic[]) => {
-            this.clinics = data;
-          },
-          error: (err: any) => console.error('Lỗi tải phòng khám:', err)
-        });
+      next: (data) => this.clinics = data,
+      error: (e) => console.error(e)
+    });
   }
 
-  // 2. Khi người dùng đổi Phòng khám
   onClinicChange() {
-    // Reset các lựa chọn cấp dưới
     this.departments = [];
-    this.schedules = [];
     this.selectedDepartmentId = '';
-    this.selectedSchedule = null;
-
+    this.schedules = [];
     if (this.selectedClinicId) {
-      this.bookingService.getDepartmentsByClinic(this.selectedClinicId).subscribe({
-        next: (data) => {
-          this.departments = data;
-        },
-        error: (err) => console.error('Lỗi tải khoa:', err)
-      });
+      this.bookingService.getDepartmentsByClinic(this.selectedClinicId).subscribe(data => this.departments = data);
     }
   }
 
-  // 3. Khi người dùng đổi Khoa hoặc Ngày -> Tải lịch làm việc
-  onDepartmentOrDateChange() {
+  // Khi người dùng chọn ngày trên thanh ngang
+  selectDate(day: any) {
+    this.selectedDate = day.fullDate;
+    this.loadSchedules();
+  }
+
+  onDepartmentChange() {
+    this.loadSchedules();
+  }
+
+  loadSchedules() {
     this.schedules = [];
     this.selectedSchedule = null;
 
     if (this.selectedClinicId && this.selectedDepartmentId && this.selectedDate) {
-      // Cắt chuỗi ISO để lấy YYYY-MM-DD (ion-datetime trả về full ISO string)
-      const dateStr = this.selectedDate.split('T')[0];
-
-      this.bookingService.getSchedules(this.selectedClinicId, this.selectedDepartmentId, dateStr)
+      console.log('Calling API with:', this.selectedDate);
+      this.bookingService.getSchedules(this.selectedClinicId, this.selectedDepartmentId, this.selectedDate)
         .subscribe({
-          next: (data) => {
-            this.schedules = data;
-          },
-          error: (err) => console.error('Lỗi tải lịch:', err)
+          next: (data) => this.schedules = data,
+          error: (err) => console.error('Lỗi tải lịch', err)
         });
     }
   }
 
-  // 4. Chọn một ca cụ thể (trên giao diện)
-  selectSchedule(sch: WorkSchedule) {
+  selectTimeSlot(sch: WorkSchedule) {
     this.selectedSchedule = sch;
   }
 
-  // 5. Gửi form
   async onSubmit() {
-    // Validate cơ bản
-    if (!this.selectedSchedule) {
-      this.presentToast('Vui lòng chọn ca khám!', 'warning');
-      return;
-    }
-    if (!this.patientName.trim() || !this.patientPhone.trim()) {
-      this.presentToast('Vui lòng nhập họ tên và số điện thoại!', 'warning');
+    if (!this.selectedSchedule || !this.patientName || !this.patientPhone) {
+      this.presentToast('Vui lòng nhập đủ thông tin!', 'warning');
       return;
     }
 
     const loading = await this.loadingCtrl.create({ message: 'Đang đặt lịch...' });
     await loading.present();
 
-    // Chuẩn bị payload đúng format backend yêu cầu
     const payload: BookingRequest = {
       clinicId: this.selectedClinicId,
       departmentId: this.selectedDepartmentId,
       scheduleId: this.selectedSchedule.id,
-      appointmentDate: this.selectedDate.split('T')[0], // YYYY-MM-DD
+      appointmentDate: this.selectedDate,
       userName: this.patientName,
       userPhone: this.patientPhone,
       userEmail: this.patientEmail,
@@ -138,42 +136,25 @@ export class BookingFormComponent implements OnInit {
     };
 
     this.bookingService.createAppointment(payload).subscribe({
-      next: async (res) => {
+      next: async () => {
         await loading.dismiss();
         this.presentToast('Đặt lịch thành công!', 'success');
-        this.resetForm();
+        this.patientName = ''; this.patientPhone = ''; // Reset form
       },
       error: async (err) => {
         await loading.dismiss();
         console.error(err);
-        this.presentToast('Đặt lịch thất bại. Vui lòng thử lại.', 'danger');
+        this.presentToast('Lỗi đặt lịch!', 'danger');
       }
     });
   }
 
-  resetForm() {
-    // Giữ lại Clinic/Dept/Date để user đỡ phải chọn lại nếu muốn đặt tiếp
-    this.selectedSchedule = null;
-    this.patientName = '';
-    this.patientPhone = '';
-    this.patientEmail = '';
-    this.description = '';
-  }
-
   async presentToast(msg: string, color: string) {
-    const toast = await this.toastCtrl.create({
-      message: msg,
-      duration: 2000,
-      color: color,
-      position: 'top'
-    });
-    await toast.present();
+    const toast = await this.toastCtrl.create({ message: msg, duration: 2000, color: color, position: 'top' });
+    toast.present();
   }
 
-  // Helper: Format giờ hiển thị (08:00:00 -> 08:00)
-  formatTime(time: string): string {
-    if (!time) return '';
-    const parts = time.split(':');
-    return `${parts[0]}:${parts[1]}`;
+  formatTime(time: string) {
+    return time ? time.substring(0, 5) : '';
   }
 }
