@@ -53,7 +53,7 @@ public class NotificationService {
         Map<String, Long> counts = new HashMap<>();
         counts.put("PENDING", notificationRespository.countByClinicId_IdAndStatus(clinicId, Status.PENDING));
         counts.put("CONFIRMED", notificationRespository.countByClinicId_IdAndStatus(clinicId, Status.CONFIRMED));
-        counts.put("CANCELLED", notificationRespository.countByClinicId_IdAndStatus(clinicId, Status.CANCELLED));
+        counts.put("CANCELED", notificationRespository.countByClinicId_IdAndStatus(clinicId, Status.CANCELED));
         return counts;
     }
 
