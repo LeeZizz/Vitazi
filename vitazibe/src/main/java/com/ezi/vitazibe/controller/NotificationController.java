@@ -10,6 +10,10 @@ import com.ezi.vitazibe.exceptions.WebException;
 import com.ezi.vitazibe.repositories.ClinicRepository;
 import com.ezi.vitazibe.services.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -26,9 +30,11 @@ public class NotificationController {
     private final ClinicRepository clinicRepository;
 
     @GetMapping("getAllNotifications")
-    public ResponseEntity<ApiResponse<List<NotificationResponse>>> getNotifications(
+    public ResponseEntity<ApiResponse<Page<NotificationResponse>>> getNotifications(
             @AuthenticationPrincipal OAuth2User oAuth2User,
-            @RequestParam(required = false) Status status){
+            @RequestParam(required = false) Status status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size){
         String sub = oAuth2User.getAttribute("sub");
         if (sub == null) {
             sub = oAuth2User.getAttribute("id");
@@ -37,8 +43,9 @@ public class NotificationController {
         ClinicEntity clinic = clinicRepository.findByOauthSub(sub)
                 .orElseThrow(() -> new WebException(ErrorCode.CLINIC_NOT_FOUND));
 
-        List<NotificationResponse> notifications = notificationService.getNotificationsByClinicId(clinic.getId(), status);
-        ApiResponse<List<NotificationResponse>> response = ApiResponse.<List<NotificationResponse>>builder()
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<NotificationResponse> notifications = notificationService.getNotificationsByClinicId(clinic.getId(), status, pageable);
+        ApiResponse<Page<NotificationResponse>> response = ApiResponse.<Page<NotificationResponse>>builder()
                 .message("Get notifications successfully")
                 .result(notifications)
                 .build();
