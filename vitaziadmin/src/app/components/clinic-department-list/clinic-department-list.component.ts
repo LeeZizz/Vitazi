@@ -1,37 +1,28 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Department } from '../../models/clinic.models';
-import { DepartmentsService } from '../../services/departments.service';
 import {
   IonIcon,
-  IonButton,
-  IonButtons,
-  IonSpinner
+  IonSpinner,
 } from '@ionic/angular/standalone';
-import { add, close } from 'ionicons/icons';
 import { AlertController } from '@ionic/angular';
+import { add, close } from 'ionicons/icons';
+
+import { Department } from '../../models/clinic.models';
+import { DepartmentsService } from '../../services/departments.service';
 
 @Component({
   selector: 'app-clinic-department-list',
   standalone: true,
-  imports: [CommonModule, IonIcon, IonButton, IonButtons, IonSpinner],
+  imports: [CommonModule, IonIcon, IonSpinner],
   templateUrl: './clinic-department-list.component.html',
-  styleUrls: ['./clinic-department-list.component.scss']
+  styleUrls: ['./clinic-department-list.component.scss'],
 })
 export class ClinicDepartmentListComponent implements OnInit {
-  /** ID phòng khám – bắt buộc */
   @Input() clinicId!: string;
-
-  /** Có hiển thị tiêu đề và nút + không (tuỳ page) */
   @Input() showHeader = true;
 
-  /** Emit khi nhấn nút + */
   @Output() createRequested = new EventEmitter<void>();
-
-  /** Emit khi nhấn “Chỉnh sửa” trên card */
   @Output() editRequested = new EventEmitter<Department>();
-
-  /** Emit sau khi xóa thành công */
   @Output() deleted = new EventEmitter<Department>();
 
   departments: Department[] = [];
@@ -46,12 +37,15 @@ export class ClinicDepartmentListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    if (!this.clinicId) return;
-    this.loadDepartments();
+    if (this.clinicId) {
+      this.loadDepartments();
+    }
   }
 
   reload() {
-    this.loadDepartments();
+    if (this.clinicId) {
+      this.loadDepartments();
+    }
   }
 
   private loadDepartments() {
@@ -63,14 +57,17 @@ export class ClinicDepartmentListComponent implements OnInit {
       },
       error: () => {
         this.loading = false;
-      }
+      },
     });
   }
 
+  // nút +
   onCreateClick() {
+    console.log('List: onCreateClick');
     this.createRequested.emit();
   }
 
+  // nút "Chỉnh sửa"
   onEditClick(dept: Department) {
     this.editRequested.emit(dept);
   }
@@ -85,9 +82,9 @@ export class ClinicDepartmentListComponent implements OnInit {
         {
           text: 'Xác nhận',
           role: 'destructive',
-          handler: () => this.deleteDepartment(dept)
-        }
-      ]
+          handler: () => this.deleteDepartment(dept),
+        },
+      ],
     });
 
     await alert.present();

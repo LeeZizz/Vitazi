@@ -1,18 +1,19 @@
 <ion-content class="clinic-type-page" fullscreen>
-  <div class="page-container">
+  <div *ngIf="loading" class="loading">
+    Đang kiểm tra tài khoản...
+  </div>
 
-    <!-- Hàng trên: nút back -->
+  <div *ngIf="!loading">
+  <div class="page-container">
     <div class="top-row">
       <button type="button" class="back-btn" (click)="goBack()">
         &lt;
       </button>
     </div>
 
-    <!-- Tiêu đề -->
     <h1 class="title">Thông tin phòng khám</h1>
     <p class="subtitle">Hãy chọn loại phòng khám của bạn.</p>
 
-    <!-- Nhóm chọn loại phòng khám -->
     <ion-radio-group
       [(ngModel)]="selectedType"
       class="clinic-type-group">
@@ -58,12 +59,12 @@
       </ion-item>
     </ion-radio-group>
 
-    <!-- Nút dưới cùng -->
     <ion-button
       expand="block"
       class="submit-btn"
       (click)="onSubmit()">
       Tiếp tục
     </ion-button>
+  </div>
   </div>
 </ion-content>

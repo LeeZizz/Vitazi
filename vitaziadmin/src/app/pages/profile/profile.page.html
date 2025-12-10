@@ -1,13 +1,83 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>profile</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="profile-toolbar">
+
+    <ion-title>Phòng khám của tôi</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()" color="danger">
+        <ion-icon name="log-out-outline" style="font-size: 24px;"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">profile</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="profile-content">
+  <div class="profile-container" *ngIf="clinicId && owner; else noClinicTpl">
+
+    <div class="avatar-section">
+      <div class="avatar-wrapper">
+        <img [src]="owner.ownerAvatar || 'assets/img/default-avatar.png'" alt="avatar" class="avatar-img" />
+        <button class="camera-btn">
+          <ion-icon name="camera"></ion-icon>
+        </button>
+      </div>
+      <h2 class="owner-name">{{ owner.ownerName }}</h2>
+      <p class="clinic-subtext">{{ clinicName }}</p>
+    </div>
+
+    <div class="info-group">
+      <div class="info-card">
+        <div class="icon-box blue">
+          <ion-icon name="person"></ion-icon>
+        </div>
+        <div class="info-text">
+          <span class="label">Name</span>
+          <span class="value">{{ owner.ownerName }}</span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="icon-box teal">
+          <ion-icon name="mail"></ion-icon>
+        </div>
+        <div class="info-text">
+          <span class="label">Email Address</span>
+          <span class="value">{{ owner.ownerEmail }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="department-section" *ngIf="clinicType === 'GENERAL'">
+      <div class="section-header">
+        <h3>Danh sách phòng khám</h3>
+        <button class="add-mini-btn" (click)="onCreateDepartment()">
+          + Thêm
+        </button>
+      </div>
+
+      <app-clinic-department-list
+        *ngIf="clinicId"
+        [clinicId]="clinicId"
+        [showHeader]="false"
+        (createRequested)="onCreateDepartment()"
+        (editRequested)="onEditDepartment($event)"
+        (deleted)="deptList?.reload()"
+      ></app-clinic-department-list>
+    </div>
+
+    <app-clinic-department-form
+      *ngIf="showDeptForm && clinicId"
+      [clinicId]="clinicId"
+      [department]="editingDept"
+      (saved)="onDepartmentSaved()"
+      (cancelled)="onDepartmentCancelled()"
+    ></app-clinic-department-form>
+
+  </div>
+
+  <ng-template #noClinicTpl>
+    <div class="empty-state">
+      <p>No clinic information available.</p>
+    </div>
+  </ng-template>
 </ion-content>

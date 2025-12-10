@@ -1,106 +1,320 @@
-.schedule-wrapper {
-  .title {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 12px;
-  }
+:host {
+  display: block;
+  height: 100%;
+}
 
-  .filter-row {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-  }
+.work-page {
+  min-height: 100%;
+  /* Padding bottom lớn để không bị nút Save che mất nội dung cuối */
+  padding: 16px 16px 100px;
+  background: linear-gradient(180deg, #5eb8ff 0%, #5eb8ff 100px, #f5f7ff 100px);
+}
+
+.header-title {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  padding-left: 4px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* --- FIX LỖI MÀU CALENDAR --- */
+.calendar-wrapper {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+  border: 1px solid #f0f4ff;
+  background: #ffffff;
+}
+
+ion-datetime {
+  width: 100%;
+  border-radius: 16px;
+  /* Quan trọng: Set màu chữ đen rõ ràng */
+  color: #1a202c;
+  --background: #ffffff;
+  --ion-text-color: #1a202c;
+
+  /* Màu ngày/tháng */
+  --title-color: #1a202c;
+
+  /* Ẩn background thừa nếu có */
+  background: #ffffff;
+}
+/* --------------------------- */
+
+/* FILTERS (Responsive) */
+.top-filters {
+  display: flex;
+  flex-wrap: wrap; /* Cho phép xuống dòng trên mobile */
+  gap: 10px;
+  margin-bottom: 16px;
 
   .filter-item {
-    flex: 1 1 45%;
-    display: flex;
-    flex-direction: column;
-
-    label {
-      font-size: 12px;
-      margin-bottom: 4px;
-    }
+    flex: 1 1 120px; /* Co giãn, tối thiểu 120px */
 
     select {
-      border-radius: 10px;
-      border: 1px solid #dde1f2;
-      padding: 6px 8px;
-      font-size: 14px;
+      width: 100%;
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      color: #2d3748;
+      font-weight: 500;
+      padding: 0 12px;
+      outline: none;
+
+      &:focus {
+        border-color: #5eb8ff;
+        background: #ffffff;
+      }
     }
 
-    ion-datetime {
-      --background: #ffffff;
-      --border-radius: 10px;
-      border: 1px solid #dde1f2;
-      padding: 4px 0;
+    /* Trên desktop, ô Khoa rộng hơn */
+    &.wide {
+      flex: 2 1 200px;
     }
   }
+}
 
-  .section-title {
+/* LIST CA & RESPONSIVE */
+.shift-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+
+  .shift-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2d3748;
+  }
+}
+
+.shift-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shift-row-container {
+  background: #ffffff;
+  border: 1px solid #edf2f7;
+  border-radius: 16px;
+  padding: 16px; /* Tăng padding để dễ bấm trên mobile */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+
+  &.invalid-shift {
+    border-color: #fc8181;
+    background: #fff5f5;
+  }
+}
+
+.shift-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap; /* Quan trọng cho Mobile */
+}
+
+/* Các nhóm input (Giờ, Số lượng) */
+.time-group, .capacity-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 11px;
+    color: #718096;
     font-weight: 600;
-    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+}
+
+/* Trên mobile: Time group chiếm 45% (2 ô 1 hàng) */
+.time-group {
+  flex: 1 1 120px;
+}
+
+/* Pill input thời gian */
+.time-pill {
+  height: 44px; /* Cao hơn để dễ bấm cảm ứng */
+  background: #f7fafc;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:focus-within {
+    border-color: #5eb8ff;
+    background: #ebf8ff;
   }
 
-  .shift-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 12px;
+  input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 15px; /* Font to hơn cho mobile */
+    font-weight: 600;
+    color: #2b6cb0;
+    outline: none;
+  }
+}
+
+.arrow {
+  padding-bottom: 12px;
+  color: #cbd5e0;
+  font-weight: bold;
+}
+
+/* Số lượng (Capacity) */
+.capacity-group {
+  flex: 0 0 70px; /* Cố định chiều rộng */
+}
+
+.capacity-dot {
+  width: 100%;
+  height: 44px;
+  border-radius: 12px;
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #5a67d8;
+    outline: none;
+  }
+}
+
+/* Nút xóa */
+.delete-group {
+  margin-left: auto; /* Đẩy sang phải cùng nếu còn chỗ */
+  padding-bottom: 2px;
+}
+
+.delete-btn-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #fff5f5;
+  color: #e53e3e;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+
+  &:active {
+    background: #fed7d7;
+  }
+}
+
+.error-msg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #c53030;
+  font-size: 13px;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+/* NÚT THÊM CA */
+.add-row {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.add-btn-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: #ebf8ff;
+  color: #3182ce;
+  border: none;
+  border-radius: 99px;
+  font-weight: 600;
+  font-size: 15px;
+
+  &:active {
+    background: #bee3f8;
+  }
+}
+
+/* NÚT LƯU - FLOATING */
+.save-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 400px; /* Giới hạn chiều rộng trên iPad/Desktop */
+  padding: 14px;
+  border-radius: 16px;
+  border: none;
+  background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(66, 153, 225, 0.4);
+  z-index: 100;
+
+  &:disabled {
+    opacity: 0.7;
+    background: #cbd5e0;
+  }
+}
+
+/* --- MOBILE SPECIFIC TWEAKS --- */
+@media (max-width: 576px) {
+  .work-page {
+    padding: 16px 12px 90px;
+  }
+
+  .card {
+    padding: 12px;
+  }
+
+  /* Ẩn mũi tên -> khi xuống dòng để đỡ rối */
+  .arrow {
+    display: none;
   }
 
   .shift-row {
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 8px 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    justify-content: space-between; /* Căn đều 2 bên */
   }
 
   .time-group {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    min-width: 48%; /* 2 cột giờ trên 1 hàng */
   }
 
-  .time-input {
-    border-radius: 10px;
-    border: 1px solid #dde1f2;
-    padding: 4px 6px;
-    font-size: 14px;
+  .capacity-group {
+    flex: 1; /* Chiếm phần còn lại của hàng dưới */
   }
 
-  .dash {
-    font-size: 16px;
-  }
-
-  .remove-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: none;
-    background: #ff6b6b;
-    color: #fff;
-    font-weight: 700;
-  }
-
-  .add-btn {
-    margin-bottom: 16px;
-    border: none;
-    background: transparent;
-    color: #5e8bff;
-    font-weight: 600;
-  }
-
-  .primary-btn {
-    width: 100%;
-    border: none;
-    border-radius: 999px;
-    padding: 10px;
-    background: linear-gradient(90deg, #5e8bff, #7b5bff);
-    color: #fff;
-    font-weight: 600;
-    font-size: 15px;
+  .delete-group {
+    margin-left: 10px;
   }
 }

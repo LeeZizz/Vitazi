@@ -1,79 +1,122 @@
-.dept-form-wrapper {
-  .title {
-    font-size: 20px;
+.dept-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Nền tối mờ */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  backdrop-filter: blur(2px);
+}
+
+.form-container {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px; /* Khoảng cách giữa Card và Nút Lưu */
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* --- CARD GIAO DIỆN CHÍNH --- */
+.dept-card-blue {
+  width: 100%;
+  background-color: #eff6ff; /* Màu nền xanh rất nhạt  */
+  border: 3px solid #3b82f6; /* Viền xanh dương đậm */
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-title {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  label {
+    font-size: 12px;
     font-weight: 700;
-    margin-bottom: 12px;
+    color: #1e293b;
+  }
+}
+
+.custom-input {
+  width: 100%;
+  background: #ffffff; /* Nền trắng */
+  border: 1px solid #dbeafe; /* Viền rất nhạt */
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #334155;
+  outline: none;
+  font-family: inherit;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+
+  &::placeholder {
+    color: #94a3b8;
   }
 
-  .avatar-wrapper {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 16px;
+  &:focus {
+    border-color: #3b82f6; /* Focus viền xanh */
   }
 
-  .avatar {
-    width: 96px;
-    height: 96px;
-    border-radius: 50%;
-    object-fit: cover;
+  &.area {
+    resize: none;
+    min-height: 100px;
+  }
+}
+
+/* --- NÚT LƯU --- */
+.save-floating-btn {
+  width: 140px;
+  height: 44px;
+  background: #6366f1; /* Màu tím xanh */
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.1s;
+
+  &:active {
+    transform: scale(0.95);
   }
 
-  .form-card {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    margin-bottom: 24px;
+  &:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+    box-shadow: none;
   }
+}
 
-  .form-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 12px;
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
   }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 12px;
-
-    span {
-      font-size: 13px;
-      margin-bottom: 4px;
-    }
-
-    input,
-    textarea {
-      border-radius: 10px;
-      border: 1px solid #dde1f2;
-      padding: 8px 10px;
-      font-size: 14px;
-      outline: none;
-    }
-  }
-
-  .btn-row {
-    display: flex;
-    gap: 12px;
-  }
-
-  .primary-btn,
-  .secondary-btn {
-    flex: 1;
-    border-radius: 999px;
-    padding: 10px;
-    font-weight: 600;
-    font-size: 15px;
-    border: none;
-  }
-
-  .primary-btn {
-    background: linear-gradient(90deg, #5e8bff, #7b5bff);
-    color: #fff;
-  }
-
-  .secondary-btn {
-    background: #e5e7f5;
-    color: #333;
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }

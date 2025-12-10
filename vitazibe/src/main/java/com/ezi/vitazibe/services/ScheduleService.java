@@ -47,15 +47,6 @@ public class ScheduleService {
     @Transactional
     public List<ScheduleResponse> getListSchedule(String ClinicId, String DepartmentId){
         List<ScheduleEntity> schedule;
-//        if(ClinicId != null && DepartmentId != null){
-//            schedule = scheduleRespository.findByClinicIdAndDepartmentId(ClinicId, DepartmentId);
-//        } else if(ClinicId != null){
-//            schedule = scheduleRespository.findByClinicId(ClinicId);
-//        } else if(DepartmentId != null){
-//            schedule = scheduleRespository.findByDepartmentId(DepartmentId);
-//        } else {
-//            schedule = scheduleRespository.findAll();
-//        }
         schedule = scheduleRespository.findByClinicId_IdAndDepartmentId_Id(ClinicId, DepartmentId);
         return schedule.stream()
                 .map(this::mapToResponse)

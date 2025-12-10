@@ -52,8 +52,8 @@ public class LoginController {
         return principal;
     }
 
-    @RequestMapping("/")
-    public String home() {
-        return "Welcome to Vitazi";
-    }
+//    @RequestMapping("/")
+//    public String home() {
+//        return "Welcome to Vitazi";
+//    }
 }

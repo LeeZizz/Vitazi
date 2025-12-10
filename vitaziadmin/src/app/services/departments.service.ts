@@ -1,35 +1,58 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Department } from '../models/clinic.models';
+import { map, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { ApiResponse, Department } from '../models/clinic.models';
+
+export interface SaveDepartmentPayload {
+  clinicId: string;
+  departmentName: string;
+  description?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class DepartmentsService {
-  private baseUrl = `${environment.apiUrl}/departments`;
+  private baseUrl = environment.apiUrl; // 'http://localhost:8080'
 
   constructor(private http: HttpClient) {}
 
+  /** Lấy danh sách khoa theo clinic */
   getByClinic(clinicId: string): Observable<Department[]> {
-    return this.http.get<Department[]>(`${this.baseUrl}?clinicId=${clinicId}`);
+    return this.http
+      .get<ApiResponse<Department[]>>(
+        `${this.baseUrl}/departments/getListDepartments/${clinicId}`,
+        { withCredentials: true }
+      )
+      .pipe(map(res => res.result));
   }
 
-  getById(id: string): Observable<Department> {
-    return this.http.get<Department>(`${this.baseUrl}/${id}`);
+  /** Tạo khoa mới */
+  create(payload: SaveDepartmentPayload): Observable<Department> {
+    return this.http
+      .post<ApiResponse<Department>>(
+        `${this.baseUrl}/departments/createDepartment`,
+        payload,                                          // { clinicId, departmentName, description }
+        { withCredentials: true }
+      )
+      .pipe(map(res => res.result));
   }
 
-  create(clinicId: string, dto: Partial<Department>): Observable<Department> {
-    return this.http.post<Department>(this.baseUrl, {
-      clinic_id: clinicId,
-      ...dto
-    });
+  /** Cập nhật khoa */
+  update(id: string, payload: SaveDepartmentPayload): Observable<Department> {
+    return this.http
+      .put<ApiResponse<Department>>(
+        `${this.baseUrl}/departments/updateDepartment/${id}`,
+        payload,
+        { withCredentials: true }
+      )
+      .pipe(map(res => res.result));
   }
 
-  update(id: string, dto: Partial<Department>): Observable<Department> {
-    return this.http.put<Department>(`${this.baseUrl}/${id}`, dto);
-  }
-
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  /** Xoá khoa */
+  delete(departmentId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.baseUrl}/departments/deleteDepartment/${departmentId}`,
+      { withCredentials: true }
+    );
   }
 }

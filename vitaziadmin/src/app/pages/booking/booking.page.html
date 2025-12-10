@@ -1,7 +1,27 @@
-<ng-container *ngIf="mode === ClinicMode.SPECIALTY">
-  <!-- render các component lịch cho chuyên khoa -->
-</ng-container>
+<ion-content fullscreen>
+  <div class="booking-container" *ngIf="clinicId; else noClinicTpl">
 
-<ng-container *ngIf="mode === ClinicMode.GENERAL">
-  <!-- render component danh sách khoa + lịch theo khoa -->
-</ng-container>
+    <app-clinic-work-schedule
+      [clinicId]="clinicId"
+      [mode]="mode"
+      [allowDepartmentSelect]="true"
+    (saved)="onSaved()"
+    ></app-clinic-work-schedule>
+
+  </div>
+
+  <ng-template #noClinicTpl>
+    <div class="no-clinic">
+      <p>Chưa có thông tin phòng khám. Vui lòng đăng nhập lại hoặc chọn phòng khám.</p>
+    </div>
+  </ng-template>
+</ion-content>
+
+<ion-toast
+  [isOpen]="toastOpen"
+  [message]="toastMessage"
+  color="success"
+  duration="2000"
+  position="bottom"
+  (didDismiss)="toastOpen = false"
+></ion-toast>

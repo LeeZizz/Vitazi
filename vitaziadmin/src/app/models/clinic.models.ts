@@ -1,62 +1,113 @@
-// src/app/models/clinic.models.ts
+// FE dùng 2 mode: CHUYÊN KHOA / ĐA KHOA
+export type ClinicType = 'SPECIALTY' | 'GENERAL';
 
-// Loại phòng khám
-export enum ClinicMode {
-  SPECIALTY = 'SPECIALTY', // chuyên khoa
-  GENERAL   = 'GENERAL'    // đa khoa
+export interface NotificationResponse {
+  id: string;
+  title: string;
+  message: string;
+  patientName: string;
+  patientPhone: string;
+  bookingDate: string; // ISO string
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  avatarUrl?: string; // Giả sử có avatar
+  clinicName?: string;
 }
 
-// Khoa bệnh (bảng departments)
+export interface AppointmentResponse {
+  id: string;
+  clinicId: string;
+  clinicName: string;
+  departmentId: string;
+  departmentName: string; // VD: "Khoa Răng Hàm Mặt"
+  scheduleId: string;
+  startTime: string;      // VD: "10:00:00"
+  endTime: string;        // VD: "12:00:00"
+  appointmentDate: string;// VD: "2025-12-15"
+  userName: string;       // VD: "Nguyễn Văn E"
+  userPhone: string;      // VD: "0912345620"
+  userEmail: string;
+  description: string;    // VD: "Đau đầu..."
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED';
+  createdAt: string;
+}
+
+export interface DashboardCounts {
+  PENDING: number;
+  CONFIRMED: number;
+  CANCELED: number;
+  TOTAL?: number;
+}
+
+// Thông tin phòng khám – backend trả clinicType là string (GENERAL / DA_KHOA / ...)
+export interface ClinicProfile {
+  id: string;
+  oauthProvider: string;
+  oauthEmail: string;
+  clinicName: string;
+  oauthSub: string;
+  clinicType: string;       // 'GENERAL', 'SPECIALIZED'
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OwnerInformation {
+  ownerName: string;
+  ownerEmail: string;
+  ownerAvatar: string;
+  ownerSub: string;
+}
+
+export interface ClinicSummary {
+  id: string;
+  clinicName: string;
+  clinicType: ClinicType;
+  oauthSub?: string;
+  oauthEmail?: string;
+}
+
+// Khoa bệnh – map đúng JSON getListDepartments
 export interface Department {
   id: string;
-  name: string;
-  clinic_id?: string;      // để optional cho TS đỡ bắt buộc
-  description?: string;
-  created_at?: string;
-  updated_at?: string;
+  clinicId: string;
+  clinicName: string;
+  departmentName: string;
+  description: string;
 }
 
-// Một dòng trong bảng work_schedules
-export interface WorkSchedule {
+// DTO lịch làm việc, dùng cho WorkSchedulesService
+export interface WorkScheduleDto {
   id: string;
   clinic_id: string;
   department_id?: string | null;
-  date: string;           // 'YYYY-MM-DD'
-  start_time: string;     // 'HH:mm:ss'
-  end_time: string;       // 'HH:mm:ss'
-  capacity?: number;
-  max_capacity?: number;
-  is_active: number;
-  created_at?: string;
-  updated_at?: string;
+  date: string;          // 'YYYY-MM-DD'
+  start_time: string;    // 'HH:mm:ss'
+  end_time: string;      // 'HH:mm:ss'
+  capacity: number;
+  max_capacity?: number | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
-// Ca làm việc dùng cho UI
-export interface Shift {
-  id?: string;
-  startTime: string;      // 'HH:mm'
-  endTime: string;        // 'HH:mm'
+// Ca làm việc trên UI
+export interface WorkShiftInput {
+  startTime: string;     // 'HH:mm'
+  endTime: string;       // 'HH:mm'
   capacity?: number;
   maxCapacity?: number;
 }
 
-// Lịch 1 ngày cho 1 phòng khám / khoa
-export interface DaySchedule {
-  clinic_id: string;
-  department_id?: string | null;
-  date: string;           // 'YYYY-MM-DD'
-  shifts: Shift[];
+// Payload FE gửi để lưu lịch 1 ngày
+export interface SaveSchedulesPayload {
+  clinicId: string;
+  departmentId: string | null;
+  date: string;               // 'YYYY-MM-DD'
+  shifts: WorkShiftInput[];   // các ca trong ngày
 }
 
-// Payload gửi lên BE để lưu lịch 1 ngày
-export interface SaveDayScheduleRequest {
-  clinic_id: string;
-  department_id?: string | null;
-  date: string;
-  shifts: {
-    start_time: string;   // 'HH:mm:ss'
-    end_time: string;
-    capacity?: number;
-    max_capacity?: number;
-  }[];
+// Response chung backend đang dùng
+export interface ApiResponse<T> {
+  code: number;
+  message: string;
+  result: T;
 }

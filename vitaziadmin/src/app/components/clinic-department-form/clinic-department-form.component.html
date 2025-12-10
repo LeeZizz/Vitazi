@@ -1,43 +1,35 @@
-<div class="dept-form-wrapper">
-  <h1 class="title">Các khoa bệnh</h1>
+<div class="dept-form-overlay" (click)="onCancel()">
 
-  <div class="avatar-wrapper">
-    <img
-      src="assets/images/clinic-default.png"
-      alt="Ảnh khoa"
-      class="avatar"
-    />
-  </div>
+  <div class="form-container" (click)="$event.stopPropagation()">
 
-  <div class="form-card">
-    <h2 class="form-title">Thông tin Khoa bệnh</h2>
+    <div class="dept-card-blue">
+      <h3 class="form-title">Thông tin Khoa bệnh</h3>
 
-    <label class="field">
-      <span>Tên đầy đủ</span>
-      <input
-        type="text"
-        [(ngModel)]="model.name"
-        placeholder="Nhập tên đầy đủ của khoa"
-      />
-    </label>
+      <div class="input-group">
+        <label>Tên đầy đủ</label>
+        <input
+          type="text"
+          [(ngModel)]="name"
+          placeholder="Nhập tên đầy đủ của khoa"
+          class="custom-input"
+        />
+      </div>
 
-    <label class="field">
-      <span>Mô tả</span>
-      <textarea
-        rows="3"
-        [(ngModel)]="model.description"
-        placeholder="Nhập mô tả khoa bệnh"
-      ></textarea>
-    </label>
-  </div>
+      <div class="input-group">
+        <label>Mô tả</label>
+        <textarea
+          [(ngModel)]="description"
+          placeholder="Nhập mô tả khoa bệnh"
+          rows="4"
+          class="custom-input area"
+        ></textarea>
+      </div>
+    </div>
 
-  <div class="btn-row">
-    <button class="secondary-btn" type="button" (click)="onCancel()">
-      Hủy
+    <button class="save-floating-btn" (click)="onSubmit()" [disabled]="submitting">
+      <ion-spinner name="crescent" *ngIf="submitting"></ion-spinner>
+      <span *ngIf="!submitting">Lưu</span>
     </button>
 
-    <button class="primary-btn" type="button" (click)="onSave()">
-      Lưu
-    </button>
   </div>
 </div>

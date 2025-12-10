@@ -1,53 +1,95 @@
-<div class="schedule-wrapper">
-  <h1 class="title">Chỉnh sửa lịch làm việc</h1>
+<div class="work-page">
+  <div class="header-banner">
+    <h1 class="header-title">Chỉnh sửa lịch làm việc</h1>
+  </div>
 
-  <div class="filter-row">
-    <div class="filter-item" *ngIf="mode === 'GENERAL' && allowDepartmentSelect">
-      <label>Khoa</label>
-      <select [(ngModel)]="departmentId" (change)="onDepartmentChange()">
-        <option [ngValue]="null" disabled>Chọn khoa</option>
-        <option *ngFor="let d of departments" [ngValue]="d.id">
-          {{ d.name }}
-        </option>
-      </select>
+  <div class="card">
+    <div class="top-filters">
+      <div class="filter-item wide" *ngIf="allowDepartmentSelect">
+        <select [(ngModel)]="departmentId" (change)="onDepartmentChange()">
+          <option [ngValue]="null" disabled>Chọn Khoa</option>
+          <option *ngFor="let d of departments" [ngValue]="d.id">{{ d.departmentName }}</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <select [(ngModel)]="selectedMonth" (change)="onMonthOrYearChange()">
+          <option *ngFor="let m of months" [ngValue]="m.value">Tháng {{ m.value }}</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <select [(ngModel)]="selectedYear" (change)="onMonthOrYearChange()">
+          <option *ngFor="let y of years" [ngValue]="y">Năm {{ y }}</option>
+        </select>
+      </div>
     </div>
 
-    <div class="filter-item">
-      <label>Ngày</label>
+    <div class="calendar-wrapper">
       <ion-datetime
         presentation="date"
         [value]="selectedDate"
-        (ionChange)="onDateChange($event)"
-      ></ion-datetime>
+        locale="vi-VN"
+        (ionChange)="onDateChange($event)">
+      </ion-datetime>
     </div>
-  </div>
 
-  <div class="section-title">Ca làm việc</div>
-
-  <div class="shift-list">
-    <div class="shift-row" *ngFor="let shift of shifts; let i = index">
-      <div class="time-group">
-        <input type="time" [(ngModel)]="shift.startTime" class="time-input" />
-        <span class="dash">-</span>
-        <input type="time" [(ngModel)]="shift.endTime" class="time-input" />
+    <div class="shift-section">
+      <div class="shift-title-row">
+        <span class="shift-title">Ca làm việc ({{shifts.length}})</span>
       </div>
 
-      <button
-        class="remove-btn"
-        type="button"
-        (click)="removeShift(i)"
-        *ngIf="shifts.length > 1"
-      >
-        -
-      </button>
+      <div class="shift-list">
+        <div class="shift-row-container"
+             *ngFor="let shift of shifts; let i = index"
+             [class.invalid-shift]="shift.isValid === false">
+
+          <div class="shift-row">
+            <div class="time-group">
+              <label>Bắt đầu</label>
+              <div class="time-pill">
+                <input type="time" [(ngModel)]="shift.startTime" (change)="validateShift(shift)"/>
+              </div>
+            </div>
+
+            <span class="arrow">→</span>
+
+            <div class="time-group">
+              <label>Kết thúc</label>
+              <div class="time-pill">
+                <input type="time" [(ngModel)]="shift.endTime" (change)="validateShift(shift)"/>
+              </div>
+            </div>
+
+            <div class="capacity-group">
+              <label>Số lượng</label>
+              <div class="capacity-dot">
+                <input type="number" min="1" [(ngModel)]="shift.maxCapacity" />
+              </div>
+            </div>
+
+            <div class="delete-group">
+              <label style="visibility: hidden;">X</label> <button type="button" class="delete-btn-icon" (click)="removeShift(i)">
+              <ion-icon name="trash-outline"></ion-icon>
+            </button>
+            </div>
+          </div>
+
+          <div class="error-msg" *ngIf="shift.isValid === false && shift.errorMsg">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            {{ shift.errorMsg }}
+          </div>
+        </div>
+      </div>
+
+      <div class="add-row">
+        <button type="button" class="add-btn-pill" (click)="addShift()">
+          <ion-icon name="add-outline"></ion-icon> Thêm ca làm việc
+        </button>
+      </div>
     </div>
   </div>
 
-  <button class="add-btn" type="button" (click)="addShift()">
-    + Thêm ca làm việc
-  </button>
-
-  <button class="primary-btn" type="button" (click)="save()">
-    Lưu ca làm việc
+  <button type="button" class="save-btn" (click)="save()" [disabled]="loading">
+    <span *ngIf="!loading">Lưu thay đổi</span>
+    <span *ngIf="loading">Đang xử lý...</span>
   </button>
 </div>
