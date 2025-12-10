@@ -15,18 +15,26 @@ export interface NotificationResponse {
 
 export interface AppointmentResponse {
   id: string;
-  appointmentDate: string;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
-  patientName: string;
-  phone: string;
-  reason?: string;
-  // Các trường khác tương ứng với Backend
+  clinicId: string;
+  clinicName: string;
+  departmentId: string;
+  departmentName: string; // VD: "Khoa Răng Hàm Mặt"
+  scheduleId: string;
+  startTime: string;      // VD: "10:00:00"
+  endTime: string;        // VD: "12:00:00"
+  appointmentDate: string;// VD: "2025-12-15"
+  userName: string;       // VD: "Nguyễn Văn E"
+  userPhone: string;      // VD: "0912345620"
+  userEmail: string;
+  description: string;    // VD: "Đau đầu..."
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED';
+  createdAt: string;
 }
 
 export interface DashboardCounts {
   PENDING: number;
   CONFIRMED: number;
-  CANCELLED: number;
+  CANCELED: number;
   TOTAL?: number;
 }
 

@@ -1,4 +1,5 @@
 <ion-content [fullscreen]="true" class="home-content">
+
   <div class="header-banner">
     <div class="header-top">
     </div>
@@ -36,7 +37,7 @@
           <ion-icon name="close-circle-outline"></ion-icon>
           <span>Đã hủy</span>
         </div>
-        <div class="stat-value text-red">{{ counts.CANCELLED || 0 }}</div>
+        <div class="stat-value text-red">{{ counts.CANCELED || 0 }}</div>
       </div>
     </div>
   </div>
@@ -49,39 +50,59 @@
       <ion-segment-button value="CONFIRMED">
         <ion-label>Đã xác nhận</ion-label>
       </ion-segment-button>
-      <ion-segment-button value="CANCELLED">
+      <ion-segment-button value="CANCELED">
         <ion-label>Đã hủy</ion-label>
       </ion-segment-button>
     </ion-segment>
   </div>
 
   <div class="list-container">
+
     <ion-card class="appointment-card" *ngFor="let item of listData">
       <div class="card-header-row">
         <div class="header-left">
-          <img src="assets/img/clinic-dept-placeholder.png" class="dept-avatar" />
+          <img src="assets/img/clinic-dept-placeholder.jpg" class="dept-avatar" />
           <div class="info-col">
-            <div class="main-title">{{ item.title || 'Lịch khám' }}</div>
+            <div class="main-title">{{ item.departmentName || 'Phòng khám' }}</div>
+
             <div class="time-row">
               <ion-icon name="calendar-outline"></ion-icon>
-              <span>{{ (item.bookingDate || item.appointmentDate) | date:'dd/MM/yyyy, hh:mm a' }}</span>
+              <span>{{ item.appointmentDate | date:'dd/MM/yyyy' }}, {{ formatTime(item.startTime) }}</span>
             </div>
           </div>
         </div>
+
         <div class="menu-icon">
           <ion-icon name="ellipsis-vertical"></ion-icon>
         </div>
       </div>
 
       <div class="card-body">
-        <p>Người đặt: {{ item.patientName }}</p>
-        <p>Số điện thoại: {{ item.patientPhone || item.phone }}</p>
-        <p *ngIf="item.reason">Lý do: {{ item.reason }}</p>
+        <div class="info-line">
+          <span class="label">Người đặt:</span>
+          <span class="value">{{ item.userName }}</span>
+        </div>
+        <div class="info-line">
+          <span class="label">Số điện thoại:</span>
+          <span class="value phone">{{ item.userPhone }}</span>
+        </div>
+        <div class="info-line">
+          <span class="label">Email:</span>
+          <span class="value">{{ item.userEmail }}</span>
+        </div>
+        <div class="info-line" *ngIf="item.description">
+          <span class="label">Lý do khám:</span>
+          <span class="value">{{ item.description }}</span>
+        </div>
       </div>
 
       <div class="card-actions" *ngIf="currentTab === 'PENDING'">
-        <button class="action-btn confirm" (click)="updateStatus(item, 'CONFIRMED')">Xác nhận</button>
-        <button class="action-btn cancel" (click)="updateStatus(item, 'CANCELLED')">Hủy</button>
+        <button class="action-btn confirm" (click)="updateStatus(item, 'CONFIRMED')">
+          Xác nhận
+        </button>
+        <button class="action-btn cancel" (click)="updateStatus(item, 'CANCELED')">
+          Hủy
+        </button>
       </div>
     </ion-card>
 

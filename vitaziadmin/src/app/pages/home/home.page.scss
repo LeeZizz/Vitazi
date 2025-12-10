@@ -1,68 +1,57 @@
-/* --- CẤU TRÚC CHUNG --- */
 .home-content {
-  --background: #ffffff; /* Nền trắng */
+  --background: #ffffff;
 }
 
-/* --- 1. HEADER BANNER (MÀU XANH) --- */
+/* 1. HEADER BANNER */
 .header-banner {
-  background-color: #63b8ff; /* Màu xanh da trời giống ảnh mẫu */
-  /* Hoặc dùng gradient nếu muốn bóng bẩy hơn:
-     background: linear-gradient(180deg, #6ec1ff 0%, #58afff 100%); */
+  /* Màu xanh da trời tươi sáng */
+  background: #5CA8FF;
+  height: 240px;
+  padding: 60px 20px 0;
 
-  height: 220px; /* Chiều cao cố định đủ lớn */
-  padding: 50px 20px 0; /* Padding top để tránh tai thỏ điện thoại */
-
-  border-bottom-left-radius: 45px; /* Bo góc dưới thật mạnh */
-  border-bottom-right-radius: 45px;
+  /* Bo góc dưới mạnh */
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
 
   color: white;
   position: relative;
   z-index: 0;
 }
 
-.header-top {
-  height: 20px; /* Khoảng trống trên cùng */
-}
-
 .page-title {
-  font-size: 26px;
-  font-weight: 800; /* Chữ đậm */
-  margin: 10px 0 0 4px;
-  letter-spacing: -0.5px;
+  font-size: 28px;
+  font-weight: 800;
+  margin: 10px 0 0 8px;
 }
 
-/* --- 2. STATS GRID (THỐNG KÊ) --- */
+/* 2. STATS GRID */
 .stats-container {
   padding: 0 16px;
-  margin-top: -90px; /* Kéo ngược lên để đè vào phần xanh */
+  margin-top: -100px; /* Đè lên header */
   position: relative;
   z-index: 10;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* 2 cột */
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
 .stat-card {
   background: #ffffff;
-  border-radius: 24px; /* Bo tròn card */
-  padding: 14px 16px;
-
-  /* Đổ bóng mềm mại */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-
+  border-radius: 24px;
+  padding: 12px 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   justify-content: center;
   min-height: 90px;
-
-  /* Viền màu (quan trọng trong ảnh mẫu) */
   border: 1.5px solid transparent;
 
-  &.purple { border-color: #a78bfa; background: linear-gradient(#fff, #f5f3ff); }
-  &.yellow { border-color: #fde047; background: linear-gradient(#fff, #fefce8); }
+  /* Màu viền theo trạng thái */
+  &.purple { border-color: #a78bfa; background: linear-gradient(#fff, #fbfaff); }
+  &.yellow { border-color: #fde047; background: linear-gradient(#fff, #fffbeb); }
   &.green  { border-color: #4ade80; background: linear-gradient(#fff, #f0fdf4); }
   &.red    { border-color: #f87171; background: linear-gradient(#fff, #fef2f2); }
 
@@ -74,7 +63,6 @@
     font-weight: 600;
     color: #4b5563;
     margin-bottom: 6px;
-
     ion-icon { font-size: 18px; }
   }
 
@@ -82,7 +70,6 @@
     font-size: 22px;
     font-weight: 800;
     text-align: center;
-
     &.text-purple { color: #7c3aed; }
     &.text-yellow { color: #d97706; }
     &.text-green  { color: #16a34a; }
@@ -90,138 +77,154 @@
   }
 }
 
-/* --- 3. SEGMENT (THANH TRẠNG THÁI) --- */
+/* 3. SEGMENT (Viên thuốc) */
 .segment-section {
-  padding: 30px 24px 20px;
+  padding: 30px 20px 20px;
   display: flex;
   justify-content: center;
 }
 
-/* Style đặc biệt cho Segment giống "viên thuốc" */
 ion-segment {
-  background: #e5e7eb; /* Màu nền xám của thanh */
+  background: #e2e8f0;
   border-radius: 50px;
   padding: 4px;
   height: auto;
-  --background: #e5e7eb;
+  --background: #e2e8f0;
 }
 
 ion-segment-button {
-  --indicator-color: #ffffff; /* Màu trắng cho nút đang chọn */
-  --indicator-box-shadow: 0 2px 6px rgba(0,0,0,0.15); /* Bóng cho nút đang chọn */
-  --color: #6b7280; /* Màu chữ chưa chọn (xám) */
-  --color-checked: #000000; /* Màu chữ đã chọn (đen) */
+  --indicator-color: #ffffff;
+  --indicator-box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  --color: #64748b;
+  --color-checked: #0f172a;
 
-  min-height: 36px;
-  border-radius: 40px; /* Bo tròn nút con */
+  min-height: 38px;
+  border-radius: 40px;
   font-weight: 600;
   font-size: 13px;
-  text-transform: none; /* Không viết hoa */
+  text-transform: none;
   margin: 0;
 
-  /* Fix layout text */
-  ion-label {
-    margin: 2px 0;
-    letter-spacing: 0;
-  }
+  ion-label { margin: 2px 0; letter-spacing: 0; }
 }
 
-/* --- 4. APPOINTMENT CARD (LIST) --- */
+/* 4. APPOINTMENT CARD */
 .list-container {
   padding-bottom: 40px;
 }
 
 .appointment-card {
-  margin: 10px 16px 20px;
+  margin: 0 16px 20px; /* Cách lề giống ảnh */
   border-radius: 20px;
   background: #ffffff;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  /* Border xanh nhạt bao quanh card giống ảnh */
-  border: 1px solid #bfdbfe;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #bfdbfe; /* Viền xanh nhạt bao quanh card */
   overflow: hidden;
 
-  /* Header card màu xanh rất nhạt */
+  /* Header Card */
   .card-header-row {
-    background: #93c5fd; /* Xanh đậm vừa phải */
-    /* Hoặc gradient như ảnh mẫu */
-    background: linear-gradient(180deg, #a5d3fe 0%, #93c5fd 100%);
-
-    padding: 14px;
+    /* Gradient xanh nhạt giống ảnh */
+    background: linear-gradient(180deg, #A6D8FF 0%, #90CAF9 100%);
+    padding: 14px 16px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
 
+    /* Hiệu ứng bóng đổ nhẹ ngăn cách header và body */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+
     .header-left {
       display: flex;
       gap: 12px;
+      align-items: center;
 
       .dept-avatar {
         width: 50px;
         height: 50px;
         border-radius: 8px;
         object-fit: cover;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       }
 
       .info-col {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-
         .main-title {
           font-weight: 800;
           font-size: 16px;
-          color: #1e3a8a; /* Xanh đen */
+          color: #0f172a;
           margin-bottom: 4px;
         }
-
         .time-row {
-          font-size: 12px;
+          font-size: 13px;
           color: #1e3a8a;
           display: flex;
           align-items: center;
           gap: 4px;
-          font-weight: 500;
+          font-weight: 600;
         }
+      }
+    }
+
+    .menu-icon {
+      color: #1e3a8a;
+      font-size: 20px;
+    }
+  }
+
+  /* Body Card */
+  .card-body {
+    background: #EFF6FF; /* Nền xanh siêu nhạt */
+    padding: 16px;
+
+    .info-line {
+      display: flex;
+      margin-bottom: 6px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #334155;
+
+      .label {
+        min-width: 90px; /* Căn thẳng hàng */
+        color: #64748b;
+      }
+      .value {
+        font-weight: 500;
+        color: #0f172a;
+        flex: 1;
+      }
+      .value.phone {
+        font-family: monospace; /* Số điện thoại dễ đọc hơn */
+        font-weight: 600;
       }
     }
   }
 
-  .card-body {
-    background: #eff6ff; /* Xanh cực nhạt cho phần thân */
-    padding: 16px;
-    color: #334155;
-    font-size: 14px;
-    line-height: 1.6;
-
-    p { margin: 4px 0; }
-  }
-
+  /* Footer Card (Buttons) */
   .card-actions {
-    background: #eff6ff;
+    background: #EFF6FF;
     padding: 0 16px 16px;
     display: flex;
     justify-content: flex-end;
-    gap: 12px;
+    gap: 10px;
 
     .action-btn {
       padding: 8px 24px;
       border-radius: 50px;
       font-size: 13px;
       font-weight: 700;
-      cursor: pointer;
       border: none;
+      cursor: pointer;
 
       &.confirm {
-        background: #ffffff;
-        color: #1e3a8a;
+        background: #ffffff; /* Nền trắng */
+        color: #1e3a8a;      /* Chữ xanh đậm */
         border: 1px solid #bfdbfe;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       }
 
       &.cancel {
-        background: #ef4444;
+        background: #ef4444; /* Đỏ */
         color: white;
-        box-shadow: 0 2px 5px rgba(239, 68, 68, 0.3);
+        box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
       }
     }
   }

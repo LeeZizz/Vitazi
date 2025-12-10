@@ -29,10 +29,10 @@ import { DashboardCounts } from '../../models/clinic.models';
 })
 export class HomePage implements OnInit {
   // Mặc định tab Chờ xử lý
-  currentTab: 'PENDING' | 'CONFIRMED' | 'CANCELLED' = 'PENDING';
+  currentTab: 'PENDING' | 'CONFIRMED' | 'CANCELED' = 'PENDING';
 
   // Thống kê
-  counts: DashboardCounts = { PENDING: 0, CONFIRMED: 0, CANCELLED: 0 };
+  counts: DashboardCounts = { PENDING: 0, CONFIRMED: 0, CANCELED: 0 };
   totalCount = 0;
 
   // Dữ liệu danh sách (dùng chung cho cả Appointment và Notification)
@@ -63,8 +63,8 @@ export class HomePage implements OnInit {
   loadStats() {
     this.dashboardService.getNotificationCounts().subscribe({
       next: (data) => {
-        this.counts = data || { PENDING: 0, CONFIRMED: 0, CANCELLED: 0 };
-        this.totalCount = (this.counts.PENDING || 0) + (this.counts.CONFIRMED || 0) + (this.counts.CANCELLED || 0);
+        this.counts = data || { PENDING: 0, CONFIRMED: 0, CANCELED: 0 };
+        this.totalCount = (this.counts.PENDING || 0) + (this.counts.CONFIRMED || 0) + (this.counts.CANCELED || 0);
       },
       error: (err) => console.error('Load stats error', err)
     });
@@ -111,4 +111,15 @@ export class HomePage implements OnInit {
       });
     }
   }
+
+  formatTime(timeString: string): string {
+    if (!timeString) return '';
+    // Giả sử timeString dạng "HH:mm:ss"
+    const [hours, minutes] = timeString.split(':');
+    const h = parseInt(hours, 10);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return `${h12}:${minutes} ${ampm}`;
+  }
+
 }
