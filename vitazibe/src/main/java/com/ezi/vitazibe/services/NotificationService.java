@@ -9,6 +9,8 @@ import com.ezi.vitazibe.exceptions.WebException;
 import com.ezi.vitazibe.repositories.AppointmentRepository;
 import com.ezi.vitazibe.repositories.NotificationRespository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,16 +25,14 @@ public class NotificationService {
     private final NotificationRespository notificationRespository;
     private final AppointmentRepository appointmentRepository;
 
-    public List<NotificationResponse> getNotificationsByClinicId(String clinicId, Status status) {
-        List<NotificationEntity> notifications;
+    public Page<NotificationResponse> getNotificationsByClinicId(String clinicId, Status status, Pageable pageable) {
+        Page<NotificationEntity> notifications;
         if (status != null) {
-            notifications = notificationRespository.findByClinicId_IdAndStatusOrderByCreatedAtDesc(clinicId, status);
+            notifications = notificationRespository.findByClinicId_IdAndStatus(clinicId, status, pageable);
         } else {
-            notifications = notificationRespository.findByClinicId_IdOrderByCreatedAtDesc(clinicId);
+            notifications = notificationRespository.findByClinicId_Id(clinicId, pageable);
         }
-        return notifications.stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+        return notifications.map(this::mapToResponse);
     }
 
     @Transactional
@@ -65,6 +65,7 @@ public class NotificationService {
             notificationRespository.save(n);
         });
     }
+
 
     private NotificationResponse mapToResponse(NotificationEntity entity) {
         return NotificationResponse.builder()
