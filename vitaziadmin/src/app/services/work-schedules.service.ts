@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment'; // Thêm import này
+
 
 import {
   SaveSchedulesPayload,
@@ -32,7 +34,8 @@ interface ApiResponse<T> {
 
 @Injectable({ providedIn: 'root' })
 export class WorkSchedulesService {
-  private readonly baseUrl = 'http://localhost:8080';
+  // private readonly baseUrl = 'http://localhost:8080';
+  private readonly baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
