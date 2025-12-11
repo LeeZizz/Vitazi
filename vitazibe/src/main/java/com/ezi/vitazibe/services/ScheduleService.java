@@ -11,6 +11,10 @@ import com.ezi.vitazibe.repositories.ClinicRepository;
 import com.ezi.vitazibe.repositories.DepartmentRepository;
 import com.ezi.vitazibe.repositories.ScheduleRespository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,6 +68,34 @@ public class ScheduleService {
         return schedules.stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+//    @Transactional
+//    public Page<ScheduleResponse> getSchedulesByClinicAndDepartment(String clinicId, String departmentId, Pageable pageable) {
+//        Pageable sortedByDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("date").descending());
+//        Page<ScheduleEntity> schedules = scheduleRespository.findByClinicId_IdAndDepartmentId_Id(clinicId, departmentId, sortedByDateDesc);
+//        return schedules.map(this::mapToResponse);
+//    }
+
+    @Transactional
+    public Page<ScheduleResponse> getSchedulesByClinicAndDepartment(String clinicId, String departmentId, Pageable pageable) {
+        LocalDate today = LocalDate.now();
+        LocalDate threeDaysLater = today.plusDays(2);
+
+        // Sắp xếp theo ngày tăng dần, sau đó đến giờ bắt đầu tăng dần
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by("date").ascending().and(Sort.by("startTime").ascending())
+        );
+        Page<ScheduleEntity> schedules = scheduleRespository.findByClinicId_IdAndDepartmentId_IdAndDateBetween(
+                clinicId,
+                departmentId,
+                today,
+                threeDaysLater,
+                sortedPageable
+        );
+        return schedules.map(this::mapToResponse);
     }
 
     @Transactional

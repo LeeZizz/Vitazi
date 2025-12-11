@@ -1,6 +1,7 @@
 package com.ezi.vitazibe.controller;
 
 import com.ezi.vitazibe.dto.request.AppointmentRequest;
+import com.ezi.vitazibe.dto.request.UpdateAppointmentDetailsRequest;
 import com.ezi.vitazibe.dto.request.UpdateStatusRequest;
 import com.ezi.vitazibe.dto.response.ApiResponse;
 import com.ezi.vitazibe.dto.response.AppointmentResponse;
@@ -73,6 +74,18 @@ public class AppointmentController {
         AppointmentResponse appointmentResponse = appointmentService.updateAppointmentStatus(id, request.getStatus());
         ApiResponse<AppointmentResponse> response = ApiResponse.<AppointmentResponse>builder()
                 .message("Appointment status updated successfully")
+                .result(appointmentResponse)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/updateSchedule/{id}")
+    public ResponseEntity<ApiResponse<AppointmentResponse>> updateAppointmentDetails(
+            @PathVariable String id,
+            @RequestBody UpdateAppointmentDetailsRequest request) {
+        AppointmentResponse appointmentResponse = appointmentService.updateAppointmentDetails(id, request);
+        ApiResponse<AppointmentResponse> response = ApiResponse.<AppointmentResponse>builder()
+                .message("Appointment details updated successfully")
                 .result(appointmentResponse)
                 .build();
         return ResponseEntity.ok(response);
