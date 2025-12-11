@@ -10,7 +10,8 @@
         <div class="form-group">
           <label>Phòng khám</label>
           <div class="custom-select">
-            <ion-select [(ngModel)]="selectedClinicId" (ionChange)="onClinicChange()" placeholder="Chọn phòng khám" interface="popover">
+            <ion-select [(ngModel)]="selectedClinicId" (ionChange)="onClinicChange()" placeholder="Chọn phòng khám"
+              interface="popover">
               <ion-select-option *ngFor="let c of clinics" [value]="c.id">{{ c.clinicName }}</ion-select-option>
             </ion-select>
           </div>
@@ -19,7 +20,8 @@
         <div class="form-group">
           <label>Chuyên khoa</label>
           <div class="custom-select" [class.disabled]="!selectedClinicId">
-            <ion-select [(ngModel)]="selectedDepartmentId" (ionChange)="onDepartmentChange()" placeholder="Chọn khoa" interface="popover" [disabled]="!selectedClinicId">
+            <ion-select [(ngModel)]="selectedDepartmentId" (ionChange)="onDepartmentChange()" placeholder="Chọn khoa"
+              interface="popover" [disabled]="!selectedClinicId">
               <ion-select-option *ngFor="let d of departments" [value]="d.id">{{ d.departmentName }}</ion-select-option>
             </ion-select>
           </div>
@@ -29,10 +31,7 @@
 
     <div class="date-section" *ngIf="selectedDepartmentId">
       <div class="date-scroller">
-        <div
-          class="date-card"
-          *ngFor="let day of weekDays"
-          [class.active]="selectedDate === day.fullDate"
+        <div class="date-card" *ngFor="let day of weekDays" [class.active]="selectedDate === day.fullDate"
           (click)="selectDate(day)">
           <span class="day-name">{{ day.dayName }}</span>
           <span class="day-number">{{ day.dayNumber }}</span>
@@ -45,10 +44,7 @@
       <h4>🕒 Ca khám còn trống</h4>
 
       <div class="time-grid" *ngIf="schedules.length > 0; else noSchedule">
-        <button
-          class="time-chip"
-          *ngFor="let s of schedules"
-          [class.selected]="selectedSchedule?.id === s.id"
+        <button class="time-chip" *ngFor="let s of schedules" [class.selected]="selectedSchedule?.id === s.id"
           (click)="selectTimeSlot(s)">
           {{ formatTime(s.startTime) }} - {{ formatTime(s.endTime) }}
         </button>

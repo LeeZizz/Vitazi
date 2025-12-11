@@ -1,12 +1,8 @@
 <ion-content fullscreen>
   <div class="booking-container" *ngIf="clinicId; else noClinicTpl">
 
-    <app-clinic-work-schedule
-      [clinicId]="clinicId"
-      [mode]="mode"
-      [allowDepartmentSelect]="true"
-    (saved)="onSaved()"
-    ></app-clinic-work-schedule>
+    <app-clinic-work-schedule [clinicId]="clinicId" [mode]="mode" [allowDepartmentSelect]="true"
+      (saved)="onSaved()"></app-clinic-work-schedule>
 
   </div>
 
@@ -17,11 +13,5 @@
   </ng-template>
 </ion-content>
 
-<ion-toast
-  [isOpen]="toastOpen"
-  [message]="toastMessage"
-  color="success"
-  duration="2000"
-  position="bottom"
-  (didDismiss)="toastOpen = false"
-></ion-toast>
+<ion-toast [isOpen]="toastOpen" [message]="toastMessage" color="success" duration="2000" position="bottom"
+  (didDismiss)="toastOpen = false"></ion-toast>

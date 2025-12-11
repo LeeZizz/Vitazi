@@ -21,7 +21,7 @@ export class BookingPage implements OnInit {
   toastOpen = false;
   toastMessage = '';
 
-  constructor(private clinicSchedule: ClinicScheduleService) {}
+  constructor(private clinicSchedule: ClinicScheduleService) { }
 
   ngOnInit() {
     this.clinicId = this.clinicSchedule.currentClinicId;

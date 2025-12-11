@@ -43,7 +43,7 @@ export class BookingFormComponent implements OnInit {
     private bookingService: BookingService,
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.generateWeekDays(); // 1. Tạo ngày
