@@ -43,13 +43,16 @@ public class AppointmentService {
         ScheduleEntity scheduleEntity = scheduleRespository.findById(appointmentRequest.getScheduleId())
                 .orElseThrow(() -> new WebException(ErrorCode.SCHEDULE_NOT_FOUND));
 
-        if (scheduleEntity.getCapacity() >= scheduleEntity.getMaxCapacity()) {
-            scheduleEntity.setIsActive(false);
-            scheduleRespository.save(scheduleEntity);
-            throw new WebException(ErrorCode.SCHEDULE_FULL);
+//        if (scheduleEntity.getCapacity() >= scheduleEntity.getMaxCapacity()) {
+//            scheduleEntity.setIsActive(false);
+//            scheduleRespository.save(scheduleEntity);
+//            throw new WebException(ErrorCode.SCHEDULE_FULL);
+//        }
+//        scheduleEntity.setCapacity(scheduleEntity.getCapacity() + 1);
+//        scheduleRespository.save(scheduleEntity);
+        if (!Boolean.TRUE.equals(scheduleEntity.getIsActive())) {
+            throw new WebException(ErrorCode.SCHEDULE_NOT_ACTIVE);
         }
-        scheduleEntity.setCapacity(scheduleEntity.getCapacity() + 1);
-        scheduleRespository.save(scheduleEntity);
 
         AppointmentEntity appointmentEntity = new AppointmentEntity();
         appointmentEntity.setClinicId(clinicEntity);
@@ -96,6 +99,18 @@ public class AppointmentService {
         return appointments.map(this::mapToResponse);
     }
 
+    public Page<AppointmentResponse> getAppointmentByClinicIdByDate(
+            String clinicId, Status status, Pageable pageable, LocalDate date) {
+        Page<AppointmentEntity> appointments;
+        if (status != null) {
+            appointments = appointmentRepository.findByClinicId_IdAndStatusAndAppointmentDate(clinicId, status, date, pageable);
+        } else {
+            appointments = appointmentRepository.findByClinicId_IdAndAppointmentDate(clinicId, date, pageable);
+        }
+        return appointments.map(this::mapToResponse);
+    }
+
+
     public AppointmentResponse getAppointmentDetails(String appointmentId) {
         AppointmentEntity appointmentEntity = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new WebException(ErrorCode.APPOINTMENT_NOT_FOUND));
@@ -133,28 +148,59 @@ public class AppointmentService {
                 .orElseThrow(() -> new WebException(ErrorCode.APPOINTMENT_NOT_FOUND));
 
         Status oldStatus = appointmentEntity.getStatus();
-        if (oldStatus != newStatus) {
-            ScheduleEntity scheduleEntity = appointmentEntity.getScheduleId();
-            if (scheduleEntity != null) {
-                if (newStatus == Status.CANCELED) {
-                    int newCapacity = Math.max(0, scheduleEntity.getCapacity() - 1);
-                    scheduleEntity.setCapacity(newCapacity);
-                    if (!scheduleEntity.getIsActive() && newCapacity < scheduleEntity.getMaxCapacity()) {
-                        scheduleEntity.setIsActive(true);
-                    }
-                } else if (oldStatus == Status.CANCELED && (newStatus == Status.CONFIRMED || newStatus == Status.PENDING)) {
-                    if (scheduleEntity.getCapacity() >= scheduleEntity.getMaxCapacity()) {
-                        throw new WebException(ErrorCode.SCHEDULE_FULL);
-                    }
-                    int newCapacity = scheduleEntity.getCapacity() + 1;
-                    scheduleEntity.setCapacity(newCapacity);
-                    if (newCapacity >= scheduleEntity.getMaxCapacity()) {
-                        scheduleEntity.setIsActive(false);
-                    }
+        ScheduleEntity scheduleEntity = appointmentEntity.getScheduleId();
+        if (oldStatus != newStatus && scheduleEntity != null) {
+            if (newStatus == Status.CONFIRMED && oldStatus != Status.CONFIRMED) {
+                if (scheduleEntity.getCapacity() >= scheduleEntity.getMaxCapacity()) {
+                    throw new WebException(ErrorCode.SCHEDULE_FULL);
+                }
+                int newCapacity = scheduleEntity.getCapacity() + 1;
+                scheduleEntity.setCapacity(newCapacity);
+                if (newCapacity >= scheduleEntity.getMaxCapacity()) {
+                    scheduleEntity.setIsActive(false);
+                }
+                scheduleRespository.save(scheduleEntity);
+            }
+            else if (oldStatus == Status.CONFIRMED && newStatus == Status.CANCELED) {
+                int newCapacity = Math.max(0, scheduleEntity.getCapacity() - 1);
+                scheduleEntity.setCapacity(newCapacity);
+                if (!scheduleEntity.getIsActive() && newCapacity < scheduleEntity.getMaxCapacity()) {
+                    scheduleEntity.setIsActive(true);
                 }
                 scheduleRespository.save(scheduleEntity);
             }
             appointmentEntity.setStatus(newStatus);
+        }
+//        if (oldStatus != newStatus) {
+//            ScheduleEntity scheduleEntity = appointmentEntity.getScheduleId();
+//            if (scheduleEntity != null) {
+//                if (newStatus == Status.CANCELED) {
+//                    int newCapacity = Math.max(0, scheduleEntity.getCapacity() - 1);
+//                    scheduleEntity.setCapacity(newCapacity);
+//                    if (!scheduleEntity.getIsActive() && newCapacity < scheduleEntity.getMaxCapacity()) {
+//                        scheduleEntity.setIsActive(true);
+//                    }
+//                } else if (oldStatus == Status.CANCELED && (newStatus == Status.CONFIRMED || newStatus == Status.PENDING)) {
+//                    if (scheduleEntity.getCapacity() >= scheduleEntity.getMaxCapacity()) {
+//                        throw new WebException(ErrorCode.SCHEDULE_FULL);
+//                    }
+//                    int newCapacity = scheduleEntity.getCapacity() + 1;
+//                    scheduleEntity.setCapacity(newCapacity);
+//                    if (newCapacity >= scheduleEntity.getMaxCapacity()) {
+//                        scheduleEntity.setIsActive(false);
+//                    }
+//                }
+//                scheduleRespository.save(scheduleEntity);
+//            }
+//            appointmentEntity.setStatus(newStatus);
+//        }
+        List<NotificationEntity> notifications = notificationRespository.findByClinicId_IdAndStatusOrderByCreatedAtDesc(
+                appointmentEntity.getClinicId().getId(), oldStatus);
+        for (NotificationEntity notification : notifications) {
+            if (notification.getAppointmentId() != null && notification.getAppointmentId().getId().equals(appointmentId)) {
+                notification.setStatus(newStatus);
+                notificationRespository.save(notification);
+            }
         }
 
         AppointmentEntity updatedAppointment = appointmentRepository.save(appointmentEntity);
@@ -194,6 +240,7 @@ public class AppointmentService {
                 }
                 scheduleRespository.save(newSchedule);
             }
+
         }
 
         // Cập nhật thông tin cho cuộc hẹn

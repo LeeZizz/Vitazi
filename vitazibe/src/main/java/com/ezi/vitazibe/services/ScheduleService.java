@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -33,6 +34,21 @@ public class ScheduleService {
     public ScheduleResponse createSchedule(ScheduleRequest scheduleRequest){
         if (scheduleRequest.getDate() == null || !scheduleRequest.getDate().isAfter(LocalDate.now())) {
             throw new WebException(ErrorCode.INVALID_SCHEDULE_DATE);
+        }
+        List<ScheduleEntity> existingSchedules = scheduleRespository.findByClinicId_IdAndDepartmentId_IdAndDateAndIsActive(
+                scheduleRequest.getClinicId(),
+                scheduleRequest.getDepartmentId(),
+                scheduleRequest.getDate(),
+                true
+        );
+        LocalTime newStart = scheduleRequest.getStartTime();
+        LocalTime newEnd = scheduleRequest.getEndTime();
+        for (ScheduleEntity schedule : existingSchedules) {
+            LocalTime existStart = schedule.getStartTime();
+            LocalTime existEnd = schedule.getEndTime();
+            if (!(newEnd.isBefore(existStart) || newStart.isAfter(existEnd))) {
+                throw new WebException(ErrorCode.SCHEDULE_ERROR_TIME_CONFLICT);
+            }
         }
         ClinicEntity clinicEntity = clinicRepository.findById(scheduleRequest.getClinicId())
                 .orElseThrow(() -> new WebException(ErrorCode.CLINIC_NOT_FOUND));
@@ -115,7 +131,13 @@ public class ScheduleService {
         }
         scheduleEntity.setCapacity(request.getCapacity());
         scheduleEntity.setMaxCapacity(request.getMaxCapacity());
+//        if (request.getIsActive() != null) {
+//            scheduleEntity.setIsActive(request.getIsActive());
+//        }
         if (request.getIsActive() != null) {
+            if (request.getIsActive() && scheduleEntity.getCapacity() >= scheduleEntity.getMaxCapacity()) {
+                throw new WebException(ErrorCode.SCHEDULE_FULLY_BOOKED);
+            }
             scheduleEntity.setIsActive(request.getIsActive());
         }
         scheduleEntity.setStartTime(request.getStartTime());

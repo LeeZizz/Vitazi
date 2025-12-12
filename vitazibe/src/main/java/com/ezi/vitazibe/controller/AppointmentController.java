@@ -16,11 +16,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.Year;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +76,28 @@ public class AppointmentController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/getAllAppointmentsByDate")
+    public ResponseEntity<ApiResponse<Page<AppointmentResponse>>> getAppointmentByClinicIdByDate(
+            @AuthenticationPrincipal OAuth2User oAuth2User,
+            @RequestParam(required = false) Status status,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            Pageable pageable) {
+        String sub = oAuth2User.getAttribute("sub");
+        if (sub == null) {
+            sub = oAuth2User.getAttribute("id");
+        }
+        ClinicEntity clinic = clinicRepository.findByOauthSub(sub)
+                .orElseThrow(() -> new WebException(ErrorCode.CLINIC_NOT_FOUND));
+        Page<AppointmentResponse> appointmentResponses = appointmentService.getAppointmentByClinicIdByDate(clinic.getId(), status, pageable, date);
+        ApiResponse<Page<AppointmentResponse>> response = ApiResponse.<Page<AppointmentResponse>>builder()
+                .message("Get appointments by date successfully")
+                .result(appointmentResponses)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
 
     @PutMapping("/updateStatus/{id}")
     public ResponseEntity<ApiResponse<AppointmentResponse>> updateAppointmentStatus(@PathVariable String id, @RequestBody UpdateStatusRequest request){
@@ -136,4 +160,5 @@ public class AppointmentController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
 }
