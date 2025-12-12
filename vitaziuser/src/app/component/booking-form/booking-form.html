@@ -2,83 +2,97 @@
   <div class="container">
 
     <div class="header-section">
-      <h2>📅 Đăng ký khám bệnh</h2>
+      <h3>📅 Chọn lịch khám</h3>
     </div>
 
-    <div class="card-section">
-      <div class="form-row">
-        <div class="form-group">
-          <label>Phòng khám</label>
-          <div class="custom-select">
-            <ion-select [(ngModel)]="selectedClinicId" (ionChange)="onClinicChange()" placeholder="Chọn phòng khám"
-              interface="popover">
-              <ion-select-option *ngFor="let c of clinics" [value]="c.id">{{ c.clinicName }}</ion-select-option>
-            </ion-select>
-          </div>
-        </div>
+    <div class="top-controls">
 
-        <div class="form-group">
-          <label>Chuyên khoa</label>
-          <div class="custom-select" [class.disabled]="!selectedClinicId">
-            <ion-select [(ngModel)]="selectedDepartmentId" (ionChange)="onDepartmentChange()" placeholder="Chọn khoa"
-              interface="popover" [disabled]="!selectedClinicId">
-              <ion-select-option *ngFor="let d of departments" [value]="d.id">{{ d.departmentName }}</ion-select-option>
-            </ion-select>
-          </div>
-        </div>
+      <div class="custom-select-wrapper">
+        <ion-select [value]="selectedDepartmentId" (ionChange)="onDepartmentChange($event)"
+                    interface="popover" placeholder="Chọn chuyên khoa" class="modern-select">
+          <ion-select-option *ngFor="let d of departments" [value]="d.id">
+            {{ d.departmentName }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+
+      <div class="month-picker-wrapper">
+        <ion-datetime-button datetime="datetime"></ion-datetime-button>
+        <ion-modal [keepContentsMounted]="true">
+          <ng-template>
+            <ion-datetime id="datetime"
+                          presentation="month-year"
+                          [(ngModel)]="currentIsoDate"
+                          [min]="minDate"
+                          [max]="maxDate"
+                          (ionChange)="onMonthChange($event)"></ion-datetime>
+          </ng-template>
+        </ion-modal>
       </div>
     </div>
 
-    <div class="date-section" *ngIf="selectedDepartmentId">
-      <div class="date-scroller">
-        <div class="date-card" *ngFor="let day of weekDays" [class.active]="selectedDate === day.fullDate"
-          (click)="selectDate(day)">
-          <span class="day-name">{{ day.dayName }}</span>
-          <span class="day-number">{{ day.dayNumber }}</span>
-          <span class="month-name">{{ day.displayMonth }}</span>
+    <div class="date-section">
+      <div class="pagination-controls">
+        <button class="nav-btn" (click)="prevPage()" [disabled]="startIndex === 0">
+          <ion-icon name="chevron-back"></ion-icon>
+        </button>
+
+        <div class="date-list">
+          <div class="date-card" *ngFor="let day of visibleDays"
+               [class.active]="selectedDate === day.fullDate"
+               (click)="selectDate(day)">
+            <span class="day-name">{{ day.dayName }}</span>
+            <span class="day-number">{{ day.dayNumber }}</span>
+          </div>
+          <div *ngIf="visibleDays.length === 0" class="no-days-msg">
+            Không còn ngày làm việc trong tháng này
+          </div>
         </div>
+
+        <button class="nav-btn" (click)="nextPage()"
+                [disabled]="startIndex + pageSize >= allDaysOfMonth.length">
+          <ion-icon name="chevron-forward"></ion-icon>
+        </button>
       </div>
     </div>
 
-    <div class="time-section" *ngIf="selectedDepartmentId">
+    <div class="time-section" *ngIf="selectedDepartmentId && selectedDate">
       <h4>🕒 Ca khám còn trống</h4>
 
       <div class="time-grid" *ngIf="schedules.length > 0; else noSchedule">
-        <button class="time-chip" *ngFor="let s of schedules" [class.selected]="selectedSchedule?.id === s.id"
-          (click)="selectTimeSlot(s)">
+        <button class="time-chip" *ngFor="let s of schedules"
+                [class.selected]="selectedSchedule?.id === s.id"
+                (click)="selectTimeSlot(s)">
           {{ formatTime(s.startTime) }} - {{ formatTime(s.endTime) }}
         </button>
       </div>
 
       <ng-template #noSchedule>
-        <p class="empty-msg">Không có lịch khám nào trong ngày {{selectedDate}}</p>
+        <div class="empty-state">
+          <p>Không có lịch khám nào.</p>
+        </div>
       </ng-template>
     </div>
 
-    <div class="info-section" *ngIf="selectedSchedule">
-      <h4>Thông tin người khám</h4>
-
+    <div class="info-section">
+      <h4>Thông tin người khám bệnh</h4>
       <div class="input-box">
         <label>Họ và Tên</label>
-        <input type="text" [(ngModel)]="patientName" placeholder="Nguyễn Văn A">
+        <input type="text" placeholder="Nguyễn Văn A">
       </div>
-
       <div class="input-box">
         <label>Số điện thoại</label>
-        <input type="tel" [(ngModel)]="patientPhone" placeholder="09xxxx">
+        <input type="tel" placeholder="0912345678">
       </div>
-
       <div class="input-box">
-        <label>Email (Tuỳ chọn)</label>
-        <input type="email" [(ngModel)]="patientEmail" placeholder="email@example.com">
+        <label>Email</label>
+        <input type="email" placeholder="example@gmail.com">
       </div>
-
       <div class="input-box">
         <label>Lý do khám</label>
-        <input type="text" [(ngModel)]="description" placeholder="Triệu chứng...">
+        <input type="text" placeholder="Triệu chứng bệnh...">
       </div>
-
-      <button class="btn-submit" (click)="onSubmit()">Xác nhận Đặt lịch</button>
+      <button class="btn-submit" (click)="onSubmit()">Xác nhận đặt lịch</button>
     </div>
 
   </div>

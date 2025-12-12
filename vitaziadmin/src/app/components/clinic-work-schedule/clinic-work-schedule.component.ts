@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonDatetime, IonIcon, ToastController } from '@ionic/angular/standalone';
+import { IonDatetime, IonIcon, ToastController, IonToggle } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { trashOutline, addOutline, saveOutline, alertCircleOutline, checkmarkCircleOutline, informationCircleOutline } from 'ionicons/icons';
 import { forkJoin } from 'rxjs';

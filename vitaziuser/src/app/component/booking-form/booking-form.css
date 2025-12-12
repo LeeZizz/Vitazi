@@ -1,197 +1,398 @@
+/* --- GLOBAL VARIABLES & RESET --- */
+:host {
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #1e293b;
+  --text-sub: #64748b;
+  --border-color: #cbd5e1;
+}
+
 .main-bg {
-  --background: #f0f4f8;
+  --background: #ffffff;
 }
 
 .container {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 16px;
-  background: #ffffff;
-  min-height: 100vh;
+  padding: 20px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  padding-bottom: 50px; /* Khoảng trống dưới cùng cho mobile dễ scroll */
 }
 
-h2,
+/* Typography */
+h3 {
+  font-weight: 800;
+  font-size: 24px;
+  margin-bottom: 25px;
+  color: var(--text-main);
+  letter-spacing: -0.5px;
+}
+
 h4 {
-  color: #1e293b;
+  font-size: 16px;
   font-weight: 700;
   margin-bottom: 15px;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* Select Box */
-.form-row {
+/* --- 1. TOP CONTROLS (Responsive) --- */
+.top-controls {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.form-group {
-  flex: 1;
-}
-
-.form-group label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #64748b;
-  margin-bottom: 5px;
-  display: block;
-}
-
-.custom-select {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 0 5px;
-  background: #fff;
-}
-
-.disabled {
-  opacity: 0.6;
-  pointer-events: none;
-  background: #f1f5f9;
-}
-
-/* Date Scroller (Thanh ngang) */
-.date-section {
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 25px;
-  background: #f8fafc;
-  padding: 15px;
-  border-radius: 16px;
+  gap: 15px;
+  flex-wrap: wrap; /* Cho phép xuống dòng nếu màn hình nhỏ */
 }
 
-.date-scroller {
+.custom-select-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 250px; /* Đảm bảo không bị quá nhỏ */
+}
+
+.modern-select {
+  width: 100%;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px 12px 12px 45px;
+  font-weight: 600;
+  color: var(--text-main);
+  min-height: 50px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.modern-select:hover {
+  border-color: var(--primary-color);
+  background: #eff6ff;
+}
+
+.select-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  z-index: 10;
+  filter: grayscale(0.5);
+}
+
+.month-picker-wrapper {
   display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 5px;
-  scrollbar-width: none;
+  justify-content: flex-end;
 }
 
-.date-scroller::-webkit-scrollbar {
-  display: none;
+ion-datetime-button {
+  background: var(--bg-color);
+  border-radius: 12px;
+  padding: 4px;
+  border: 1px solid var(--border-color);
+}
+ion-datetime-button::part(native) {
+  background: transparent;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+/* --- 2. PAGINATION DATE (Responsive Grid) --- */
+.date-section {
+  background: #eff6ff;
+  padding: 15px;
+  border-radius: 20px;
+  margin-bottom: 25px;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.date-list {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  justify-content: space-between; /* Căn đều các thẻ */
 }
 
 .date-card {
-  min-width: 75px;
-  height: 90px;
-  background: #fff;
-  border-radius: 12px;
+  flex: 1; /* Tự động chia đều chiều rộng */
+  min-width: 0; /* Cho phép thu nhỏ dưới kích thước nội dung */
+  height: 85px;
+  background: var(--card-bg);
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1px solid #e2e8f0;
+  border: 1px solid transparent;
   cursor: pointer;
   transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.date-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary-color);
 }
 
 .date-card .day-name {
-  font-size: 12px;
-  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-sub);
+  margin-bottom: 4px;
+  text-transform: uppercase;
 }
 
 .date-card .day-number {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 800;
-  color: #334155;
-  margin: 4px 0;
-}
-
-.date-card .month-name {
-  font-size: 10px;
-  color: #94a3b8;
+  color: var(--text-main);
 }
 
 .date-card.active {
-  background: #3b82f6;
-  border-color: #3b82f6;
-  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .date-card.active * {
   color: white !important;
 }
 
-/* Time Chips */
-.time-grid {
+/* Nút điều hướng Next/Prev */
+.nav-btn {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0; /* Không bị co lại */
+  border-radius: 50%;
+  border: none;
+  background: white;
+  color: var(--text-main);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.time-chip {
-  padding: 8px 16px;
-  border: 1px solid #3b82f6;
-  background: #eff6ff;
-  color: #3b82f6;
-  border-radius: 8px;
-  font-weight: 600;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: 0.2s;
 }
 
-.time-chip.selected {
-  background: #3b82f6;
+.nav-btn:hover:not(:disabled) {
+  background: var(--primary-color);
   color: white;
-  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
 }
 
-.empty-msg {
-  font-style: italic;
-  color: #94a3b8;
-  margin-top: 10px;
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background: #f1f5f9;
 }
 
-/* Input Form */
+/* --- 3. TIME SLOTS --- */
+.time-grid {
+  display: grid;
+  /* Tự động chia cột: nhỏ nhất 100px, lớn nhất 1fr */
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.time-chip {
+  padding: 12px 5px;
+  border: 1px solid #e0e7ff;
+  background: white;
+  color: var(--primary-color);
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.time-chip:hover {
+  background: #e0e7ff;
+}
+
+.time-chip.selected {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+}
+
+/* --- 4. FORM SECTION --- */
 .info-section {
-  margin-top: 30px;
-  animation: slideUp 0.3s ease;
+  background: var(--bg-color);
+  padding: 25px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  animation: slideIn 0.3s ease-out;
 }
 
 .input-box {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .input-box label {
-  font-weight: 600;
   font-size: 13px;
+  font-weight: 700;
   color: #475569;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   display: block;
 }
 
 .input-box input {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  outline: none;
+  padding: 14px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 15px;
+  transition: 0.2s;
+  background: white;
+  appearance: none; /* Xóa style mặc định của iOS */
 }
 
 .input-box input:focus {
-  border-color: #3b82f6;
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 }
 
 .btn-submit {
   width: 100%;
-  padding: 14px;
-  background: #3b82f6;
+  padding: 16px;
+  background: #6666FF;
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 14px;
   font-weight: 700;
   font-size: 16px;
-  margin-top: 10px;
-  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+  margin-top: 15px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+  transition: transform 0.1s;
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+.btn-submit:active {
+  transform: scale(0.98);
+}
+
+.no-days-msg {
+  text-align: center;
+  width: 100%;
+  color: var(--text-sub);
+  font-style: italic;
+  font-size: 14px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-sub);
+  background: #f1f5f9;
+  border-radius: 12px;
+}
+
+/* --- 5. MEDIA QUERIES (MOBILE & TABLET) --- */
+
+/* Tablet & Mobile Lớn (Dưới 768px) */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  /* Chuyển Top Controls thành dọc */
+  .top-controls {
+    flex-direction: column;
+    align-items: stretch; /* Kéo giãn full chiều ngang */
+    gap: 12px;
   }
+
+  .custom-select-wrapper {
+    max-width: 100%; /* Full width */
+  }
+
+  .month-picker-wrapper {
+    justify-content: flex-start; /* Căn trái trên mobile */
+  }
+
+  /* Date Card nhỏ lại chút */
+  .date-card {
+    height: 75px;
+  }
+
+  .date-card .day-number {
+    font-size: 18px;
+  }
+}
+
+/* Mobile Nhỏ (Dưới 480px) */
+@media (max-width: 480px) {
+  h3 {
+    font-size: 20px;
+  }
+
+  /* Giảm padding của container chính */
+  .date-section {
+    padding: 10px;
+    margin-left: -5px; /* Hack nhẹ để mở rộng không gian trên màn hình bé */
+    margin-right: -5px;
+    width: calc(100% + 10px);
+    border-radius: 16px;
+  }
+
+  /* Thu nhỏ các thẻ ngày để vừa 7 cái */
+  .date-list {
+    gap: 4px; /* Giảm khoảng cách */
+  }
+
+  .date-card {
+    height: 65px;
+    border-radius: 10px;
+  }
+
+  .date-card .day-name {
+    font-size: 9px; /* Chữ bé lại */
+    margin-bottom: 2px;
+  }
+
+  .date-card .day-number {
+    font-size: 16px; /* Số bé lại */
+  }
+
+  /* Nút Next/Prev nhỏ lại */
+  .nav-btn {
+    width: 28px;
+    height: 28px;
+  }
+  .nav-btn ion-icon {
+    font-size: 16px;
+  }
+
+  /* Time slots: 2 cột hoặc 3 cột tùy màn hình */
+  .time-grid {
+    grid-template-columns: repeat(3, 1fr); /* Cố định 3 cột */
+    gap: 8px;
+  }
+
+  .time-chip {
+    padding: 10px 2px; /* Giảm padding ngang */
+    font-size: 12px;
+  }
+
+  .info-section {
+    padding: 15px;
+  }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
