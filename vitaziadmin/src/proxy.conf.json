@@ -1,0 +1,42 @@
+{
+  "/api": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": false
+  },
+  "/oauth2": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": false
+  },
+  "/login/oauth2": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": false
+  },
+  "/clinics": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": false
+  },
+  "/ownerInformation": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": false
+  },
+  "/departments": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": false
+  },
+  "/schedules": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": false
+  },
+  "/notifications": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": false
+  }
+}

@@ -68,13 +68,16 @@
               "namedChunks": true
             },
             "ci": {
-              "progress": false
             }
           },
           "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "proxyConfig": "src/proxy.conf.json",
+            "allowedHosts": ["hypnopompic-unsteamed-jordy.ngrok-free.dev"]
+          },
           "configurations": {
             "production": {
               "buildTarget": "app:build:production"
@@ -83,7 +86,7 @@
               "buildTarget": "app:build:development"
             },
             "ci": {
-              "progress": false
+              
             }
           },
           "defaultConfiguration": "development"

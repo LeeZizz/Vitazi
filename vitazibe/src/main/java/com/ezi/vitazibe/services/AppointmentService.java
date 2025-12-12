@@ -3,6 +3,7 @@ package com.ezi.vitazibe.services;
 import com.ezi.vitazibe.dto.request.AppointmentRequest;
 import com.ezi.vitazibe.dto.response.AppointmentResponse;
 import com.ezi.vitazibe.dto.response.MonthlyCountResponse;
+import com.ezi.vitazibe.dto.request.UpdateAppointmentDetailsRequest;
 import com.ezi.vitazibe.entities.*;
 import com.ezi.vitazibe.enums.Status;
 import com.ezi.vitazibe.exceptions.ErrorCode;
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -99,14 +101,14 @@ public class AppointmentService {
         return mapToResponse(appointmentEntity);
     }
 
-    @Transactional
-    public AppointmentResponse updateAppointmentStatus(String appointmentId, Status newStatus) {
-        AppointmentEntity appointmentEntity = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new WebException(ErrorCode.APPOINTMENT_NOT_FOUND));
-        appointmentEntity.setStatus(newStatus);
-        AppointmentEntity updatedAppointment = appointmentRepository.save(appointmentEntity);
-        return mapToResponse(updatedAppointment);
-    }
+//    @Transactional
+//    public AppointmentResponse updateAppointmentStatus(String appointmentId, Status newStatus) {
+//        AppointmentEntity appointmentEntity = appointmentRepository.findById(appointmentId)
+//                .orElseThrow(() -> new WebException(ErrorCode.APPOINTMENT_NOT_FOUND));
+//        appointmentEntity.setStatus(newStatus);
+//        AppointmentEntity updatedAppointment = appointmentRepository.save(appointmentEntity);
+//        return mapToResponse(updatedAppointment);
+//    }
 
 //    public Map<Integer, Long> getMonthlyAppointmentCounts(String clinicId, int year) {
 //        List<MonthlyCountResponse> counts = appointmentRepository.countAppointmentsByMonth(clinicId, year);
@@ -124,7 +126,82 @@ public class AppointmentService {
         return appointmentRepository.countAppointmentsBetweenDates(clinicId, firstDayOfMonth, today);
     }
 
+    @Transactional
+    public AppointmentResponse updateAppointmentStatus(String appointmentId, Status newStatus) {
+        AppointmentEntity appointmentEntity = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new WebException(ErrorCode.APPOINTMENT_NOT_FOUND));
 
+        Status oldStatus = appointmentEntity.getStatus();
+        if (oldStatus != newStatus) {
+            ScheduleEntity scheduleEntity = appointmentEntity.getScheduleId();
+            if (scheduleEntity != null) {
+                if (newStatus == Status.CANCELED) {
+                    int newCapacity = Math.max(0, scheduleEntity.getCapacity() - 1);
+                    scheduleEntity.setCapacity(newCapacity);
+                    if (!scheduleEntity.getIsActive() && newCapacity < scheduleEntity.getMaxCapacity()) {
+                        scheduleEntity.setIsActive(true);
+                    }
+                } else if (oldStatus == Status.CANCELED && (newStatus == Status.CONFIRMED || newStatus == Status.PENDING)) {
+                    if (scheduleEntity.getCapacity() >= scheduleEntity.getMaxCapacity()) {
+                        throw new WebException(ErrorCode.SCHEDULE_FULL);
+                    }
+                    int newCapacity = scheduleEntity.getCapacity() + 1;
+                    scheduleEntity.setCapacity(newCapacity);
+                    if (newCapacity >= scheduleEntity.getMaxCapacity()) {
+                        scheduleEntity.setIsActive(false);
+                    }
+                }
+                scheduleRespository.save(scheduleEntity);
+            }
+            appointmentEntity.setStatus(newStatus);
+        }
+
+        AppointmentEntity updatedAppointment = appointmentRepository.save(appointmentEntity);
+        return mapToResponse(updatedAppointment);
+    }
+
+
+    @Transactional
+    public AppointmentResponse updateAppointmentDetails(String appointmentId, UpdateAppointmentDetailsRequest request) {
+        AppointmentEntity appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new WebException(ErrorCode.APPOINTMENT_NOT_FOUND));
+
+        ScheduleEntity oldSchedule = appointment.getScheduleId();
+        ScheduleEntity newSchedule = scheduleRespository.findById(request.getScheduleId())
+                .orElseThrow(() -> new WebException(ErrorCode.SCHEDULE_NOT_FOUND));
+
+        // Chỉ xử lý khi ca khám thực sự thay đổi
+        if (!Objects.equals(oldSchedule.getId(), newSchedule.getId())) {
+            // Chỉ điều chỉnh capacity cho các cuộc hẹn chưa bị hủy
+            if (appointment.getStatus() != Status.CANCELED) {
+                // 1. Kiểm tra sức chứa của ca khám mới
+                if (newSchedule.getCapacity() >= newSchedule.getMaxCapacity()) {
+                    throw new WebException(ErrorCode.SCHEDULE_FULL);
+                }
+
+                // 2. Giảm capacity của ca cũ
+                int oldCapacity = Math.max(0, oldSchedule.getCapacity() - 1);
+                oldSchedule.setCapacity(oldCapacity);
+                if (!oldSchedule.getIsActive() && oldCapacity < oldSchedule.getMaxCapacity()) {
+                    oldSchedule.setIsActive(true); // Kích hoạt lại nếu ca cũ đã đầy
+                }
+                // 3. Tăng capacity của ca mới
+                int newCapacity = newSchedule.getCapacity() + 1;
+                newSchedule.setCapacity(newCapacity);
+                if (newCapacity >= newSchedule.getMaxCapacity()) {
+                    newSchedule.setIsActive(false); // Vô hiệu hóa nếu ca mới đầy
+                }
+                scheduleRespository.save(newSchedule);
+            }
+        }
+
+        // Cập nhật thông tin cho cuộc hẹn
+        appointment.setScheduleId(newSchedule);
+        appointment.setAppointmentDate(request.getAppointmentDate());
+
+        AppointmentEntity updatedAppointment = appointmentRepository.save(appointment);
+        return mapToResponse(updatedAppointment);
+    }
 
 
     private AppointmentResponse mapToResponse(AppointmentEntity entity) {

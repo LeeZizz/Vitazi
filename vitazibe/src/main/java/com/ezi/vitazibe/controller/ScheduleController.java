@@ -5,6 +5,8 @@ import com.ezi.vitazibe.dto.response.ApiResponse;
 import com.ezi.vitazibe.dto.response.ScheduleResponse;
 import com.ezi.vitazibe.services.ScheduleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +38,14 @@ public class ScheduleController {
             @RequestParam String departmentId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return ResponseEntity.ok(ApiResponse.success(scheduleService.getActiveSchedulesByClinicAndDepartmentAndDate(clinicId, departmentId, date)));
+    }
+
+    @GetMapping("/listAllSchedules")
+    public ResponseEntity<ApiResponse<Page<ScheduleResponse>>> getSchedulesByClinicAndDepartment(
+            @RequestParam String clinicId,
+            @RequestParam String departmentId,
+            Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(scheduleService.getSchedulesByClinicAndDepartment(clinicId, departmentId, pageable)));
     }
 
     @PutMapping("/update/{id}")

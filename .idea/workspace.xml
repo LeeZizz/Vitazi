@@ -5,13 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="42d85e84-b6a1-4e78-ba21-f3147a42bae7" name="Changes" comment="update login google + facebook">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/dto/request/UpdateAppointmentDetailsRequest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/controller/AppointmentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/controller/AppointmentController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/controller/ScheduleController.java" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/controller/ScheduleController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/exceptions/ErrorCode.java" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/exceptions/ErrorCode.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/repositories/ScheduleRespository.java" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/repositories/ScheduleRespository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/services/AppointmentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/services/AppointmentService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/services/ScheduleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/services/ScheduleService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vitazibe/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/resources/application.properties" afterDir="false" />
     </list>
@@ -57,7 +56,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "feature/built-ngrok",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "G:/vitazi",

@@ -3,6 +3,8 @@ package com.ezi.vitazibe.config;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -43,14 +45,20 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
         return (request, response, authentication) -> {
-            response.sendRedirect("http://localhost:8100/clinic-type");
+            // response.sendRedirect("http://localhost:8100/clinic-type");
+            response.sendRedirect("/clinic-type");
+
         };
     }
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8100", "http://localhost:4200"));
+        configuration.setAllowedOrigins(Arrays.asList(
+        "http://localhost:8100",
+        "http://localhost:4200",
+        "https://hypnopompic-unsteamed-jordy.ngrok-free.dev"
+    ));
         configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(Boolean.TRUE);
