@@ -73,11 +73,15 @@ export class HomePage implements OnInit {
       checkmarkDoneCircleOutline, calendarNumberOutline
     });
   }
-
+  // appointments: AppointmentResponse[] = [];
   ngOnInit() {
     this.loadStats();
     // Load lần đầu
     this.loadListData();
+  //   this.dashboardService.getAllAppointments().subscribe(data => {
+  //   this.appointments = data;
+  //   console.log('appointments:', data); // Kiểm tra dữ liệu
+  // });
   }
 
   // --- HELPER: Format giờ ---

@@ -18,7 +18,9 @@ public enum ErrorCode {
     NOTIFICATION_NOT_FOUND(1008, "Schedule not found", HttpStatus.BAD_REQUEST),
     SCHEDULE_FULL(1009, "Schedule full capacity", HttpStatus.BAD_REQUEST),
     INVALID_SCHEDULE_DATE(1010, "Invalid schedule date", HttpStatus.BAD_REQUEST),
-    UNAUTHENTICATED(1009, "You are not authenticated", HttpStatus.UNAUTHORIZED),
+    SCHEDULE_NOT_ACTIVE(1011, "Schedule not active", HttpStatus.BAD_REQUEST),
+    SCHEDULE_ERROR_TIME_CONFLICT(1011, "Start - End time conflict", HttpStatus.BAD_REQUEST),
+    SCHEDULE_FULLY_BOOKED(1012, "Schedule full capacity", HttpStatus.BAD_REQUEST),
     ;
 
     private int code;

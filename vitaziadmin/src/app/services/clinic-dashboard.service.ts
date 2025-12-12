@@ -23,11 +23,11 @@ export class ClinicDashboardService {
     if (status) params = params.set('status', status);
 
     return this.http
-      .get<ApiResponse<AppointmentResponse[]>>(
+      .get<ApiResponse<{ content: AppointmentResponse[]}>>(
         `${this.baseUrl}/appointments/getAllAppointments`,
         { params, withCredentials: true }
       )
-      .pipe(map((res) => res.result || []));
+      .pipe(map((res) => res.result?.content || []));
   }
 
 

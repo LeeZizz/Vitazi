@@ -17,6 +17,9 @@ import java.util.List;
 public interface AppointmentRepository extends JpaRepository<AppointmentEntity, String> {
     Page<AppointmentEntity> findByClinicId_IdAndStatus(String clinicId, Status status, Pageable pageable);
     Page<AppointmentEntity> findByClinicId_IdOrderByCreatedAtDesc(String clinicId, Pageable pageable);
+    Page<AppointmentEntity> findByClinicId_IdAndStatusAndAppointmentDate(String clinicId, Status status, LocalDate appointmentDate, Pageable pageable);
+
+    Page<AppointmentEntity> findByClinicId_IdAndAppointmentDate(String clinicId, LocalDate appointmentDate, Pageable pageable);
     @Query("SELECT new com.ezi.vitazibe.dto.response.MonthlyCountResponse(CAST(EXTRACT(MONTH FROM a.createdAt) AS int), COUNT(a)) " +
             "FROM AppointmentEntity a " +
             "WHERE a.clinicId.id = :clinicId AND EXTRACT(YEAR FROM a.createdAt) = :year " +
