@@ -34,7 +34,7 @@ export class ClinicDepartmentListComponent implements OnInit {
   constructor(
     private departmentsService: DepartmentsService,
     private alertCtrl: AlertController
-  ) {}
+  ) { }
 
   ngOnInit() {
     if (this.clinicId) {

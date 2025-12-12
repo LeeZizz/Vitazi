@@ -24,11 +24,7 @@
     </div>
 
     <div class="calendar-wrapper">
-      <ion-datetime
-        presentation="date"
-        [value]="selectedDate"
-        locale="vi-VN"
-        (ionChange)="onDateChange($event)">
+      <ion-datetime presentation="date" [value]="selectedDate" locale="vi-VN" (ionChange)="onDateChange($event)">
       </ion-datetime>
     </div>
 
@@ -38,15 +34,14 @@
       </div>
 
       <div class="shift-list">
-        <div class="shift-row-container"
-             *ngFor="let shift of shifts; let i = index"
-             [class.invalid-shift]="shift.isValid === false">
+        <div class="shift-row-container" *ngFor="let shift of shifts; let i = index"
+          [class.invalid-shift]="shift.isValid === false">
 
           <div class="shift-row">
             <div class="time-group">
               <label>Bắt đầu</label>
               <div class="time-pill">
-                <input type="time" [(ngModel)]="shift.startTime" (change)="validateShift(shift)"/>
+                <input type="time" [(ngModel)]="shift.startTime" (change)="validateShift(shift)" />
               </div>
             </div>
 
@@ -55,7 +50,7 @@
             <div class="time-group">
               <label>Kết thúc</label>
               <div class="time-pill">
-                <input type="time" [(ngModel)]="shift.endTime" (change)="validateShift(shift)"/>
+                <input type="time" [(ngModel)]="shift.endTime" (change)="validateShift(shift)" />
               </div>
             </div>
 
@@ -67,9 +62,10 @@
             </div>
 
             <div class="delete-group">
-              <label style="visibility: hidden;">X</label> <button type="button" class="delete-btn-icon" (click)="removeShift(i)">
-              <ion-icon name="trash-outline"></ion-icon>
-            </button>
+              <label style="visibility: hidden;">X</label> <button type="button" class="delete-btn-icon"
+                (click)="removeShift(i)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
             </div>
           </div>
 
@@ -93,3 +89,4 @@
     <span *ngIf="loading">Đang xử lý...</span>
   </button>
 </div>
+

@@ -17,11 +17,7 @@ export class BookingPage implements OnInit {
   clinicId: string | null = null;
   mode: ClinicType = 'SPECIALTY';
 
-  // state cho toast
-  toastOpen = false;
-  toastMessage = '';
-
-  constructor(private clinicSchedule: ClinicScheduleService) {}
+  constructor(private clinicSchedule: ClinicScheduleService) { }
 
   ngOnInit() {
     this.clinicId = this.clinicSchedule.currentClinicId;
@@ -29,7 +25,5 @@ export class BookingPage implements OnInit {
   }
 
   onSaved() {
-    this.toastMessage = 'Lưu ca làm việc thành công';
-    this.toastOpen = true;
   }
 }

@@ -49,17 +49,20 @@ ion-datetime {
   /* Ẩn background thừa nếu có */
   background: #ffffff;
 }
+
 /* --------------------------- */
 
 /* FILTERS (Responsive) */
 .top-filters {
   display: flex;
-  flex-wrap: wrap; /* Cho phép xuống dòng trên mobile */
+  flex-wrap: wrap;
+  /* Cho phép xuống dòng trên mobile */
   gap: 10px;
   margin-bottom: 16px;
 
   .filter-item {
-    flex: 1 1 120px; /* Co giãn, tối thiểu 120px */
+    flex: 1 1 120px;
+    /* Co giãn, tối thiểu 120px */
 
     select {
       width: 100%;
@@ -109,8 +112,9 @@ ion-datetime {
   background: #ffffff;
   border: 1px solid #edf2f7;
   border-radius: 16px;
-  padding: 16px; /* Tăng padding để dễ bấm trên mobile */
-  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  padding: 16px;
+  /* Tăng padding để dễ bấm trên mobile */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
 
   &.invalid-shift {
     border-color: #fc8181;
@@ -122,11 +126,13 @@ ion-datetime {
   display: flex;
   align-items: flex-end;
   gap: 10px;
-  flex-wrap: wrap; /* Quan trọng cho Mobile */
+  flex-wrap: wrap;
+  /* Quan trọng cho Mobile */
 }
 
 /* Các nhóm input (Giờ, Số lượng) */
-.time-group, .capacity-group {
+.time-group,
+.capacity-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -146,7 +152,8 @@ ion-datetime {
 
 /* Pill input thời gian */
 .time-pill {
-  height: 44px; /* Cao hơn để dễ bấm cảm ứng */
+  height: 44px;
+  /* Cao hơn để dễ bấm cảm ứng */
   background: #f7fafc;
   border-radius: 12px;
   border: 1px solid transparent;
@@ -165,7 +172,8 @@ ion-datetime {
     border: none;
     background: transparent;
     text-align: center;
-    font-size: 15px; /* Font to hơn cho mobile */
+    font-size: 15px;
+    /* Font to hơn cho mobile */
     font-weight: 600;
     color: #2b6cb0;
     outline: none;
@@ -180,7 +188,8 @@ ion-datetime {
 
 /* Số lượng (Capacity) */
 .capacity-group {
-  flex: 0 0 70px; /* Cố định chiều rộng */
+  flex: 0 0 70px;
+  /* Cố định chiều rộng */
 }
 
 .capacity-dot {
@@ -207,7 +216,8 @@ ion-datetime {
 
 /* Nút xóa */
 .delete-group {
-  margin-left: auto; /* Đẩy sang phải cùng nếu còn chỗ */
+  margin-left: auto;
+  /* Đẩy sang phải cùng nếu còn chỗ */
   padding-bottom: 2px;
 }
 
@@ -270,7 +280,8 @@ ion-datetime {
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
-  max-width: 400px; /* Giới hạn chiều rộng trên iPad/Desktop */
+  max-width: 400px;
+  /* Giới hạn chiều rộng trên iPad/Desktop */
   padding: 14px;
   border-radius: 16px;
   border: none;
@@ -303,15 +314,18 @@ ion-datetime {
   }
 
   .shift-row {
-    justify-content: space-between; /* Căn đều 2 bên */
+    justify-content: space-between;
+    /* Căn đều 2 bên */
   }
 
   .time-group {
-    min-width: 48%; /* 2 cột giờ trên 1 hàng */
+    min-width: 48%;
+    /* 2 cột giờ trên 1 hàng */
   }
 
   .capacity-group {
-    flex: 1; /* Chiếm phần còn lại của hàng dưới */
+    flex: 1;
+    /* Chiếm phần còn lại của hàng dưới */
   }
 
   .delete-group {

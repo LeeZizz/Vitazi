@@ -12,14 +12,17 @@
 .list-items {
   display: flex;
   flex-direction: column;
-  gap: 16px; /* Khoảng cách giữa các card */
+  gap: 16px;
+  /* Khoảng cách giữa các card */
 }
 
 /* CARD STYLE */
 .dept-card {
   position: relative;
-  background-color: #dbeafe; /* Màu nền xanh nhạt giống ảnh */
-  border: 1px solid #93c5fd; /* Viền xanh dương */
+  background-color: #dbeafe;
+  /* Màu nền xanh nhạt giống ảnh */
+  border: 1px solid #93c5fd;
+  /* Viền xanh dương */
   border-radius: 16px;
   padding: 12px;
   display: flex;
@@ -44,7 +47,8 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 8px; /* Bo góc nhẹ cho ảnh */
+    border-radius: 8px;
+    /* Bo góc nhẹ cho ảnh */
     background-color: #bfdbfe;
   }
 }
@@ -52,8 +56,10 @@
 /* THÔNG TIN (Tên + Giờ) */
 .card-info {
   flex: 1;
-  padding-right: 24px; /* Chừa chỗ cho nút Xóa */
-  padding-bottom: 24px; /* Chừa chỗ cho nút Sửa (nếu tên dài) */
+  padding-right: 24px;
+  /* Chừa chỗ cho nút Xóa */
+  padding-bottom: 24px;
+  /* Chừa chỗ cho nút Sửa (nếu tên dài) */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -62,7 +68,8 @@
     margin: 0 0 4px 0;
     font-size: 16px;
     font-weight: 700;
-    color: #1e3a8a; /* Màu chữ xanh đậm */
+    color: #1e3a8a;
+    /* Màu chữ xanh đậm */
 
     /* Cắt bớt nếu tên quá dài */
     display: -webkit-box;
@@ -74,7 +81,8 @@
   .dept-time {
     margin: 0;
     font-size: 13px;
-    color: #475569; /* Màu xám ghi */
+    color: #475569;
+    /* Màu xám ghi */
     font-weight: 500;
   }
 }
@@ -88,7 +96,8 @@
   border: none;
   padding: 4px;
   cursor: pointer;
-  color: #0f172a; /* Màu đen/xám đậm */
+  color: #0f172a;
+  /* Màu đen/xám đậm */
 
   ion-icon {
     font-size: 20px;
@@ -106,16 +115,20 @@
   bottom: 10px;
   right: 12px;
 
-  background-color: #f0f9ff; /* Nền trắng/xanh rất nhạt */
-  border: 1px solid #60a5fa; /* Viền xanh */
-  color: #1e40af; /* Chữ xanh đậm */
+  background-color: #f0f9ff;
+  /* Nền trắng/xanh rất nhạt */
+  border: 1px solid #60a5fa;
+  /* Viền xanh */
+  color: #1e40af;
+  /* Chữ xanh đậm */
 
   padding: 6px 16px;
-  border-radius: 20px; /* Bo tròn dạng pill */
+  border-radius: 20px;
+  /* Bo tròn dạng pill */
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
   &:active {
     background-color: #dbeafe;

@@ -1,1 +1,17 @@
-/* You can add global styles to this file, and also import other style files */
+.success-custom {
+  --background: #22c55e; /* Màu xanh lá tươi */
+  --color: white;
+  --border-radius: 8px;
+  --box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  font-weight: 600;
+  margin-bottom: 20px;
+  margin-left: 20px;
+  /* Đẩy toast sang trái */
+  --start: 20px;
+  max-width: 300px;
+}
+
+.success-custom ion-icon {
+  font-size: 20px;
+  margin-right: 10px;
+}
