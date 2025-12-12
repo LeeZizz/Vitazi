@@ -13,6 +13,9 @@ import com.ezi.vitazibe.repositories.ClinicRepository;
 import com.ezi.vitazibe.services.AppointmentService;
 import com.ezi.vitazibe.services.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -52,17 +55,20 @@ public class AppointmentController {
     }
 
     @GetMapping("/getAllAppointments")
-    public ResponseEntity<ApiResponse<List<AppointmentResponse>>> getAllAppointments(
+    public ResponseEntity<ApiResponse<Page<AppointmentResponse>>> getAllAppointments(
             @AuthenticationPrincipal OAuth2User oAuth2User,
-            @RequestParam(required = false) Status status){
+            @RequestParam(required = false) Status status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size){
         String sub = oAuth2User.getAttribute("sub");
         if(sub == null) {
             sub = oAuth2User.getAttribute("id");
         }
         ClinicEntity clinic = clinicRepository.findByOauthSub(sub)
                 .orElseThrow(() -> new WebException(ErrorCode.CLINIC_NOT_FOUND));
-        List<AppointmentResponse> appointmentResponses = appointmentService.getAppointmentByClinicId(clinic.getId(), status);
-        ApiResponse<List<AppointmentResponse>> response = ApiResponse.<List<AppointmentResponse>>builder()
+        Pageable pageable = PageRequest.of(page, size);
+        Page<AppointmentResponse> appointmentResponses = appointmentService.getAppointmentByClinicId(clinic.getId(), status, pageable);
+        ApiResponse<Page<AppointmentResponse>> response = ApiResponse.<Page<AppointmentResponse>>builder()
                 .message("Get appointments successfully")
                 .result(appointmentResponses)
                 .build();

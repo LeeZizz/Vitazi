@@ -10,6 +10,9 @@ import com.ezi.vitazibe.exceptions.ErrorCode;
 import com.ezi.vitazibe.exceptions.WebException;
 import com.ezi.vitazibe.repositories.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.query.JpaEntityGraph;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,16 +86,14 @@ public class AppointmentService {
         return mapToResponse(savedAppointment);
     }
 
-    public List<AppointmentResponse> getAppointmentByClinicId(String clinicId, Status status) {
-        List<AppointmentEntity> appointments;
+    public Page<AppointmentResponse> getAppointmentByClinicId(String clinicId, Status status, Pageable pageable) {
+        Page<AppointmentEntity> appointments;
         if (status != null) {
-            appointments = appointmentRepository.findByClinicId_IdAndStatus(clinicId, status);
+            appointments = appointmentRepository.findByClinicId_IdAndStatus(clinicId, status, pageable);
         } else {
-            appointments = appointmentRepository.findByClinicId_IdOrderByCreatedAtDesc(clinicId);
+            appointments = appointmentRepository.findByClinicId_IdOrderByCreatedAtDesc(clinicId, pageable);
         }
-        return appointments.stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+        return appointments.map(this::mapToResponse);
     }
 
     public AppointmentResponse getAppointmentDetails(String appointmentId) {

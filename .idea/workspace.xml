@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="42d85e84-b6a1-4e78-ba21-f3147a42bae7" name="Changes" comment="update login google + facebook">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vitaziuser/src/app/component/booking-form/booking-form.css" beforeDir="false" afterPath="$PROJECT_DIR$/vitaziuser/src/app/component/booking-form/booking-form.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/controller/AppointmentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/controller/AppointmentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/repositories/AppointmentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/repositories/AppointmentRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/services/AppointmentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/services/AppointmentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vitazibe/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
