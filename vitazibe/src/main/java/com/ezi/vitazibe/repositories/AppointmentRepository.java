@@ -7,14 +7,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<AppointmentEntity, String> {
-    List<AppointmentEntity> findByClinicId_IdAndStatus(String clinicId, Status status);
-    List<AppointmentEntity> findByClinicId_IdOrderByCreatedAtDesc(String clinicId);
+    Page<AppointmentEntity> findByClinicId_IdAndStatus(String clinicId, Status status, Pageable pageable);
+    Page<AppointmentEntity> findByClinicId_IdOrderByCreatedAtDesc(String clinicId, Pageable pageable);
     @Query("SELECT new com.ezi.vitazibe.dto.response.MonthlyCountResponse(CAST(EXTRACT(MONTH FROM a.createdAt) AS int), COUNT(a)) " +
             "FROM AppointmentEntity a " +
             "WHERE a.clinicId.id = :clinicId AND EXTRACT(YEAR FROM a.createdAt) = :year " +
