@@ -942,6 +942,9 @@ ion-datetime::part(wheel-item active) {
   font-weight: 600;
   margin-bottom: 0.25rem;
   color: var(--text-sub);
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  font-family: inherit;
 }
 
 .date-card.active .day-name {
