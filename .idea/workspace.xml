@@ -6,13 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="42d85e84-b6a1-4e78-ba21-f3147a42bae7" name="Changes" comment="update login google + facebook">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vitaziadmin/src/environments/environment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/vitaziadmin/src/environments/environment.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/entities/AppointmentEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/vitazibe/src/main/java/com/ezi/vitazibe/entities/AppointmentEntity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vitaziuser/src/app/component/booking-form/booking-form.css" beforeDir="false" afterPath="$PROJECT_DIR$/vitaziuser/src/app/component/booking-form/booking-form.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vitaziuser/src/app/component/booking-form/booking-form.html" beforeDir="false" afterPath="$PROJECT_DIR$/vitaziuser/src/app/component/booking-form/booking-form.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vitaziuser/src/app/component/booking-form/booking-form.ts" beforeDir="false" afterPath="$PROJECT_DIR$/vitaziuser/src/app/component/booking-form/booking-form.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vitaziuser/src/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/vitaziuser/src/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
