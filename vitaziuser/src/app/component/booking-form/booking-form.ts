@@ -47,10 +47,10 @@ export class BookingFormComponent implements OnInit {
   currentIsoDate: string = new Date().toISOString(); // Ngày đang chọn trong DatePicker
   displayMonthYear: string = '';
 
-  patientName: string = '';
-  patientPhone: string = '';
-  patientEmail: string = '';
-  description: string = '';
+  patientName: string = 'Ngyeexn Van A';
+  patientPhone: string = '0123456789';
+  patientEmail: string = 'a@gmail.com';
+  description: string = 'Dau hieu khac';
 
   constructor(
     private route: ActivatedRoute,

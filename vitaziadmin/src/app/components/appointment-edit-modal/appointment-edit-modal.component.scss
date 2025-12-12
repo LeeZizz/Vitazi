@@ -1,0 +1,200 @@
+/* --- CSS Variables & Reset --- */
+:host {
+  --modal-bg: #f8fafc;
+  --primary-blue: #3b82f6; /* Màu xanh dương chuẩn */
+  --primary-light: #eff6ff;
+}
+
+ion-toolbar {
+  --background: #ffffff;
+  --color: #1e293b;
+  --border-width: 0;
+  padding-top: 8px;
+
+  ion-title {
+    font-weight: 700;
+    font-size: 18px;
+  }
+}
+
+ion-content {
+  --background: var(--modal-bg);
+}
+
+.content-wrapper {
+  padding: 16px;
+  padding-bottom: 80px;
+}
+
+.section-group {
+  margin-bottom: 24px;
+}
+
+/* Step Header */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: #64748b;
+  .step-badge {
+    background: var(--primary-blue);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  .step-title {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 16px;
+  }
+}
+
+/* Calendar Card */
+.calendar-card {
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  padding: 8px;
+
+  /* Style lại Calendar của Ionic */
+  ion-datetime {
+    width: 100%;
+    border-radius: 12px;
+    --background: #ffffff;
+    --ion-color-primary: #3b82f6; /* Set màu xanh cho ngày được chọn */
+    color: #1e293b;
+    /* Ẩn các ngày cũ đi */
+    &::part(calendar-day disabled) {
+      color: #cbd5e1;
+      pointer-events: none;
+    }
+  }
+}
+
+/* Loading & Empty States */
+.state-container {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  color: #64748b;
+  border: 1px dashed #cbd5e1;
+
+  .empty-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+
+  p { margin: 0; font-size: 14px; }
+}
+
+/* Schedule Grid */
+.schedule-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.schedule-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+
+  /* Content */
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .time-range {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 15px;
+  }
+
+  .capacity-badge {
+    font-size: 11px;
+    background: var(--primary-light);
+    color: var(--primary-blue);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+
+    &.full {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+  }
+
+  /* --- Selected State --- */
+  &.selected {
+    border-color: var(--primary-blue);
+    background: #eff6ff; /* Xanh rất nhạt */
+    box-shadow: 0 0 0 1px var(--primary-blue); /* Viền đậm hơn */
+
+    .time-range { color: var(--primary-blue); }
+
+    .check-icon {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      color: var(--primary-blue);
+      font-size: 20px;
+      background: white;
+      border-radius: 50%;
+      height: 20px;
+      width: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  /* --- Disabled State --- */
+  &.disabled {
+    opacity: 0.5;
+    background: #f1f5f9;
+    pointer-events: none;
+    border-style: dashed;
+  }
+}
+
+/* Footer */
+ion-footer {
+  background: white;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+  padding: 16px;
+}
+
+.save-btn {
+  --background: #3b82f6;
+  --background-activated: #2563eb;
+  --border-radius: 99px;
+  font-weight: 700;
+  font-size: 16px;
+  margin: 0;
+  height: 48px;
+  --box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}

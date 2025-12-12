@@ -1,7 +1,49 @@
 ion-content {
-  --background: linear-gradient(180deg, #6cc9ff 0%, #f5f7ff 40%);
+  --background: #f5f7fa;
 }
 
-.booking-container {
-  padding: 16px;
+.booking-content {
+  height: 100%;
+}
+
+.view-container {
+  height: 100%;
+  position: relative;
+}
+
+/* Style cho mode EDIT */
+.edit-mode {
+  background: white;
+}
+
+.back-button-wrapper {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 100; /* Đè lên header của component con */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px 12px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  color: #3182ce;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 18px;
+  }
+}
+
+.no-clinic {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #718096;
+  padding: 20px;
+  text-align: center;
 }

@@ -30,20 +30,32 @@ export interface NotificationResponse {
 
 export interface AppointmentResponse {
   id: string;
+  userName: string;
+  userPhone: string;
+  userEmail?: string;
+
   clinicId: string;
-  clinicName: string;
-  departmentId: string;
-  departmentName: string; // VD: "Khoa Răng Hàm Mặt"
-  scheduleId: string;
-  startTime: string;      // VD: "10:00:00"
-  endTime: string;        // VD: "12:00:00"
-  appointmentDate: string;// VD: "2025-12-15"
-  userName: string;       // VD: "Nguyễn Văn E"
-  userPhone: string;      // VD: "0912345620"
-  userEmail: string;
-  description: string;    // VD: "Đau đầu..."
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELED';
-  createdAt: string;
+  departmentId: string;   // <-- QUAN TRỌNG: Cần trường này để load ca làm việc
+  departmentName: string;
+
+  appointmentDate: string;
+  startTime: string;
+  endTime: string;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED';
+
+  description?: string;
+  scheduleId?: string;
+  createdAt?: string;
+}
+
+// Interface Ca làm việc hiển thị trong Modal
+export interface WorkScheduleOption {
+  id: string;
+  startTime: string;
+  endTime: string;
+  capacity: number;
+  maxCapacity: number;
+  isActive: boolean;
 }
 
 export interface DashboardCounts {
@@ -89,14 +101,13 @@ export interface Department {
   description: string;
 }
 
-// DTO lịch làm việc, dùng cho WorkSchedulesService
 export interface WorkScheduleDto {
   id: string;
   clinic_id: string;
   department_id?: string | null;
-  date: string;          // 'YYYY-MM-DD'
-  start_time: string;    // 'HH:mm:ss'
-  end_time: string;      // 'HH:mm:ss'
+  date: string;
+  start_time: string;
+  end_time: string;
   capacity: number;
   max_capacity?: number | null;
   is_active: boolean;
@@ -104,20 +115,31 @@ export interface WorkScheduleDto {
   updated_at: string;
 }
 
-// Ca làm việc trên UI
+// UI Input (Dùng cho form nhập liệu)
 export interface WorkShiftInput {
-  startTime: string;     // 'HH:mm'
-  endTime: string;       // 'HH:mm'
+  startTime: string;
+  endTime: string;
   capacity?: number;
   maxCapacity?: number;
+  // isActive có thể thêm vào đây nếu UI cho phép toggle, tạm thời để mặc định
 }
 
-// Payload FE gửi để lưu lịch 1 ngày
+// Payload cho API Update (Khớp với Postman)
+export interface UpdateScheduleBody {
+  capacity: number;
+  maxCapacity: number;
+  startTime: string;
+  endTime: string;
+  isActive: boolean | string; // Postman đang để "true", code sẽ xử lý
+  date: string;
+}
+
+// Payload FE gửi để lưu lịch 1 ngày (Create)
 export interface SaveSchedulesPayload {
   clinicId: string;
   departmentId: string | null;
-  date: string;               // 'YYYY-MM-DD'
-  shifts: WorkShiftInput[];   // các ca trong ngày
+  date: string;
+  shifts: WorkShiftInput[];
 }
 
 // Response chung backend đang dùng

@@ -78,19 +78,19 @@
       <h4>Thông tin người khám bệnh</h4>
       <div class="input-box">
         <label>Họ và Tên</label>
-        <input type="text" placeholder="Nguyễn Văn A">
+        <input type="text" placeholder="Nguyễn Văn A" [(ngModel)]="patientName">
       </div>
       <div class="input-box">
         <label>Số điện thoại</label>
-        <input type="tel" placeholder="0912345678">
+        <input type="tel" placeholder="0912345678" [(ngModel)]="patientPhone">
       </div>
       <div class="input-box">
         <label>Email</label>
-        <input type="email" placeholder="example@gmail.com">
+        <input type="email" placeholder="example@gmail.com" [(ngModel)]="patientEmail">
       </div>
       <div class="input-box">
         <label>Lý do khám</label>
-        <input type="text" placeholder="Triệu chứng bệnh...">
+        <input type="text" placeholder="Triệu chứng bệnh..." [(ngModel)]="description">
       </div>
       <button class="btn-submit" (click)="onSubmit()">Xác nhận đặt lịch</button>
     </div>

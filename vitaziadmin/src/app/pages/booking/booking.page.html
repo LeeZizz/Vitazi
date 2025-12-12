@@ -1,10 +1,29 @@
-<ion-content fullscreen>
-  <div class="booking-container" *ngIf="clinicId; else noClinicTpl">
+<ion-content fullscreen class="booking-content">
+  <ng-container *ngIf="clinicId; else noClinicTpl">
 
-    <app-clinic-work-schedule [clinicId]="clinicId" [mode]="mode" [allowDepartmentSelect]="true"
-      (saved)="onSaved()"></app-clinic-work-schedule>
+    <div class="view-container" *ngIf="viewMode === 'LIST'">
+      <app-clinic-schedule-list
+        [clinicId]="clinicId"
+        [initialDepartmentId]="null"
+        (editRequested)="switchToEdit()">
+      </app-clinic-schedule-list>
+    </div>
 
-  </div>
+    <div class="view-container edit-mode" *ngIf="viewMode === 'EDIT'">
+      <div class="back-button-wrapper" (click)="switchToList()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <span>Quay lại</span>
+      </div>
+
+      <app-clinic-work-schedule
+        [clinicId]="clinicId"
+        [mode]="mode"
+        [allowDepartmentSelect]="true"
+        (saved)="onSaved()">
+      </app-clinic-work-schedule>
+    </div>
+
+  </ng-container>
 
   <ng-template #noClinicTpl>
     <div class="no-clinic">
@@ -12,4 +31,3 @@
     </div>
   </ng-template>
 </ion-content>
-

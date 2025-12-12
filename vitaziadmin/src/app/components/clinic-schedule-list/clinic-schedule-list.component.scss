@@ -1,0 +1,196 @@
+.schedule-list-wrapper {
+  background: #ffffff;
+  min-height: 100%;
+  padding-bottom: 80px;
+}
+
+.header-section {
+  background: #6cc9ff; /* Màu xanh nền header */
+  padding: 20px 16px 50px; /* Padding bottom lớn để tạo khoảng trống overlap */
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .page-title {
+    margin: 0;
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  .btn-edit {
+    background: #6a6cff; /* Màu tím nút chỉnh sửa */
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+
+    &:active {
+      opacity: 0.9;
+    }
+  }
+}
+
+/* Style cho Dropdown Khoa */
+.department-selector {
+  position: relative;
+  width: 100%;
+
+  select {
+    width: 100%;
+    appearance: none; /* Bỏ style mặc định của trình duyệt */
+    background: #ffffff; /* Nền trắng như thiết kế */
+    border: none;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a202c;
+    text-align: center; /* Căn giữa chữ */
+    text-align-last: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    outline: none;
+  }
+
+  .select-arrow {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #1a202c;
+    pointer-events: none; /* Để click xuyên qua icon vào select */
+    font-size: 18px;
+  }
+}
+
+.list-container {
+  padding: 0 16px;
+  margin-top: -30px; /* Kéo danh sách lên đè vào phần header xanh */
+}
+
+.date-group {
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.date-badge {
+  background: #6a6cff; /* Màu tím badget ngày */
+  color: white;
+  padding: 8px 24px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 8px rgba(106, 108, 255, 0.3);
+  z-index: 2;
+}
+
+.shifts-card {
+  background: white;
+  width: 100%;
+  border-radius: 16px;
+  padding: 0 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Shadow nhẹ */
+  border: 1px solid #f0f0f0;
+}
+
+.shift-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #f0f0f0;
+
+  &.no-border {
+    border-bottom: none;
+  }
+}
+
+.shift-info {
+  .label-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #1a202c;
+    font-weight: 700;
+    margin-bottom: 8px;
+
+    ion-icon { color: #4a5568; font-size: 16px; }
+  }
+
+  .time-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.time-pill {
+  background: #eef2ff;
+  color: #4c51bf;
+  padding: 6px 14px;
+  border-radius: 20px; /* Bo tròn pill */
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid #c3dafe;
+  min-width: 80px;
+  text-align: center;
+}
+
+.dash {
+  width: 10px;
+  height: 3px;
+  background: #2d3748;
+  border-radius: 2px;
+}
+
+.empty-state {
+  text-align: center;
+  margin-top: 60px;
+  color: #718096;
+  font-weight: 500;
+}
+
+.status-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  font-weight: 600;
+
+  &.active {
+    background-color: #c6f6d5;
+    color: #22543d;
+  }
+
+  &.inactive {
+    background-color: #fed7d7;
+    color: #822727;
+  }
+}
+
+.time-pill {
+  /* ... code cũ ... */
+  transition: all 0.3s ease;
+
+  &.dimmed {
+    opacity: 0.5;
+    background-color: #edf2f7;
+    color: #a0aec0;
+    border-color: #e2e8f0;
+  }
+}
