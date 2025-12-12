@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import {
-  IonContent, IonHeader, IonToolbar, IonTitle, IonButton,
-  IonInput, IonTextarea, IonSelect, IonSelectOption,
-  ToastController, LoadingController, IonModal, IonDatetime, IonDatetimeButton, IonIcon
+  IonContent,
+  IonIcon,
+  ToastController,
+  LoadingController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { checkmarkCircle, chevronBack, chevronForward, calendarOutline } from 'ionicons/icons';
+import { checkmarkCircle, chevronBack, chevronForward, chevronDown, calendarOutline, medkitOutline, personOutline, timeOutline, mailOutline, callOutline, documentTextOutline, arrowForwardOutline, alertCircleOutline } from 'ionicons/icons';
 
 import { BookingService } from '../../services/booking.service';
 import { Department, WorkSchedule, BookingRequest } from '../../models/client-booking.models';
@@ -20,14 +21,29 @@ import { Department, WorkSchedule, BookingRequest } from '../../models/client-bo
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonContent, IonHeader, IonToolbar, IonTitle,
-    IonButton, IonInput, IonTextarea, IonSelect, IonSelectOption,
-    IonModal, IonDatetime, IonDatetimeButton, IonIcon
+    IonContent,
+    IonIcon
   ]
 })
 export class BookingFormComponent implements OnInit {
   departments: Department[] = [];
   schedules: WorkSchedule[] = [];
+
+  socialAvatars: Array<{ src: string; alt: string }> = [];
+  
+  // Dropdown State
+  isDepartmentOpen: boolean = false;
+  selectedDepartment: Department | null = null;
+
+  // Custom Month Picker State
+  isMonthPickerOpen: boolean = false;
+  pickerYear: number = new Date().getFullYear();
+  pickerMonth: number = new Date().getMonth();
+  monthsList = [
+    'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4',
+    'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8',
+    'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+  ];
 
   // Dữ liệu ngày
   allDaysOfMonth: any[] = []; // Tất cả ngày hợp lệ trong tháng
@@ -51,6 +67,7 @@ export class BookingFormComponent implements OnInit {
   patientPhone: string = '';
   patientEmail: string = '';
   description: string = '';
+  isSubmitted: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -59,10 +76,11 @@ export class BookingFormComponent implements OnInit {
     private loadingCtrl: LoadingController,
     private cdr: ChangeDetectorRef
   ) {
-    addIcons({ checkmarkCircle, chevronBack, chevronForward, calendarOutline });
+    addIcons({ checkmarkCircle, chevronBack, chevronForward, chevronDown, calendarOutline, medkitOutline, personOutline, timeOutline, mailOutline, callOutline, documentTextOutline, arrowForwardOutline, alertCircleOutline });
   }
 
   ngOnInit() {
+    this.socialAvatars = this.createRandomSocialAvatars(4);
     this.setupDateConstraints(); // 1. Thiết lập giới hạn ngày tháng
 
     this.clinicIdFromUrl = this.route.snapshot.paramMap.get('clinicId') || '';
@@ -72,6 +90,29 @@ export class BookingFormComponent implements OnInit {
 
     // Tạo lịch cho tháng hiện tại
     this.generateDaysForMonth(new Date());
+  }
+
+  private createRandomSocialAvatars(count: number): Array<{ src: string; alt: string }> {
+    // Danh sách ảnh đại diện người thật (sử dụng randomuser.me hoặc nguồn ảnh miễn phí)
+    const realAvatars = [
+      'https://randomuser.me/api/portraits/women/44.jpg',
+      'https://randomuser.me/api/portraits/men/32.jpg',
+      'https://randomuser.me/api/portraits/women/68.jpg',
+      'https://randomuser.me/api/portraits/men/46.jpg',
+      'https://randomuser.me/api/portraits/women/17.jpg',
+      'https://randomuser.me/api/portraits/men/85.jpg'
+    ];
+
+    const result: Array<{ src: string; alt: string }> = [];
+    for (let i = 0; i < count; i++) {
+      // Lấy ảnh tuần tự hoặc ngẫu nhiên từ danh sách
+      const src = realAvatars[i % realAvatars.length];
+      result.push({
+        src: src,
+        alt: `Khách hàng ${i + 1}`
+      });
+    }
+    return result;
   }
 
   // Cấu hình DatePicker: Không cho chọn quá khứ, cho phép chọn 5 năm tới
@@ -94,18 +135,53 @@ export class BookingFormComponent implements OnInit {
     });
   }
 
-  onDepartmentChange(event: any) {
-    this.selectedDepartmentId = event.detail.value;
+  toggleDepartmentDropdown() {
+    this.isDepartmentOpen = !this.isDepartmentOpen;
+  }
+
+  selectDepartment(dept: Department) {
+    this.selectedDepartment = dept;
+    this.selectedDepartmentId = dept.id;
+    this.isDepartmentOpen = false;
     this.loadSchedules();
   }
 
-  onMonthChange(event: any) {
-    const dateString = event.detail.value;
-    const date = new Date(dateString);
-    this.generateDaysForMonth(date);
+  // --- Custom Month Picker Methods ---
+  toggleMonthPicker() {
+    this.isMonthPickerOpen = !this.isMonthPickerOpen;
+    if (this.isMonthPickerOpen) {
+      // Sync picker with current view
+      const currentDate = new Date(this.currentIsoDate);
+      this.pickerYear = currentDate.getFullYear();
+      this.pickerMonth = currentDate.getMonth();
+    }
+  }
 
+  prevYear() {
+    this.pickerYear--;
+  }
+
+  nextYear() {
+    this.pickerYear++;
+  }
+
+  selectMonth(index: number) {
+    this.pickerMonth = index;
+    this.confirmMonthPicker();
+  }
+
+  confirmMonthPicker() {
+    const newDate = new Date(this.pickerYear, this.pickerMonth, 1);
+    // Adjust for timezone offset to keep the date correct when converting to ISO
+    const offset = newDate.getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(newDate.getTime() - offset)).toISOString().slice(0, -1);
+    
+    this.currentIsoDate = localISOTime;
+    this.generateDaysForMonth(newDate);
+    
     this.selectedDate = '';
     this.schedules = [];
+    this.isMonthPickerOpen = false;
   }
 
   generateDaysForMonth(dateObj: Date) {
@@ -198,8 +274,32 @@ export class BookingFormComponent implements OnInit {
   }
 
   async onSubmit() {
+    this.isSubmitted = true;
+
+    if (!this.selectedDepartmentId) {
+      this.presentToast('Vui lòng chọn chuyên khoa!', 'warning');
+      return;
+    }
+    if (!this.selectedDate) {
+      this.presentToast('Vui lòng chọn ngày khám!', 'warning');
+      return;
+    }
     if (!this.selectedSchedule) {
-      this.presentToast('Vui lòng chọn lịch khám!', 'warning');
+      this.presentToast('Vui lòng chọn giờ khám!', 'warning');
+      return;
+    }
+
+    // Validate Form
+    if (!this.patientName.trim()) {
+      this.presentToast('Vui lòng nhập họ tên!', 'warning');
+      return;
+    }
+    if (!this.patientPhone.trim() || !this.isValidPhone(this.patientPhone)) {
+      this.presentToast('Số điện thoại không hợp lệ!', 'warning');
+      return;
+    }
+    if (!this.patientEmail.trim() || !this.isValidEmail(this.patientEmail)) {
+      this.presentToast('Email không hợp lệ!', 'warning');
       return;
     }
 
@@ -227,6 +327,16 @@ export class BookingFormComponent implements OnInit {
         this.presentToast('Lỗi đặt lịch, vui lòng thử lại', 'danger');
       }
     });
+  }
+
+  isValidPhone(phone: string): boolean {
+    const phoneRegex = /^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$/;
+    return phoneRegex.test(phone);
+  }
+
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 
   async presentToast(msg: string, cssClass: string) {
