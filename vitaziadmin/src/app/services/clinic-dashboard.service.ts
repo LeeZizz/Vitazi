@@ -5,8 +5,7 @@ import { environment } from '../../environments/environment';
 import {
   ApiResponse,
   DashboardCounts,
-  NotificationResponse,
-  Page
+  AppointmentResponse
 } from '../models/clinic.models';
 
 @Injectable({ providedIn: 'root' })
@@ -15,10 +14,8 @@ export class ClinicDashboardService {
 
   constructor(private http: HttpClient) {}
 
-  /** * Lấy danh sách thông báo theo trạng thái & phân trang
-   * Dùng cho CẢ 3 TAB
-   */
-  getNotifications(status?: string, page: number = 0, size: number = 10): Observable<Page<NotificationResponse>> {
+  // 1. Get All Appointments (Trả về mảng)
+  getAllAppointments(status?: string, page: number = 0, size: number = 10): Observable<AppointmentResponse[]> {
     let params = new HttpParams()
       .set('page', page)
       .set('size', size);
@@ -26,29 +23,42 @@ export class ClinicDashboardService {
     if (status) params = params.set('status', status);
 
     return this.http
-      .get<ApiResponse<Page<NotificationResponse>>>(
-        `${this.baseUrl}/notifications/getAllNotifications`,
+      .get<ApiResponse<AppointmentResponse[]>>(
+        `${this.baseUrl}/appointments/getAllAppointments`,
         { params, withCredentials: true }
       )
-      .pipe(map((res) => res.result));
+      .pipe(map((res) => res.result || []));
   }
 
-  /** Lấy số lượng thống kê */
-  getNotificationCounts(): Observable<DashboardCounts> {
+
+  updateAppointmentStatus(id: string, status: string): Observable<any> {
+    return this.http.put<ApiResponse<any>>(
+      `${this.baseUrl}/appointments/updateStatus/${id}`,
+      { status: status },
+      { withCredentials: true }
+    );
+  }
+
+  // 3. Update Schedule (Dời lịch) - Theo hình ảnh Postman
+  updateAppointmentInfo(appointmentId: string, date: string, scheduleId: string): Observable<any> {
+    const body = {
+      appointmentDate: date, // "2025-12-14"
+      scheduleId: scheduleId // ID ca làm việc mới
+    };
+
+    return this.http.put<ApiResponse<any>>(
+      `${this.baseUrl}/appointments/updateSchedule/${appointmentId}`,
+      body,
+      { withCredentials: true }
+    );
+  }
+
+  getDashboardCounts(): Observable<DashboardCounts> {
     return this.http
       .get<ApiResponse<DashboardCounts>>(
         `${this.baseUrl}/notifications/getCountsByStatus`,
         { withCredentials: true }
       )
       .pipe(map((res) => res.result));
-  }
-
-  /** Cập nhật trạng thái thông báo */
-  updateNotificationStatus(id: string, status: string): Observable<any> {
-    return this.http.put<ApiResponse<any>>(
-      `${this.baseUrl}/notifications/updateStatus/${id}`,
-      { status },
-      { withCredentials: true }
-    );
   }
 }

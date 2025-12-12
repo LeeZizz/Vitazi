@@ -1,4 +1,3 @@
-// src/app/services/work-schedules.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
@@ -9,7 +8,9 @@ import { environment } from '../../environments/environment'; // Thêm import n�
 import {
   SaveSchedulesPayload,
   WorkScheduleDto,
-  WorkShiftInput
+  WorkShiftInput,
+  UpdateScheduleBody,
+  ApiResponse
 } from '../models/clinic.models';
 
 interface WorkScheduleApiDto {
@@ -26,18 +27,82 @@ interface WorkScheduleApiDto {
   updatedAt: string;
 }
 
-interface ApiResponse<T> {
-  code: number;
-  message: string;
-  result: T;
-}
-
 @Injectable({ providedIn: 'root' })
 export class WorkSchedulesService {
   // private readonly baseUrl = 'http://localhost:8080';
   private readonly baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
+
+  listAllSchedules(
+      clinicId: string,
+      departmentId: string,
+      page: number = 0,
+      size: number = 6 // Mặc định size = 6 như request
+    ): Observable<ApiResponse<any>> {
+      let params = new HttpParams()
+        .set('clinicId', clinicId)
+        .set('page', page.toString())
+        .set('size', size.toString());
+
+      // Backend yêu cầu departmentId (dựa trên URL bạn gửi), nên bắt buộc truyền
+      if (departmentId) {
+        params = params.set('departmentId', departmentId);
+      }
+
+      return this.http.get<ApiResponse<any>>(
+        `${this.baseUrl}/schedules/listAllSchedules`,
+        { params, withCredentials: true }
+      );
+    }
+
+    /**
+     * POST: Tạo mới danh sách ca (Lưu ca)
+     */
+    saveForDate(payload: SaveSchedulesPayload): Observable<any[]> {
+      const { clinicId, departmentId, date, shifts } = payload;
+      if (!shifts || !shifts.length) return of([]);
+
+      const requests = shifts.map((shift) => {
+        const body = {
+          clinicId,
+          departmentId,
+          capacity: shift.capacity ?? 0,
+          maxCapacity: shift.maxCapacity ?? 10,
+          startTime: this.toBackendTime(shift.startTime),
+          endTime: this.toBackendTime(shift.endTime),
+          date
+        };
+
+        // Gọi API createSchedule
+        return this.http
+          .post<ApiResponse<any>>(`${this.baseUrl}/schedules/createSchedule`, body, { withCredentials: true })
+          .pipe(map((res) => res.result));
+      });
+
+      return forkJoin(requests);
+    }
+
+  getAllSchedulesByDate(
+      clinicId: string,
+      departmentId: string,
+      page: number = 0,
+      size: number = 10
+    ): Observable<ApiResponse<any>> {
+      let params = new HttpParams()
+        .set('clinicId', clinicId)
+        .set('page', page.toString())
+        .set('size', size.toString());
+
+      if (departmentId) {
+        params = params.set('departmentId', departmentId);
+      }
+
+      return this.http.get<ApiResponse<any>>(
+        `${this.baseUrl}/schedules/listAllSchedules`,
+        { params, withCredentials: true }
+      );
+    }
 
   getByDate(
     clinicId: string,
@@ -66,81 +131,31 @@ export class WorkSchedulesService {
       );
   }
 
-  /** Tạo 1 hoặc nhiều ca (ở component hiện giờ luôn truyền 1 ca) */
-  saveForDate(payload: SaveSchedulesPayload): Observable<WorkScheduleDto[]> {
-    const { clinicId, departmentId, date, shifts } = payload;
+  /** Cập nhật 1 ca */
+  updateSchedule(
+      scheduleId: string,
+      shift: WorkShiftInput, // Chứa capacity, maxCapacity, startTime, endTime
+      date: string,
+      isActive: boolean 
+    ): Observable<WorkScheduleDto> {
 
-    if (!shifts || !shifts.length) {
-      console.log('[WorkSchedulesService] saveForDate: no shifts');
-      return of([]);
-    }
-
-    const requests = shifts.map((shift, idx) => {
-      const body = {
-        clinicId,
-        departmentId,
+      const body: UpdateScheduleBody = {
         capacity: shift.capacity ?? 0,
-        maxCapacity: shift.maxCapacity ?? 0,
+        maxCapacity: shift.maxCapacity ?? 10,
         startTime: this.toBackendTime(shift.startTime),
         endTime: this.toBackendTime(shift.endTime),
-        date
+        isActive: isActive,
+        date: date
       };
 
-      console.log(`[WorkSchedulesService] createSchedule body[${idx}] =`, body);
-
       return this.http
-        .post<ApiResponse<WorkScheduleApiDto>>(
-          `${this.baseUrl}/schedules/createSchedule`,
+        .put<ApiResponse<any>>(
+          `${this.baseUrl}/schedules/update/${scheduleId}`,
           body,
           { withCredentials: true }
         )
-        .pipe(
-          tap((res) =>
-            console.log(
-              `[WorkSchedulesService] createSchedule response[${idx}] =`,
-              res
-            )
-          ),
-          map((res) => this.mapFromApi(res.result))
-        );
-    });
-
-    return forkJoin(requests);
-  }
-
-  /** Cập nhật 1 ca */
-  updateSchedule(
-    scheduleId: string,
-    clinicId: string,
-    date: string,
-    departmentId: string | null,
-    shift: WorkShiftInput
-  ): Observable<WorkScheduleDto> {
-    const body = {
-      clinicId,
-      departmentId,
-      capacity: shift.capacity ?? 0,
-      maxCapacity: shift.maxCapacity ?? 0,
-      startTime: this.toBackendTime(shift.startTime),
-      endTime: this.toBackendTime(shift.endTime),
-      date
-    };
-
-    console.log('[WorkSchedulesService] updateSchedule body =', body);
-
-    return this.http
-      .put<ApiResponse<WorkScheduleApiDto>>(
-        `${this.baseUrl}/schedules/update/${scheduleId}`,
-        body,
-        { withCredentials: true }
-      )
-      .pipe(
-        tap((res) =>
-          console.log('[WorkSchedulesService] updateSchedule response =', res)
-        ),
-        map((res) => this.mapFromApi(res.result))
-      );
-  }
+        .pipe(map((res) => this.mapFromApi(res.result)));
+    }
 
   /** Xóa 1 ca */
   deleteSchedule(scheduleId: string): Observable<void> {

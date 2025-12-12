@@ -1,22 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonContent, IonHeader, IonIcon, IonSegment,
   IonSegmentButton, IonLabel, IonCard, IonButton,
   IonRefresher, IonRefresherContent,
-  IonInfiniteScroll, IonInfiniteScrollContent
+  IonFooter, IonSpinner,
+  ActionSheetController, AlertController, ToastController,
+  ModalController,IonSkeletonText
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   personOutline, timeOutline, checkmarkCircleOutline,
   closeCircleOutline, calendarOutline,
+  callOutline, ellipsisVertical, createOutline,
   chevronDownOutline, chevronUpOutline,
-  callOutline
+  chevronBackOutline, chevronForwardOutline,
+  checkmarkDoneCircleOutline, calendarNumberOutline
 } from 'ionicons/icons';
 
 import { ClinicDashboardService } from '../../services/clinic-dashboard.service';
-import { DashboardCounts, NotificationResponse } from '../../models/clinic.models';
+import { DashboardCounts, AppointmentResponse } from '../../models/clinic.models';
+import { AppointmentEditModalComponent } from '../../components/appointment-edit-modal/appointment-edit-modal.component';
+
+// Interface mở rộng cho UI để xử lý đóng/mở card
+interface AppointmentUI extends AppointmentResponse {
+  expanded?: boolean;
+}
 
 @Component({
   selector: 'app-home',
@@ -28,212 +38,250 @@ import { DashboardCounts, NotificationResponse } from '../../models/clinic.model
     IonContent, IonHeader, IonIcon, IonSegment,
     IonSegmentButton, IonLabel, IonCard, IonButton,
     IonRefresher, IonRefresherContent,
-    IonInfiniteScroll, IonInfiniteScrollContent
+    IonFooter, IonSpinner, IonSkeletonText
   ]
 })
 export class HomePage implements OnInit {
-  // Enum status
-  currentTab: 'PENDING' | 'CONFIRMED' | 'CANCELED' = 'PENDING';
+  // Tham chiếu đến Content để cuộn lên đầu trang khi chuyển trang
+  @ViewChild(IonContent) content!: IonContent;
 
+  currentTab: 'PENDING' | 'CONFIRMED' | 'CANCELED' = 'PENDING';
   counts: DashboardCounts = { PENDING: 0, CONFIRMED: 0, CANCELED: 0 };
   totalCount = 0;
 
-  // Danh sách hiển thị
-  listData: NotificationResponse[] = [];
-  loading = false;
+  listData: AppointmentUI[] = [];
+  isLoading = false;
 
-  // Phân trang
+  // CẤU HÌNH PHÂN TRANG (Pagination)
   currentPage = 0;
-  pageSize = 10;
-  totalPages = 0;
+  pageSize = 6; // Yêu cầu: Hiển thị 6 thẻ mỗi trang
+  hasMoreData = true; // Kiểm tra xem còn trang sau không
 
-  constructor(private dashboardService: ClinicDashboardService) {
+  constructor(
+    private dashboardService: ClinicDashboardService,
+    private actionSheetCtrl: ActionSheetController,
+    private alertCtrl: AlertController,
+    private toastCtrl: ToastController,
+    private modalCtrl: ModalController
+  ) {
     addIcons({
       personOutline, timeOutline, checkmarkCircleOutline,
       closeCircleOutline, calendarOutline,
+      callOutline, ellipsisVertical, createOutline,
       chevronDownOutline, chevronUpOutline,
-      callOutline
+      chevronBackOutline, chevronForwardOutline,
+      checkmarkDoneCircleOutline, calendarNumberOutline
     });
   }
 
   ngOnInit() {
     this.loadStats();
+    // Load lần đầu
     this.loadListData();
   }
 
-// Helper: Format giờ hiển thị
-  // Input: "14:30:00" -> Output: "02:30 PM"
-  // Input: "2025-12-10T14:30:00" -> Output: "02:30 PM"
-  formatTime(timeString: string | undefined): string {
+  // --- HELPER: Format giờ ---
+  formatTime(timeString: string): string {
     if (!timeString) return '';
-
-    // Trường hợp 1: Nếu là chuỗi text từ Notification (VD: "10:00 đến 12:00")
-    // Giữ nguyên không format
-    if (timeString.includes('đến')) {
-      return timeString;
-    }
-
-    // Trường hợp 2: Nếu là ISO Date string (VD: "2025-12-10T14:30:00")
-    if (timeString.includes('T')) {
-      const date = new Date(timeString);
-      // Format theo locale Việt Nam, 12h (AM/PM)
-      return date.toLocaleTimeString('vi-VN', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      });
-    }
-
-    // Trường hợp 3: Nếu là chuỗi giờ SQL (VD: "14:30:00" hoặc "09:00")
     const parts = timeString.split(':');
     if (parts.length >= 2) {
       const h = parseInt(parts[0], 10);
       const m = parts[1];
-
       const ampm = h >= 12 ? 'PM' : 'AM';
-      const h12 = h % 12 || 12; // Chuyển 0h hoặc 12h thành 12, 13h thành 1
-      const hString = h12 < 10 ? '0' + h12 : h12; // Thêm số 0 đằng trước nếu cần
-
-      return `${hString}:${m} ${ampm}`;
+      const h12 = h % 12 || 12;
+      return `${h12 < 10 ? '0' + h12 : h12}:${m} ${ampm}`;
     }
-
-    // Trường hợp không khớp format nào, trả về nguyên gốc
     return timeString;
   }
 
-  // --- 1. HÀM CẮT CHUỖI MESSAGE ---
-  // Mẫu message: "Có yêu cầu đặt lịch từ Nguyễn Văn K - SĐT: 0912345620 tại khoa d - Ca khám: 10:00 đến 12:00"
-  parseNotificationMessage(msg: string) {
-      if (!msg) return {};
+  // --- CORE: TẢI DỮ LIỆU ---
+  /**
+   * Tải dữ liệu cho trang hiện tại.
+   * @param event Event từ Refresher (nếu có)
+   */
+  loadListData(event?: any) {
+    this.isLoading = true;
 
-      // 1. Lấy tên
-      const nameMatch = msg.match(/từ\s+(.*?)\s+-\s+SĐT/);
-      // 2. Lấy SĐT
-      const phoneMatch = msg.match(/SĐT:\s+(\d+)\s+tại/);
-      // 3. Lấy Khoa
-      const deptMatch = msg.match(/tại\s+(.*?)\s+-/);
-
-      // 4. Lấy Giờ (Sửa lại: Lấy đến trước chữ "- Dấu hiệu" hoặc hết câu)
-      const timeMatch = msg.match(/Ca khám:\s+(.*?)(?:\s+-\s+Dấu hiệu|$)/);
-
-      // 5. Lấy Dấu hiệu (Mới)
-      const signMatch = msg.match(/Dấu hiệu:\s+(.*)/);
-
-      return {
-        userName: nameMatch ? nameMatch[1].trim() : 'Khách vãng lai',
-        userPhone: phoneMatch ? phoneMatch[1].trim() : '',
-        departmentName: deptMatch ? deptMatch[1].trim() : 'Phòng khám chung',
-        startTime: timeMatch ? timeMatch[1].trim() : '',
-        signs: signMatch ? signMatch[1].trim() : 'Không có mô tả dấu hiệu' // <--- MỚI
-      };
+    // Nếu không phải là kéo refresh thì scroll lên đầu cho UX tốt hơn
+    if (!event) {
+      this.scrollToTop();
     }
 
-  // --- 2. LOAD DỮ LIỆU ---
-  loadListData(event?: any, isRefresh = false) {
-      if (!event) this.loading = true;
+    this.dashboardService.getAllAppointments(this.currentTab, this.currentPage, this.pageSize)
+      .subscribe({
+        next: (dataArray) => {
+          // Map dữ liệu API sang UI object
+          const newItems: AppointmentUI[] = (dataArray || []).map(item => ({
+            ...item,
+            expanded: false
+          }));
 
-      this.dashboardService.getNotifications(this.currentTab, this.currentPage, this.pageSize).subscribe({
-        next: (pageData) => {
-          const rawItems = pageData.content || [];
+          // LOGIC PHÂN TRANG MỚI:
+          // Thay thế hoàn toàn listData bằng dữ liệu mới (Page 2 thay thế Page 1)
+          // Không dùng push hay concat (...)
+          this.listData = newItems;
 
-          const newItems = rawItems.map((notif) => {
-            // Luôn parse vì giờ chúng ta dùng Notification cho cả 3 tab
-            const parsedInfo = this.parseNotificationMessage(notif.message);
+          // Kiểm tra xem trang này có đầy không?
+          // Nếu số lượng trả về < pageSize (ví dụ < 6) nghĩa là đã hết dữ liệu ở trang sau
+          this.hasMoreData = newItems.length >= this.pageSize;
 
-            return {
-              ...notif,
-              departmentName: parsedInfo.departmentName,
-              userName: parsedInfo.userName,
-              userPhone: parsedInfo.userPhone,
-              startTime: parsedInfo.startTime,
-              signs: parsedInfo.signs,
-
-              // Gán ngày tạo thành ngày hẹn để hiển thị
-              appointmentDate: notif.createdAt,
-
-              // Mặc định email rỗng nếu không parse được
-              userEmail: '',
-
-              expanded: false
-            } as NotificationResponse; // Ép kiểu về NotificationResponse
-          });
-
-          if (this.currentPage === 0) {
-            this.listData = newItems;
-          } else {
-            this.listData = [...this.listData, ...newItems];
-          }
-
-          this.totalPages = pageData.totalPages;
-          this.loading = false;
-
-          if (event) {
-            event.target.complete();
-            if (this.currentPage >= this.totalPages - 1) {
-              event.target.disabled = true;
-            }
-          }
+          this.isLoading = false;
+          if (event) event.target.complete();
         },
         error: (err) => {
-          this.loading = false;
+          console.error('Load Error:', err);
+          this.isLoading = false;
           if (event) event.target.complete();
         }
       });
   }
 
-  // --- 3. CÁC HÀM SỰ KIỆN ---
-  handleRefresh(event: any) {
-    this.currentPage = 0;
-    // Reset Infinite Scroll
-    const infiniteScroll = document.querySelector('ion-infinite-scroll');
-    if (infiniteScroll) infiniteScroll.disabled = false;
+  // --- CÁC HÀM CHUYỂN TRANG ---
 
-    this.loadStats();
-    this.loadListData(event, true);
-  }
-
-  onTabChange() {
-    this.listData = [];
-    this.currentPage = 0;
-    this.totalPages = 0;
-    this.loading = true;
-
-    const infiniteScroll = document.querySelector('ion-infinite-scroll');
-    if (infiniteScroll) infiniteScroll.disabled = false;
-
-    this.loadListData();
-  }
-
-  loadMore(event: any) {
-    if (this.currentPage < this.totalPages - 1) {
-      this.currentPage++;
-      this.loadListData(event);
-    } else {
-      event.target.disabled = true;
+  prevPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadListData();
     }
   }
 
-  toggleExpand(item: any) {
+  nextPage() {
+    if (this.hasMoreData) {
+      this.currentPage++;
+      this.loadListData();
+    }
+  }
+
+  scrollToTop() {
+    // Cuộn mượt lên đầu trang trong 500ms
+    this.content?.scrollToTop(500);
+  }
+
+  // --- UPDATE STATUS (Xác nhận / Hủy / Khôi phục) ---
+  updateStatus(item: AppointmentUI, newStatus: string) {
+      this.dashboardService.updateAppointmentStatus(item.id, newStatus).subscribe({
+        next: () => {
+          let msg = 'Cập nhật thành công!';
+          if (newStatus === 'CONFIRMED') msg = 'Đã xác nhận lịch hẹn!';
+          if (newStatus === 'CANCELED') msg = 'Đã hủy lịch hẹn!';
+
+          this.presentToast(msg, 'success');
+          this.loadStats();
+          this.loadListData();
+        },
+        error: (err) => {
+          console.error('Update Status Error:', err);
+
+          // 1. Lấy message từ backend trả về (nếu có)
+          let errorMsg = 'Lỗi cập nhật trạng thái.';
+
+          if (err.error) {
+            if (typeof err.error === 'string') {
+              errorMsg = err.error; // Backend trả về chuỗi text
+            } else if (err.error.message) {
+              errorMsg = err.error.message; // Backend trả về JSON object { code, message, ... }
+            }
+          }
+
+          // 2. Hiển thị thông báo rõ ràng cho người dùng
+          this.presentToast(errorMsg, 'danger');
+        }
+      });
+    }
+
+  // --- SỬA LỊCH HẸN (Mở Modal) ---
+  async onEditClick(item: AppointmentUI) {
+    if (!item.departmentId) {
+      this.presentToast('Lỗi dữ liệu: Không tìm thấy ID Khoa.', 'warning');
+      return;
+    }
+
+    const modal = await this.modalCtrl.create({
+      component: AppointmentEditModalComponent,
+      componentProps: {
+        appointment: item
+      }
+    });
+
+    await modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+
+    if (role === 'confirm' && data) {
+      // Gọi API cập nhật khi Modal đóng và trả về dữ liệu
+      this.confirmUpdateSchedule(item.id, data.date, data.scheduleId);
+    }
+  }
+
+  confirmUpdateSchedule(appointmentId: string, date: string, scheduleId: string) {
+    this.dashboardService.updateAppointmentInfo(appointmentId, date, scheduleId)
+      .subscribe({
+        next: () => {
+          this.presentToast('Cập nhật lịch khám thành công!', 'success');
+          this.loadListData(); // Reload lại trang hiện tại
+        },
+        error: (err) => {
+          console.error('Update Schedule Error:', err);
+          this.presentToast('Lỗi khi cập nhật lịch khám.', 'danger');
+        }
+      });
+  }
+
+  // --- CÁC HÀM UI KHÁC ---
+
+  toggleExpand(item: AppointmentUI) {
     item.expanded = !item.expanded;
   }
 
-  updateStatus(item: any, newStatus: string) {
-    this.dashboardService.updateNotificationStatus(item.id, newStatus).subscribe({
-      next: () => {
-        // Sau khi update xong thì refresh lại danh sách để cập nhật UI
-        this.handleRefresh({ target: { complete: () => {} } });
-      },
-      error: (err) => console.error(err)
+  handleRefresh(event: any) {
+    this.currentPage = 0;
+    this.hasMoreData = true;
+    this.loadStats();
+    this.loadListData(event);
+  }
+
+  onTabChange() {
+    // Khi đổi tab, reset về trang 0
+    this.currentPage = 0;
+    this.hasMoreData = true;
+    this.listData = []; // Clear tạm thời
+    this.loadListData();
+  }
+
+  async onPhoneClick(phone: string) {
+    if (!phone) return;
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: `Liên hệ: ${phone}`,
+      buttons: [
+        {
+          text: 'Gọi điện',
+          icon: 'call-outline',
+          handler: () => { window.open(`tel:${phone}`, '_system'); }
+        },
+        { text: 'Đóng', role: 'cancel' }
+      ]
     });
+    await actionSheet.present();
   }
 
   loadStats() {
-    this.dashboardService.getNotificationCounts().subscribe({
+    this.dashboardService.getDashboardCounts().subscribe({
       next: (data) => {
         this.counts = data || { PENDING: 0, CONFIRMED: 0, CANCELED: 0 };
         const c = this.counts as any;
         this.totalCount = (c.PENDING || 0) + (c.CONFIRMED || 0) + (c.CANCELED || 0);
-      }
+      },
+      error: (err) => console.error('Stats Error:', err)
     });
+  }
+
+  async presentToast(msg: string, color: string) {
+    const toast = await this.toastCtrl.create({
+      message: msg,
+      duration: 2000,
+      color: color,
+      position: 'top'
+    });
+    toast.present();
   }
 }

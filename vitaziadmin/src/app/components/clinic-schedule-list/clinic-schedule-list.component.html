@@ -1,0 +1,68 @@
+<div class="schedule-list-wrapper">
+  <div class="header-section">
+    <div class="header-top">
+      <h2 class="page-title">Lịch làm việc</h2>
+      <button class="btn-edit" (click)="onEditClick()">Chỉnh sửa</button>
+    </div>
+
+    <div class="department-selector">
+      <select [(ngModel)]="selectedDepartmentId" (change)="onDepartmentChange()">
+        <option value="" disabled>Chọn khoa bệnh</option>
+        <option *ngFor="let d of departments" [value]="d.id">
+          {{ d.departmentName }}
+        </option>
+      </select>
+      <ion-icon name="chevron-down-outline" class="select-arrow"></ion-icon>
+    </div>
+  </div>
+
+  <div class="list-container">
+    <div class="date-group" *ngFor="let group of scheduleGroups">
+
+      <div class="date-badge">
+        Ngày {{ group.date | date:'dd/MM/yyyy' }}
+      </div>
+
+      <div class="shifts-card">
+        <div class="shift-row" *ngFor="let shift of group.schedules; let last = last" [class.no-border]="last">
+          <div class="shift-info">
+            <div class="label-row">
+              <ion-icon name="time-outline"></ion-icon>
+              <span>Ca làm việc</span>
+
+              <span class="status-badge" [class.active]="shift.isActive" [class.inactive]="!shift.isActive">
+                {{ shift.isActive ? 'Đang bật' : 'Đã tắt' }}
+              </span>
+            </div>
+
+            <div class="time-display">
+              <span class="time-pill" [class.dimmed]="!shift.isActive">
+                {{ shift.startTime?.substring(0,5) }}
+              </span>
+              <span class="dash"></span>
+              <span class="time-pill" [class.dimmed]="!shift.isActive">
+                {{ shift.endTime?.substring(0,5) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="shift-action">
+            <ion-toggle
+              [checked]="shift.isActive"
+              (ionChange)="onToggleStatus(shift, $event)"
+              mode="ios">
+            </ion-toggle>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <div *ngIf="!loading && scheduleGroups.length === 0" class="empty-state">
+      <p>Chưa có lịch làm việc cho khoa này.</p>
+    </div>
+
+    <ion-infinite-scroll (ionInfinite)="loadData(false, $event)" [disabled]="!hasMoreData">
+      <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Đang tải thêm..."></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+</div>

@@ -1,0 +1,92 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Đổi lịch khám</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="close()" color="black">
+        <ion-icon name="close-outline" style="font-size: 24px;"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="modal-content">
+
+  <div class="content-wrapper">
+    <div class="section-group">
+      <div class="section-header">
+        <span class="step-badge">1</span>
+        <span class="step-title">Chọn ngày mới</span>
+      </div>
+
+      <div class="calendar-card">
+        <ion-datetime
+          presentation="date"
+          [value]="selectedDate"
+          [min]="minDate"
+          (ionChange)="onDateChange($event)"
+          locale="vi-VN"
+          size="cover">
+        </ion-datetime>
+      </div>
+    </div>
+
+    <div class="section-group">
+      <div class="section-header">
+        <span class="step-badge">2</span>
+        <span class="step-title">Chọn ca làm việc</span>
+      </div>
+
+      <div class="state-container" *ngIf="loading">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p>Đang tìm ca trống...</p>
+      </div>
+
+      <div class="state-container" *ngIf="!loading && schedules.length === 0">
+        <div class="empty-icon">📅</div>
+        <p>Không có ca làm việc nào trong ngày này.</p>
+      </div>
+
+      <ion-radio-group [(ngModel)]="selectedScheduleId" *ngIf="!loading && schedules.length > 0">
+        <div class="schedule-grid">
+          <div
+            class="schedule-card"
+            *ngFor="let s of schedules"
+            [class.selected]="selectedScheduleId === s.id"
+            [class.disabled]="!s.isActive"
+            (click)="s.isActive ? (selectedScheduleId = s.id) : null">
+
+            <ion-radio [value]="s.id" style="display:none"></ion-radio>
+
+            <div class="card-content">
+              <div class="time-range">
+                {{ formatTime(s.startTime) }} - {{ formatTime(s.endTime) }}
+              </div>
+
+              <div class="capacity-badge" [class.full]="!s.isActive">
+                <ng-container *ngIf="s.isActive">
+                  Còn {{ s.maxCapacity - s.capacity }} chỗ
+                </ng-container>
+                <ng-container *ngIf="!s.isActive">
+                  Đã khóa/Đầy
+                </ng-container>
+              </div>
+            </div>
+
+            <div class="check-icon" *ngIf="selectedScheduleId === s.id">
+              <ion-icon name="checkmark-circle"></ion-icon>
+            </div>
+          </div>
+        </div>
+      </ion-radio-group>
+    </div>
+  </div>
+
+</ion-content>
+
+<ion-footer class="ion-no-border">
+  <div class="footer-actions">
+    <ion-button expand="block" class="save-btn" (click)="save()" [disabled]="!selectedScheduleId">
+      Xác nhận thay đổi
+    </ion-button>
+  </div>
+</ion-footer>

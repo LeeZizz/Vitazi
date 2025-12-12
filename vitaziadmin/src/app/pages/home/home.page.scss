@@ -1,44 +1,34 @@
 .home-content {
-  --background: #ffffff;
+  --background: #f8fafc;
 }
 
-/* 1. HEADER BANNER */
+/* HEADER & STATS (Giữ nguyên style cũ của bạn) */
 .header-banner {
-  /* Màu xanh da trời tươi sáng */
   background: #5CA8FF;
   height: 240px;
   padding: 60px 20px 0;
-
-  /* Bo góc dưới mạnh */
   border-bottom-left-radius: 40px;
   border-bottom-right-radius: 40px;
-
   color: white;
   position: relative;
   z-index: 0;
 }
-
 .page-title {
   font-size: 28px;
   font-weight: 800;
   margin: 10px 0 0 8px;
 }
-
-/* 2. STATS GRID */
 .stats-container {
   padding: 0 16px;
   margin-top: -100px;
-  /* Đè lên header */
   position: relative;
   z-index: 10;
 }
-
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
-
 .stat-card {
   background: #ffffff;
   border-radius: 24px;
@@ -50,276 +40,297 @@
   min-height: 90px;
   border: 1.5px solid transparent;
 
-  /* Màu viền theo trạng thái */
-  &.purple {
-    border-color: #a78bfa;
-    background: linear-gradient(#fff, #fbfaff);
-  }
-
-  &.yellow {
-    border-color: #fde047;
-    background: linear-gradient(#fff, #fffbeb);
-  }
-
-  &.green {
-    border-color: #4ade80;
-    background: linear-gradient(#fff, #f0fdf4);
-  }
-
-  &.red {
-    border-color: #f87171;
-    background: linear-gradient(#fff, #fef2f2);
-  }
+  &.purple { border-color: #a78bfa; background: linear-gradient(#fff, #fbfaff); }
+  &.yellow { border-color: #fde047; background: linear-gradient(#fff, #fffbeb); }
+  &.green { border-color: #4ade80; background: linear-gradient(#fff, #f0fdf4); }
+  &.red { border-color: #f87171; background: linear-gradient(#fff, #fef2f2); }
 
   .card-icon-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #4b5563;
-    margin-bottom: 6px;
-
-    ion-icon {
-      font-size: 18px;
-    }
+    display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #4b5563; margin-bottom: 6px;
+    ion-icon { font-size: 18px; }
   }
-
   .stat-value {
-    font-size: 22px;
-    font-weight: 800;
-    text-align: center;
-
-    &.text-purple {
-      color: #7c3aed;
-    }
-
-    &.text-yellow {
-      color: #d97706;
-    }
-
-    &.text-green {
-      color: #16a34a;
-    }
-
-    &.text-red {
-      color: #dc2626;
-    }
+    font-size: 22px; font-weight: 800; text-align: center;
+    &.text-purple { color: #7c3aed; }
+    &.text-yellow { color: #d97706; }
+    &.text-green { color: #16a34a; }
+    &.text-red { color: #dc2626; }
   }
 }
 
-/* 3. SEGMENT (Viên thuốc) */
+/* SEGMENT */
 .segment-section {
   padding: 30px 20px 20px;
-  display: flex;
-  justify-content: center;
+  display: flex; justify-content: center;
 }
-
 ion-segment {
-  background: #e2e8f0;
-  border-radius: 50px;
-  padding: 4px;
-  height: auto;
-  --background: #e2e8f0;
+  background: #e2e8f0; border-radius: 50px; padding: 4px; height: auto; --background: #e2e8f0;
 }
-
 ion-segment-button {
-  --indicator-color: #ffffff;
-  --indicator-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  --color: #64748b;
-  --color-checked: #0f172a;
-
-  min-height: 38px;
-  border-radius: 40px;
-  font-weight: 600;
-  font-size: 13px;
-  text-transform: none;
-  margin: 0;
-
-  ion-label {
-    margin: 2px 0;
-    letter-spacing: 0;
-  }
+  --indicator-color: #ffffff; --indicator-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --color: #64748b; --color-checked: #0f172a;
+  min-height: 38px; border-radius: 40px; font-weight: 600; font-size: 13px; text-transform: none; margin: 0;
 }
 
-/* 4. APPOINTMENT CARD */
+/* LIST CONTAINER */
 .list-container {
-  padding-bottom: 40px;
+  padding-bottom: 20px;
 }
 
-.appointment-card {
+/* BLUE APPOINTMENT CARD */
+.blue-appointment-card {
   margin: 0 16px 16px;
-  border-radius: 20px;
-  background: #ffffff;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  border: 1px solid #bfdbfe;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
 
-  /* HEADER CARD */
-  .card-header-row {
-    background: linear-gradient(180deg, #E0F2FE 0%, #D6EFFF 100%);
+  &.expanded {
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
+    border-color: #bfdbfe;
+  }
+
+  .card-main {
     padding: 16px;
+    display: flex; gap: 12px;
+    background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
     position: relative;
     cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    /* Xếp dọc: Thông tin -> Nút bấm */
-    gap: 12px;
+  }
 
-    /* Phần thông tin chính */
-    .header-content {
-      display: flex;
-      gap: 12px;
-      padding-right: 30px;
-      /* Chừa chỗ cho mũi tên */
+  .dept-avatar {
+    width: 50px; height: 50px; border-radius: 10px; object-fit: cover;
+    border: 1px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
 
-      .dept-avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
-        object-fit: cover;
-        background: #fff;
-        margin-top: 2px;
-      }
+  .info-col {
+    flex: 1; display: flex; flex-direction: column; gap: 4px; padding-right: 20px;
+  }
 
-      .info-col {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-
-        .main-title {
-          font-weight: 800;
-          font-size: 16px;
-          color: #000;
-          line-height: 1.3;
-        }
-
-        .sub-row {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 13px;
-          color: #334155;
-          font-weight: 600;
-
-          ion-icon {
-            font-size: 15px;
-            color: #2563eb;
-            min-width: 16px;
-          }
-        }
-
-        .sub-row.phone span {
-          font-family: monospace;
-          font-size: 14px;
-          font-weight: 700;
-          color: #000;
-        }
-      }
-    }
-
-    /* Phần nút bấm (Nằm dưới thông tin) */
-    .header-actions {
-      display: flex;
-      justify-content: flex-end;
-      /* Căn phải */
-      gap: 10px;
-      padding-top: 4px;
-      border-top: 1px dashed rgba(59, 130, 246, 0.2);
-      /* Đường kẻ mờ ngăn cách */
-      margin-top: 4px;
-
-      .action-btn {
-        padding: 8px 24px;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 700;
-        border: none;
-        cursor: pointer;
-        transition: transform 0.1s;
-
-        &:active {
-          transform: scale(0.95);
-        }
-
-        &.confirm {
-          background: #ffffff;
-          color: #2563eb;
-          /* Chữ xanh */
-          border: 1px solid #bfdbfe;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        &.cancel {
-          background: #ef4444;
-          /* Nền đỏ */
-          color: white;
-          box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
-        }
-      }
-    }
-
-    /* Mũi tên (Luôn ở góc trên phải) */
-    .expand-icon {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      color: #64748b;
-      font-size: 22px;
+  .title-row {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;
+    .dept-name { margin: 0; font-size: 15px; font-weight: 800; color: #1e293b; }
+    .edit-btn {
+      background: rgba(255,255,255,0.5); border-radius: 50%; width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center; color: #2563eb; font-size: 16px;
     }
   }
 
-  /* BODY */
-  .card-body {
-    background: #F8FAFC;
-    padding: 16px;
-    border-top: 1px solid #e2e8f0;
+  .patient-name { font-size: 13px; color: #334155; b { font-weight: 600; } }
+  .patient-phone {
+    font-size: 13px; color: #475569;
+    span { color: #2563eb; text-decoration: underline; font-weight: 600; }
+  }
 
-    .info-line {
-      display: flex;
-      margin-bottom: 8px;
-      font-size: 14px;
-      color: #334155;
+  .appointment-time {
+    display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #0f172a; margin-top: 4px;
+    ion-icon { font-size: 16px; margin-bottom: 2px; color: #64748b;}
+  }
 
-      .label {
-        min-width: 80px;
-        color: #64748b;
-        font-weight: 500;
-      }
+  .inline-actions {
+    display: flex; gap: 8px; margin-top: 10px;
+    .btn-sm {
+      padding: 6px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; border: none; cursor: pointer;
+      transition: opacity 0.2s;
+      &:active { opacity: 0.8; }
+      &.confirm { background: #ffffff; color: #2563eb; border: 1px solid #bfdbfe; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1); }
+      &.cancel { background: #ef4444; color: white; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2); }
+    }
+  }
 
-      .value {
-        font-weight: 600;
-        color: #0f172a;
-        flex: 1;
-        line-height: 1.5;
-      }
+  .expand-indicator {
+    position: absolute; top: 16px; right: 12px; color: #94a3b8; font-size: 20px;
+  }
 
-      .value.highlight {
-        color: #b91c1c;
-        background: #fef2f2;
-        padding: 6px 10px;
-        border-radius: 8px;
-        display: block;
-        /* Xuống dòng nếu dài */
-      }
+  .expand-section {
+    padding: 12px 16px; background: #ffffff; border-top: 1px solid #f1f5f9; animation: slideDown 0.3s ease-out;
+    .detail-row {
+      margin-bottom: 6px; font-size: 13px; display: flex; flex-direction: column; gap: 2px;
+      .label { color: #64748b; font-weight: 600; font-size: 11px; text-transform: uppercase; }
+      .content { color: #334155; line-height: 1.4; }
+      .italic { font-style: italic; color: #94a3b8; }
     }
   }
 }
 
 @keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* SKELETON */
+.skeleton-card {
+  margin: 0 16px 16px; background: #ffffff; border-radius: 16px; padding: 16px; border: 1px solid #e2e8f0;
+  .sk-header { display: flex; gap: 12px; margin-bottom: 16px; }
+  .sk-avatar { width: 50px; height: 50px; border-radius: 10px; }
+  .sk-info { flex: 1; display: flex; flex-direction: column; }
+  .sk-footer { padding-top: 8px; }
+}
+
+/* EMPTY STATE */
+.empty-state-styled {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 60px; color: #64748b;
+  .icon-circle {
+    width: 80px; height: 80px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+    ion-icon { font-size: 40px; color: #94a3b8; }
+  }
+  h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; color: #334155; }
+  p { margin: 0; font-size: 14px; color: #94a3b8; }
+}
+
+/* FADE IN */
+.fade-in { animation: fadeIn ease 0.5s; }
+@keyframes fadeIn { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+
+/* PAGINATION FOOTER */
+ion-footer.pagination-footer {
+  background: transparent; box-shadow: none; border: none; padding: 0 16px 16px;
+}
+.pagination-bar {
+  background: #ffffff; border-radius: 50px; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0;
+}
+.page-info {
+  font-size: 14px; color: #475569; font-weight: 500;
+  b { color: #2563eb; font-size: 16px; }
+}
+.page-btn {
+  background: transparent; border: none; height: 40px; border-radius: 20px; padding: 0 16px; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: #334155; transition: all 0.2s;
+  ion-icon { font-size: 18px; }
+  &:active { background: #f1f5f9; transform: scale(0.95); }
+  &.next { color: #2563eb; background: #eff6ff; &:active { background: #dbeafe; } }
+  &:disabled { opacity: 0.4; pointer-events: none; background: transparent; color: #cbd5e1; }
+}
+
+/* ... Style cũ giữ nguyên ... */
+
+/* --- NUMBERED PAGINATION FOOTER --- */
+ion-footer.pagination-footer {
+  background: transparent;
+  border: none;
+  padding: 0 0 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.pagination-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc; /* Nền xám nhạt nhẹ */
+  padding: 8px 16px;
+  border-radius: 30px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.page-numbers {
+  display: flex;
+  gap: 6px;
+}
+
+/* Nút tròn số trang */
+.page-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  /* State: Active (Màu Cam) */
+  &.active {
+    background: #f97316; /* Cam */
+    color: white;
+    border-color: #f97316;
+    box-shadow: 0 2px 5px rgba(249, 115, 22, 0.3);
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  /* State: Dots (...) */
+  &.dots {
+    border: none;
+    background: transparent;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  &:active:not(.dots):not(.active) {
+    background: #f1f5f9;
   }
 }
 
-.empty-state {
-  text-align: center;
-  padding: 40px;
-  color: #94a3b8;
+/* Nút Next (>>) */
+.next-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  border: none;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 4px;
+
+  &:active { background: #e2e8f0; }
+
+  &:disabled {
+    opacity: 0.3;
+    pointer-events: none;
+  }
+}
+
+/* ... Style cũ ... */
+
+/* Footer Phân trang nổi */
+ion-footer.pagination-footer {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  padding: 0 16px 16px;
+}
+
+.pagination-bar {
+  background: #ffffff;
+  border-radius: 50px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.page-info {
+  font-size: 14px;
+  color: #475569;
+  font-weight: 500;
+  b { color: #2563eb; font-size: 16px; }
+}
+
+.page-btn {
+  background: transparent;
+  border: none;
+  height: 40px;
+  border-radius: 20px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+
+  &.next { color: #2563eb; background: #eff6ff; }
+  &:disabled { opacity: 0.4; pointer-events: none; }
 }
