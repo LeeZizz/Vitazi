@@ -1,98 +1,301 @@
 <ion-content class="main-bg">
-  <div class="container">
-
-    <div class="header-section">
-      <h3>📅 Chọn lịch khám</h3>
-    </div>
-
-    <div class="top-controls">
-
-      <div class="custom-select-wrapper">
-        <ion-select [value]="selectedDepartmentId" (ionChange)="onDepartmentChange($event)"
-                    interface="popover" placeholder="Chọn chuyên khoa" class="modern-select">
-          <ion-select-option *ngFor="let d of departments" [value]="d.id">
-            {{ d.departmentName }}
-          </ion-select-option>
-        </ion-select>
+  <div class="split-layout">
+    
+    <!-- LEFT PANEL: BRANDING & HERO -->
+    <div class="side-panel">
+      <div class="brand-logo">
+        <!-- Thay thế icon bằng ảnh logo -->
+        <img src="https://placehold.co/48x48/ffffff/0ea5e9?text=V" alt="Vitazi Logo" class="logo-img" />
+        <span>Vitazi</span>
       </div>
+      
+      <div class="hero-content">
+        <div class="hero-eyebrow">
+          <ion-icon name="medkit-outline" aria-hidden="true"></ion-icon>
+          <span>Hệ thống đặt lịch khám trực tuyến</span>
+        </div>
 
-      <div class="month-picker-wrapper">
-        <ion-datetime-button datetime="datetime"></ion-datetime-button>
-        <ion-modal [keepContentsMounted]="true">
-          <ng-template>
-            <ion-datetime id="datetime"
-                          presentation="month-year"
-                          [(ngModel)]="currentIsoDate"
-                          [min]="minDate"
-                          [max]="maxDate"
-                          (ionChange)="onMonthChange($event)"></ion-datetime>
-          </ng-template>
-        </ion-modal>
-      </div>
-    </div>
+        <h1>Đặt lịch khám <br> nhanh chóng & riêng tư</h1>
+        <p>Chọn chuyên khoa, ngày giờ phù hợp và xác nhận trong vài bước. Thông tin của bạn được bảo mật, hỗ trợ tận tâm.</p>
 
-    <div class="date-section">
-      <div class="pagination-controls">
-        <button class="nav-btn" (click)="prevPage()" [disabled]="startIndex === 0">
-          <ion-icon name="chevron-back"></ion-icon>
-        </button>
-
-        <div class="date-list">
-          <div class="date-card" *ngFor="let day of visibleDays"
-               [class.active]="selectedDate === day.fullDate"
-               (click)="selectDate(day)">
-            <span class="day-name">{{ day.dayName }}</span>
-            <span class="day-number">{{ day.dayNumber }}</span>
+        <div class="hero-highlights" role="list">
+          <div class="highlight-card" role="listitem">
+            <div class="highlight-icon" aria-hidden="true">
+              <ion-icon name="time-outline"></ion-icon>
+            </div>
+            <div class="highlight-text">
+              <div class="highlight-title">Xác nhận nhanh</div>
+              <div class="highlight-sub">Tối ưu thời gian chờ</div>
+            </div>
           </div>
-          <div *ngIf="visibleDays.length === 0" class="no-days-msg">
-            Không còn ngày làm việc trong tháng này
+
+          <div class="highlight-card" role="listitem">
+            <div class="highlight-icon" aria-hidden="true">
+              <ion-icon name="checkmark-circle"></ion-icon>
+            </div>
+            <div class="highlight-text">
+              <div class="highlight-title">Quy trình rõ ràng</div>
+              <div class="highlight-sub">Chọn khoa → chọn giờ → nhập thông tin</div>
+            </div>
+          </div>
+
+          <div class="highlight-card" role="listitem">
+            <div class="highlight-icon" aria-hidden="true">
+              <ion-icon name="mail-outline"></ion-icon>
+            </div>
+            <div class="highlight-text">
+              <div class="highlight-title">Nhắc lịch tiện lợi</div>
+              <div class="highlight-sub">Nhận thông báo qua email</div>
+            </div>
           </div>
         </div>
 
-        <button class="nav-btn" (click)="nextPage()"
-                [disabled]="startIndex + pageSize >= allDaysOfMonth.length">
-          <ion-icon name="chevron-forward"></ion-icon>
-        </button>
-      </div>
-    </div>
+        <div class="hero-contact">
+          <div class="contact-card">
+            <div class="contact-item">
+              <div class="contact-icon-box">
+                <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+              </div>
+              <div class="contact-info">
+                <span class="contact-label">Hotline hỗ trợ</span>
+                <span class="contact-value">1900 0000</span>
+              </div>
+            </div>
 
-    <div class="time-section" *ngIf="selectedDepartmentId && selectedDate">
-      <h4>🕒 Ca khám còn trống</h4>
-
-      <div class="time-grid" *ngIf="schedules.length > 0; else noSchedule">
-        <button class="time-chip" *ngFor="let s of schedules"
-                [class.selected]="selectedSchedule?.id === s.id"
-                (click)="selectTimeSlot(s)">
-          {{ formatTime(s.startTime) }} - {{ formatTime(s.endTime) }}
-        </button>
-      </div>
-
-      <ng-template #noSchedule>
-        <div class="empty-state">
-          <p>Không có lịch khám nào.</p>
+          </div>
         </div>
-      </ng-template>
+
+        <div class="social-proof" aria-label="Minh chứng tin dùng">
+          <div class="social-card">
+            <div class="social-left">
+              <div class="social-number">25.000+</div>
+              <div class="social-label">Lượt đặt khám thành công</div>
+            </div>
+            
+            <div class="social-divider"></div>
+
+            <div class="social-right">
+              <div class="social-avatars" aria-hidden="true">
+                <img
+                  *ngFor="let a of socialAvatars"
+                  class="avatar avatar-img"
+                  [src]="a.src"
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                />
+                <span class="avatar avatar-more">+99</span>
+              </div>
+              <div class="social-rating">
+                <div class="stars">
+                  <ion-icon name="star"></ion-icon>
+                  <ion-icon name="star"></ion-icon>
+                  <ion-icon name="star"></ion-icon>
+                  <ion-icon name="star"></ion-icon>
+                  <ion-icon name="star"></ion-icon>
+                </div>
+                <span class="rating-text">4.9/5 (2k+ đánh giá)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="decorative-circle" aria-hidden="true"></div>
+      <div class="decorative-circle-2" aria-hidden="true"></div>
     </div>
 
-    <div class="info-section">
-      <h4>Thông tin người khám bệnh</h4>
-      <div class="input-box">
-        <label>Họ và Tên</label>
-        <input type="text" placeholder="Nguyễn Văn A">
+    <!-- RIGHT PANEL: BOOKING FORM -->
+    <div class="main-panel" id="booking-form">
+      <div class="form-container">
+        
+        <div class="form-header">
+          <h2>Đặt Lịch Khám</h2>
+          <p>Vui lòng điền thông tin bên dưới</p>
+        </div>
+
+        <!-- STEP 1: CHUYÊN KHOA -->
+        <div class="form-section">
+          <div class="section-title">
+            <span class="step-number">1</span>
+            <h3>Chọn Chuyên Khoa</h3>
+          </div>
+          
+          <div class="custom-select-wrapper">
+            <!-- Custom Dropdown Trigger -->
+            <div class="dropdown-trigger" (click)="toggleDepartmentDropdown()" [class.active]="isDepartmentOpen">
+              <div class="selected-value">
+                <ion-icon name="medkit-outline" class="prefix-icon"></ion-icon>
+                <span *ngIf="selectedDepartment" class="text-value">{{ selectedDepartment.departmentName }}</span>
+                <span *ngIf="!selectedDepartment" class="placeholder">Chọn chuyên khoa khám bệnh</span>
+              </div>
+              <ion-icon name="chevron-down" class="suffix-icon" [class.rotate]="isDepartmentOpen"></ion-icon>
+            </div>
+
+            <!-- Dropdown Menu -->
+            <div class="dropdown-menu" *ngIf="isDepartmentOpen">
+              <div class="dropdown-item" *ngFor="let d of departments" 
+                   (click)="selectDepartment(d)"
+                   [class.selected]="selectedDepartment?.id === d.id">
+                <div class="item-icon-box">
+                  <ion-icon name="medkit-outline"></ion-icon>
+                </div>
+                <div class="item-content">
+                  <span class="item-title">{{ d.departmentName }}</span>
+                  <span class="item-desc" *ngIf="d.description">{{ d.description }}</span>
+                </div>
+                <ion-icon name="checkmark-circle" class="check-icon" *ngIf="selectedDepartment?.id === d.id"></ion-icon>
+              </div>
+              
+              <div class="dropdown-empty" *ngIf="departments.length === 0">
+                <ion-icon name="alert-circle-outline"></ion-icon>
+                <span>Đang tải danh sách...</span>
+              </div>
+            </div>
+            
+            <!-- Backdrop -->
+            <div class="dropdown-backdrop" *ngIf="isDepartmentOpen" (click)="toggleDepartmentDropdown()"></div>
+          </div>
+        </div>
+
+        <!-- STEP 2: THỜI GIAN -->
+        <div class="form-section">
+          <div class="section-title">
+            <span class="step-number">2</span>
+            <h3>Chọn Thời Gian</h3>
+            
+            <div class="month-picker-wrapper">
+              <!-- Custom Trigger Button -->
+              <button class="custom-month-trigger" (click)="toggleMonthPicker()">
+                <ion-icon name="calendar-outline"></ion-icon>
+                <span>{{ displayMonthYear || 'Chọn tháng' }}</span>
+                <ion-icon name="chevron-down"></ion-icon>
+              </button>
+
+              <!-- Custom Month Picker Modal -->
+              <div class="custom-picker-overlay" *ngIf="isMonthPickerOpen" (click)="toggleMonthPicker()"></div>
+              <div class="custom-picker-popup" *ngIf="isMonthPickerOpen">
+                <div class="picker-header">
+                  <button class="year-nav-btn" (click)="prevYear()">
+                    <ion-icon name="chevron-back"></ion-icon>
+                  </button>
+                  <span class="year-display">{{ pickerYear }}</span>
+                  <button class="year-nav-btn" (click)="nextYear()">
+                    <ion-icon name="chevron-forward"></ion-icon>
+                  </button>
+                </div>
+                
+                <div class="months-grid">
+                  <div class="month-item" *ngFor="let m of monthsList; let i = index"
+                       [class.active]="i === pickerMonth"
+                       [class.current]="i === pickerMonth"
+                       (click)="selectMonth(i)">
+                    {{ m }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Date Carousel -->
+          <div class="date-section">
+            <div class="pagination-controls">
+              <button class="nav-btn" (click)="prevPage()" [disabled]="startIndex === 0">
+                <ion-icon name="chevron-back"></ion-icon>
+              </button>
+
+              <div class="date-list">
+                <div class="date-card" *ngFor="let day of visibleDays"
+                     [class.active]="selectedDate === day.fullDate"
+                     (click)="selectDate(day)">
+                  <span class="day-name">{{ day.dayName }}</span>
+                  <span class="day-number">{{ day.dayNumber }}</span>
+                </div>
+                <div *ngIf="visibleDays.length === 0" class="no-days-msg">
+                  Không còn ngày làm việc
+                </div>
+              </div>
+
+              <button class="nav-btn" (click)="nextPage()"
+                      [disabled]="startIndex + pageSize >= allDaysOfMonth.length">
+                <ion-icon name="chevron-forward"></ion-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Time Slots -->
+          <div class="time-section" *ngIf="selectedDepartmentId && selectedDate">
+            <div class="time-grid" *ngIf="schedules.length > 0; else noSchedule">
+              <button class="time-chip" *ngFor="let s of schedules"
+                      [class.selected]="selectedSchedule?.id === s.id"
+                      (click)="selectTimeSlot(s)">
+                {{ formatTime(s.startTime) }} - {{ formatTime(s.endTime) }}
+              </button>
+            </div>
+            <ng-template #noSchedule>
+              <div class="empty-state">Không có lịch khám nào.</div>
+            </ng-template>
+          </div>
+          
+          <div class="warning-msg" *ngIf="!selectedDepartmentId">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            Vui lòng chọn chuyên khoa trước.
+          </div>
+        </div>
+
+        <!-- STEP 3: THÔNG TIN -->
+        <div class="form-section">
+          <div class="section-title">
+            <span class="step-number">3</span>
+            <h3>Thông Tin Của Bạn</h3>
+          </div>
+
+          <div class="input-grid">
+            <div class="form-group">
+              <label>Họ và Tên <span class="required">*</span></label>
+              <div class="input-wrapper" [class.error]="isSubmitted && !patientName.trim()">
+                <ion-icon name="person-outline" class="input-icon"></ion-icon>
+                <input type="text" placeholder="Nguyễn Văn A" [(ngModel)]="patientName">
+              </div>
+              <div class="error-text" *ngIf="isSubmitted && !patientName.trim()">Vui lòng nhập họ tên</div>
+            </div>
+
+            <div class="form-group">
+              <label>Số điện thoại <span class="required">*</span></label>
+              <div class="input-wrapper" [class.error]="isSubmitted && (!patientPhone.trim() || !isValidPhone(patientPhone))">
+                <ion-icon name="call-outline" class="input-icon"></ion-icon>
+                <input type="tel" placeholder="0912..." [(ngModel)]="patientPhone">
+              </div>
+              <div class="error-text" *ngIf="isSubmitted && !patientPhone.trim()">Vui lòng nhập SĐT</div>
+              <div class="error-text" *ngIf="isSubmitted && patientPhone.trim() && !isValidPhone(patientPhone)">SĐT không hợp lệ</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Email <span class="required">*</span></label>
+            <div class="input-wrapper" [class.error]="isSubmitted && (!patientEmail.trim() || !isValidEmail(patientEmail))">
+              <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+              <input type="email" placeholder="example@gmail.com" [(ngModel)]="patientEmail">
+            </div>
+            <div class="error-text" *ngIf="isSubmitted && !patientEmail.trim()">Vui lòng nhập email</div>
+            <div class="error-text" *ngIf="isSubmitted && patientEmail.trim() && !isValidEmail(patientEmail)">Email không hợp lệ</div>
+          </div>
+
+          <div class="form-group">
+            <label>Lý do khám</label>
+            <div class="input-wrapper textarea-wrapper">
+              <ion-icon name="document-text-outline" class="input-icon"></ion-icon>
+              <textarea placeholder="Mô tả triệu chứng..." [(ngModel)]="description" rows="3"></textarea>
+            </div>
+          </div>
+
+          <button class="btn-submit" (click)="onSubmit()">
+            Xác Nhận Đặt Lịch
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+          </button>
+        </div>
+
       </div>
-      <div class="input-box">
-        <label>Số điện thoại</label>
-        <input type="tel" placeholder="0912345678">
-      </div>
-      <div class="input-box">
-        <label>Email</label>
-        <input type="email" placeholder="example@gmail.com">
-      </div>
-      <div class="input-box">
-        <label>Lý do khám</label>
-        <input type="text" placeholder="Triệu chứng bệnh...">
-      </div>
-      <button class="btn-submit" (click)="onSubmit()">Xác nhận đặt lịch</button>
     </div>
 
   </div>

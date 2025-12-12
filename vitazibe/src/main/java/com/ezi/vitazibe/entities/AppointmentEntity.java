@@ -2,6 +2,9 @@ package com.ezi.vitazibe.entities;
 
 import com.ezi.vitazibe.enums.Status;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,8 +34,18 @@ public class AppointmentEntity {
     @JoinColumn(name = "schedule_id", nullable = true)
     private ScheduleEntity scheduleId;
 
+    @NotBlank(message = "User name is required")
+    @Size(min = 2, max = 100, message = "User name must be between 2 and 100 characters")
     private String userName;
+
+    @NotBlank(message = "Số điện thoại không được để trống")
+    @Pattern(regexp = "^(0|\\+84)(3[2-9]|5[689]|7[06-9]|8[1-9]|9[0-9])[0-9]{7}$",
+            message = "Số điện thoại không hợp lệ")
     private String userPhone;
+
+    @Email(message = "Email không đúng định dạng")
+    @NotBlank(message = "Email không được để trống")
+    @Size(max = 100)
     private String userEmail;
 
     @Lob
