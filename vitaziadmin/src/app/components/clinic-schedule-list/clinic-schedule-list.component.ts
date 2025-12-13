@@ -1,7 +1,9 @@
 import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonToggle, IonInfiniteScroll, IonInfiniteScrollContent, IonIcon, ToastController } from '@ionic/angular/standalone';
+import { IonToggle, IonInfiniteScroll, IonInfiniteScrollContent,
+        IonIcon, ToastController, IonPopover }
+from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { timeOutline, chevronDownOutline } from 'ionicons/icons';
 
@@ -17,7 +19,9 @@ interface ScheduleGroup {
 @Component({
   selector: 'app-clinic-schedule-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonToggle, IonInfiniteScroll, IonInfiniteScrollContent, IonIcon],
+  imports: [CommonModule, FormsModule, IonToggle,
+    IonInfiniteScroll, IonInfiniteScrollContent, IonIcon,
+    IonPopover],
   templateUrl: './clinic-schedule-list.component.html',
   styleUrls: ['./clinic-schedule-list.component.scss']
 })

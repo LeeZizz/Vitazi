@@ -45,8 +45,8 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
         return (request, response, authentication) -> {
-//             response.sendRedirect("http://localhost:8100/clinic-type");
-            response.sendRedirect("/clinic-type");
+             response.sendRedirect("http://localhost:8100/clinic-type");
+            //response.sendRedirect("/clinic-type");
 
         };
     }
