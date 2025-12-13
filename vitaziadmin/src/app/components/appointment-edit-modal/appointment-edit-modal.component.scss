@@ -72,7 +72,7 @@ ion-content {
     border-radius: 12px;
     --background: #ffffff;
     --ion-color-primary: #3b82f6; /* Set màu xanh cho ngày được chọn */
-    color: #1e293b;
+    color: #333;
     /* Ẩn các ngày cũ đi */
     &::part(calendar-day disabled) {
       color: #cbd5e1;

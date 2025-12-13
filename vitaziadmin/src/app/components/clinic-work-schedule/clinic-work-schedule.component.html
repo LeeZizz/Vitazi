@@ -1,6 +1,6 @@
 <div class="work-page">
   <div class="header-banner">
-    <h1 class="header-title">Chỉnh sửa lịch làm việc</h1>
+    <h1 class="header-title"></h1>
   </div>
 
   <div class="card">
@@ -24,7 +24,12 @@
     </div>
 
     <div class="calendar-wrapper">
-      <ion-datetime presentation="date" [value]="selectedDate" locale="vi-VN" (ionChange)="onDateChange($event)">
+      <ion-datetime
+        presentation="date"
+        [value]="selectedDate"
+        [min]="minDate"
+        locale="vi-VN"
+        (ionChange)="onDateChange($event)">
       </ion-datetime>
     </div>
 
@@ -35,35 +40,39 @@
 
       <div class="shift-list">
         <div class="shift-row-container" *ngFor="let shift of shifts; let i = index"
-          [class.invalid-shift]="shift.isValid === false">
+             [class.invalid-shift]="shift.isValid === false">
 
           <div class="shift-row">
+
             <div class="time-group">
-              <label>Bắt đầu</label>
+              <label>BẮT ĐẦU</label>
               <div class="time-pill">
                 <input type="time" [(ngModel)]="shift.startTime" (change)="validateShift(shift)" />
+                <ion-icon name="time-outline" class="clock-icon"></ion-icon>
               </div>
             </div>
 
             <span class="arrow">→</span>
 
             <div class="time-group">
-              <label>Kết thúc</label>
+              <label>KẾT THÚC</label>
               <div class="time-pill">
                 <input type="time" [(ngModel)]="shift.endTime" (change)="validateShift(shift)" />
+                <ion-icon name="time-outline" class="clock-icon"></ion-icon>
               </div>
             </div>
 
-            <div class="capacity-group">
-              <label>Số lượng</label>
+            <div class="w-100"></div>
+
+            <div class="capacity-group full-width">
+              <label>SỐ LƯỢNG</label>
               <div class="capacity-dot">
                 <input type="number" min="1" [(ngModel)]="shift.maxCapacity" />
               </div>
             </div>
 
             <div class="delete-group">
-              <label style="visibility: hidden;">X</label> <button type="button" class="delete-btn-icon"
-                (click)="removeShift(i)">
+              <button type="button" class="delete-btn-icon" (click)="removeShift(i)">
                 <ion-icon name="trash-outline"></ion-icon>
               </button>
             </div>
@@ -89,4 +98,3 @@
     <span *ngIf="loading">Đang xử lý...</span>
   </button>
 </div>
-

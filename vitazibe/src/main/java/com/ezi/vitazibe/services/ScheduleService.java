@@ -96,7 +96,7 @@ public class ScheduleService {
     @Transactional
     public Page<ScheduleResponse> getSchedulesByClinicAndDepartment(String clinicId, String departmentId, Pageable pageable) {
         LocalDate today = LocalDate.now();
-        LocalDate threeDaysLater = today.plusDays(2);
+        LocalDate threeDaysLater = today.plusDays(29);
 
         // Sắp xếp theo ngày tăng dần, sau đó đến giờ bắt đầu tăng dần
         Pageable sortedPageable = PageRequest.of(

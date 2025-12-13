@@ -7,7 +7,8 @@ import {
   IonRefresher, IonRefresherContent,
   IonFooter, IonSpinner,
   ActionSheetController, AlertController, ToastController,
-  ModalController,IonSkeletonText
+  ModalController, IonSkeletonText,
+  IonInfiniteScroll, IonInfiniteScrollContent // <--- IMPORT MỚI
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -23,7 +24,6 @@ import { ClinicDashboardService } from '../../services/clinic-dashboard.service'
 import { DashboardCounts, AppointmentResponse } from '../../models/clinic.models';
 import { AppointmentEditModalComponent } from '../../components/appointment-edit-modal/appointment-edit-modal.component';
 
-// Interface mở rộng cho UI để xử lý đóng/mở card
 interface AppointmentUI extends AppointmentResponse {
   expanded?: boolean;
 }
@@ -38,11 +38,11 @@ interface AppointmentUI extends AppointmentResponse {
     IonContent, IonHeader, IonIcon, IonSegment,
     IonSegmentButton, IonLabel, IonCard, IonButton,
     IonRefresher, IonRefresherContent,
-    IonFooter, IonSpinner, IonSkeletonText
+    IonFooter, IonSpinner, IonSkeletonText,
+    IonInfiniteScroll, IonInfiniteScrollContent // <--- IMPORT MỚI
   ]
 })
 export class HomePage implements OnInit {
-  // Tham chiếu đến Content để cuộn lên đầu trang khi chuyển trang
   @ViewChild(IonContent) content!: IonContent;
 
   currentTab: 'PENDING' | 'CONFIRMED' | 'CANCELED' = 'PENDING';
@@ -52,10 +52,10 @@ export class HomePage implements OnInit {
   listData: AppointmentUI[] = [];
   isLoading = false;
 
-  // CẤU HÌNH PHÂN TRANG (Pagination)
+  // CẤU HÌNH SCROLL
   currentPage = 0;
-  pageSize = 6; // Yêu cầu: Hiển thị 6 thẻ mỗi trang
-  hasMoreData = true; // Kiểm tra xem còn trang sau không
+  pageSize = 10; // Tăng pageSize lên một chút để trải nghiệm cuộn tốt hơn
+  hasMoreData = true;
 
   constructor(
     private dashboardService: ClinicDashboardService,
@@ -73,18 +73,12 @@ export class HomePage implements OnInit {
       checkmarkDoneCircleOutline, calendarNumberOutline
     });
   }
-  // appointments: AppointmentResponse[] = [];
+
   ngOnInit() {
     this.loadStats();
-    // Load lần đầu
     this.loadListData();
-  //   this.dashboardService.getAllAppointments().subscribe(data => {
-  //   this.appointments = data;
-  //   console.log('appointments:', data); // Kiểm tra dữ liệu
-  // });
   }
 
-  // --- HELPER: Format giờ ---
   formatTime(timeString: string): string {
     if (!timeString) return '';
     const parts = timeString.split(':');
@@ -98,38 +92,37 @@ export class HomePage implements OnInit {
     return timeString;
   }
 
-  // --- CORE: TẢI DỮ LIỆU ---
-  /**
-   * Tải dữ liệu cho trang hiện tại.
-   * @param event Event từ Refresher (nếu có)
-   */
+  // --- LOGIC LOAD DATA MỚI CHO SCROLL ---
   loadListData(event?: any) {
-    this.isLoading = true;
-
-    // Nếu không phải là kéo refresh thì scroll lên đầu cho UX tốt hơn
-    if (!event) {
-      this.scrollToTop();
+    // Chỉ hiện loading spinner lớn nếu là load lần đầu tiên (page 0)
+    if (this.currentPage === 0) {
+      this.isLoading = true;
     }
 
     this.dashboardService.getAllAppointments(this.currentTab, this.currentPage, this.pageSize)
       .subscribe({
         next: (dataArray) => {
-          // Map dữ liệu API sang UI object
           const newItems: AppointmentUI[] = (dataArray || []).map(item => ({
             ...item,
             expanded: false
           }));
 
-          // LOGIC PHÂN TRANG MỚI:
-          // Thay thế hoàn toàn listData bằng dữ liệu mới (Page 2 thay thế Page 1)
-          // Không dùng push hay concat (...)
-          this.listData = newItems;
+          if (this.currentPage === 0) {
+            // Nếu là trang đầu, reset list
+            this.listData = newItems;
+          } else {
+            // Nếu là trang sau, nối tiếp vào list cũ
+            this.listData = [...this.listData, ...newItems];
+          }
 
-          // Kiểm tra xem trang này có đầy không?
-          // Nếu số lượng trả về < pageSize (ví dụ < 6) nghĩa là đã hết dữ liệu ở trang sau
-          this.hasMoreData = newItems.length >= this.pageSize;
+          // Kiểm tra còn dữ liệu không
+          if (newItems.length < this.pageSize) {
+            this.hasMoreData = false;
+          }
 
           this.isLoading = false;
+
+          // Hoàn thành event Refresher hoặc Infinite Scroll
           if (event) event.target.complete();
         },
         error: (err) => {
@@ -140,79 +133,71 @@ export class HomePage implements OnInit {
       });
   }
 
-  // --- CÁC HÀM CHUYỂN TRANG ---
-
-  prevPage() {
-    if (this.currentPage > 0) {
-      this.currentPage--;
-      this.loadListData();
+  // Sự kiện khi cuộn xuống dưới cùng
+  onIonInfinite(ev: any) {
+    if (this.hasMoreData) {
+      this.currentPage++;
+      this.loadListData(ev);
+    } else {
+      ev.target.complete();
     }
   }
 
-  nextPage() {
-    if (this.hasMoreData) {
-      this.currentPage++;
-      this.loadListData();
-    }
+  handleRefresh(event: any) {
+    this.currentPage = 0;
+    this.hasMoreData = true;
+    this.loadStats(); // Load lại cả số liệu thống kê
+    this.loadListData(event);
+  }
+
+  onTabChange() {
+    this.currentPage = 0;
+    this.hasMoreData = true;
+    this.listData = [];
+    this.scrollToTop(); // Cuộn lên đầu khi đổi tab
+    this.loadListData();
   }
 
   scrollToTop() {
-    // Cuộn mượt lên đầu trang trong 500ms
-    this.content?.scrollToTop(500);
+    this.content?.scrollToTop(0);
   }
 
-  // --- UPDATE STATUS (Xác nhận / Hủy / Khôi phục) ---
+  // --- CÁC HÀM XỬ LÝ KHÁC (GIỮ NGUYÊN) ---
   updateStatus(item: AppointmentUI, newStatus: string) {
-      this.dashboardService.updateAppointmentStatus(item.id, newStatus).subscribe({
-        next: () => {
-          let msg = 'Cập nhật thành công!';
-          if (newStatus === 'CONFIRMED') msg = 'Đã xác nhận lịch hẹn!';
-          if (newStatus === 'CANCELED') msg = 'Đã hủy lịch hẹn!';
-
-          this.presentToast(msg, 'success');
-          this.loadStats();
-          this.loadListData();
-        },
-        error: (err) => {
-          console.error('Update Status Error:', err);
-
-          // 1. Lấy message từ backend trả về (nếu có)
-          let errorMsg = 'Lỗi cập nhật trạng thái.';
-
-          if (err.error) {
-            if (typeof err.error === 'string') {
-              errorMsg = err.error; // Backend trả về chuỗi text
-            } else if (err.error.message) {
-              errorMsg = err.error.message; // Backend trả về JSON object { code, message, ... }
-            }
-          }
-
-          // 2. Hiển thị thông báo rõ ràng cho người dùng
-          this.presentToast(errorMsg, 'danger');
+    this.dashboardService.updateAppointmentStatus(item.id, newStatus).subscribe({
+      next: () => {
+        let msg = 'Cập nhật thành công!';
+        if (newStatus === 'CONFIRMED') msg = 'Đã xác nhận lịch hẹn!';
+        if (newStatus === 'CANCELED') msg = 'Đã hủy lịch hẹn!';
+        this.presentToast(msg, 'success');
+        this.loadStats();
+        // Reload lại từ đầu để danh sách đúng thứ tự/trạng thái
+        this.currentPage = 0;
+        this.loadListData();
+      },
+      error: (err) => {
+        let errorMsg = 'Lỗi cập nhật trạng thái.';
+        if (err.error) {
+          if (typeof err.error === 'string') errorMsg = err.error;
+          else if (err.error.message) errorMsg = err.error.message;
         }
-      });
-    }
+        this.presentToast(errorMsg, 'danger');
+      }
+    });
+  }
 
-  // --- SỬA LỊCH HẸN (Mở Modal) ---
   async onEditClick(item: AppointmentUI) {
     if (!item.departmentId) {
       this.presentToast('Lỗi dữ liệu: Không tìm thấy ID Khoa.', 'warning');
       return;
     }
-
     const modal = await this.modalCtrl.create({
       component: AppointmentEditModalComponent,
-      componentProps: {
-        appointment: item
-      }
+      componentProps: { appointment: item }
     });
-
     await modal.present();
-
     const { data, role } = await modal.onWillDismiss();
-
     if (role === 'confirm' && data) {
-      // Gọi API cập nhật khi Modal đóng và trả về dữ liệu
       this.confirmUpdateSchedule(item.id, data.date, data.scheduleId);
     }
   }
@@ -222,34 +207,16 @@ export class HomePage implements OnInit {
       .subscribe({
         next: () => {
           this.presentToast('Cập nhật lịch khám thành công!', 'success');
-          this.loadListData(); // Reload lại trang hiện tại
+          this.handleRefresh(null); // Reload list
         },
         error: (err) => {
-          console.error('Update Schedule Error:', err);
           this.presentToast('Lỗi khi cập nhật lịch khám.', 'danger');
         }
       });
   }
 
-  // --- CÁC HÀM UI KHÁC ---
-
   toggleExpand(item: AppointmentUI) {
     item.expanded = !item.expanded;
-  }
-
-  handleRefresh(event: any) {
-    this.currentPage = 0;
-    this.hasMoreData = true;
-    this.loadStats();
-    this.loadListData(event);
-  }
-
-  onTabChange() {
-    // Khi đổi tab, reset về trang 0
-    this.currentPage = 0;
-    this.hasMoreData = true;
-    this.listData = []; // Clear tạm thời
-    this.loadListData();
   }
 
   async onPhoneClick(phone: string) {
@@ -257,11 +224,7 @@ export class HomePage implements OnInit {
     const actionSheet = await this.actionSheetCtrl.create({
       header: `Liên hệ: ${phone}`,
       buttons: [
-        {
-          text: 'Gọi điện',
-          icon: 'call-outline',
-          handler: () => { window.open(`tel:${phone}`, '_system'); }
-        },
+        { text: 'Gọi điện', icon: 'call-outline', handler: () => { window.open(`tel:${phone}`, '_system'); } },
         { text: 'Đóng', role: 'cancel' }
       ]
     });
@@ -281,10 +244,7 @@ export class HomePage implements OnInit {
 
   async presentToast(msg: string, color: string) {
     const toast = await this.toastCtrl.create({
-      message: msg,
-      duration: 2000,
-      color: color,
-      position: 'top'
+      message: msg, duration: 2000, color: color, position: 'top'
     });
     toast.present();
   }

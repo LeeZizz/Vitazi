@@ -38,14 +38,13 @@ export class WorkSchedulesService {
       clinicId: string,
       departmentId: string,
       page: number = 0,
-      size: number = 6 // Mặc định size = 6 như request
+      size: number = 6
     ): Observable<ApiResponse<any>> {
       let params = new HttpParams()
         .set('clinicId', clinicId)
         .set('page', page.toString())
         .set('size', size.toString());
 
-      // Backend yêu cầu departmentId (dựa trên URL bạn gửi), nên bắt buộc truyền
       if (departmentId) {
         params = params.set('departmentId', departmentId);
       }
@@ -136,7 +135,7 @@ export class WorkSchedulesService {
       scheduleId: string,
       shift: WorkShiftInput, // Chứa capacity, maxCapacity, startTime, endTime
       date: string,
-      isActive: boolean 
+      isActive: boolean
     ): Observable<WorkScheduleDto> {
 
       const body: UpdateScheduleBody = {

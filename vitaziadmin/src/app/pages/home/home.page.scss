@@ -1,8 +1,26 @@
+/* =========================================
+   1. GLOBAL PAGE SETTINGS
+   ========================================= */
 .home-content {
   --background: #f8fafc;
 }
 
-/* HEADER & STATS (Giữ nguyên style cũ của bạn) */
+/* =========================================
+   2. FIXED HEADER SECTION
+   (Banner + Stats + Segment)
+   ========================================= */
+
+/* Container bọc toàn bộ Header để tạo nền đặc (che nội dung khi cuộn) */
+.fixed-header-container {
+  background: #f8fafc; /* Màu trùng với nền body */
+  padding-bottom: 10px;
+  /* Shadow nhẹ để ngăn cách header cố định với danh sách cuộn bên dưới */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  position: relative;
+  z-index: 100;
+}
+
+/* --- Banner Xanh --- */
 .header-banner {
   background: #5CA8FF;
   height: 240px;
@@ -12,23 +30,29 @@
   color: white;
   position: relative;
   z-index: 0;
+  margin-bottom: 0;
 }
+
 .page-title {
   font-size: 28px;
   font-weight: 800;
   margin: 10px 0 0 8px;
 }
+
+/* --- Các thẻ thống kê (Stats) --- */
 .stats-container {
   padding: 0 16px;
-  margin-top: -100px;
+  margin-top: -100px; /* Kéo ngược lên đè vào banner */
   position: relative;
   z-index: 10;
 }
+
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
+
 .stat-card {
   background: #ffffff;
   border-radius: 24px;
@@ -46,9 +70,17 @@
   &.red { border-color: #f87171; background: linear-gradient(#fff, #fef2f2); }
 
   .card-icon-row {
-    display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #4b5563; margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 6px;
+
     ion-icon { font-size: 18px; }
   }
+
   .stat-value {
     font-size: 22px; font-weight: 800; text-align: center;
     &.text-purple { color: #7c3aed; }
@@ -58,26 +90,44 @@
   }
 }
 
-/* SEGMENT */
+/* --- Tabs chọn trạng thái (Segment) --- */
 .segment-section {
-  padding: 30px 20px 20px;
-  display: flex; justify-content: center;
+  padding: 20px 20px 5px; /* Giảm padding bottom */
+  display: flex;
+  justify-content: center;
 }
+
 ion-segment {
-  background: #e2e8f0; border-radius: 50px; padding: 4px; height: auto; --background: #e2e8f0;
+  background: #e2e8f0;
+  border-radius: 50px;
+  padding: 4px;
+  height: auto;
+  --background: #e2e8f0;
 }
+
 ion-segment-button {
-  --indicator-color: #ffffff; --indicator-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  --color: #64748b; --color-checked: #0f172a;
-  min-height: 38px; border-radius: 40px; font-weight: 600; font-size: 13px; text-transform: none; margin: 0;
+  --indicator-color: #ffffff;
+  --indicator-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --color: #64748b;
+  --color-checked: #0f172a;
+  min-height: 38px;
+  border-radius: 40px;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: none;
+  margin: 0;
 }
 
-/* LIST CONTAINER */
+/* =========================================
+   3. SCROLLING LIST CONTENT
+   ========================================= */
+
 .list-container {
-  padding-bottom: 20px;
+  padding-top: 16px; /* Cách một chút so với header */
+  padding-bottom: 40px;
 }
 
-/* BLUE APPOINTMENT CARD */
+/* --- Thẻ Lịch hẹn (Blue Card) --- */
 .blue-appointment-card {
   margin: 0 16px 16px;
   background: white;
@@ -87,14 +137,17 @@ ion-segment-button {
   border: 1px solid #e2e8f0;
   transition: all 0.3s ease;
 
+  /* Hiệu ứng khi mở rộng */
   &.expanded {
     box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
     border-color: #bfdbfe;
   }
 
+  /* Phần chính của thẻ */
   .card-main {
     padding: 16px;
-    display: flex; gap: 12px;
+    display: flex;
+    gap: 12px;
     background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
     position: relative;
     cursor: pointer;
@@ -118,14 +171,23 @@ ion-segment-button {
     }
   }
 
-  .patient-name { font-size: 13px; color: #334155; b { font-weight: 600; } }
+  .patient-name {
+    font-size: 13px; color: #334155;
+    b { font-weight: 600; }
+  }
+
   .patient-phone {
     font-size: 13px; color: #475569;
     span { color: #2563eb; text-decoration: underline; font-weight: 600; }
   }
 
   .appointment-time {
-    display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #0f172a; margin-top: 4px;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 600; color: #0f172a; margin-top: 4px;
+
+    .time-badge {
+      background: #ffffff; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #2563eb;
+    }
     ion-icon { font-size: 16px; margin-bottom: 2px; color: #64748b;}
   }
 
@@ -145,12 +207,15 @@ ion-segment-button {
   }
 
   .expand-section {
-    padding: 12px 16px; background: #ffffff; border-top: 1px solid #f1f5f9; animation: slideDown 0.3s ease-out;
+    padding: 12px 16px;
+    background: #ffffff;
+    border-top: 1px solid #f1f5f9;
+    animation: slideDown 0.3s ease-out;
+
     .detail-row {
       margin-bottom: 6px; font-size: 13px; display: flex; flex-direction: column; gap: 2px;
       .label { color: #64748b; font-weight: 600; font-size: 11px; text-transform: uppercase; }
       .content { color: #334155; line-height: 1.4; }
-      .italic { font-style: italic; color: #94a3b8; }
     }
   }
 }
@@ -160,177 +225,49 @@ ion-segment-button {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* SKELETON */
+/* =========================================
+   4. LOADING & EMPTY STATES
+   ========================================= */
+
+/* Skeleton Loading */
 .skeleton-card {
-  margin: 0 16px 16px; background: #ffffff; border-radius: 16px; padding: 16px; border: 1px solid #e2e8f0;
+  margin: 0 16px 16px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+
   .sk-header { display: flex; gap: 12px; margin-bottom: 16px; }
   .sk-avatar { width: 50px; height: 50px; border-radius: 10px; }
   .sk-info { flex: 1; display: flex; flex-direction: column; }
   .sk-footer { padding-top: 8px; }
 }
 
-/* EMPTY STATE */
+/* Empty State (Khi không có dữ liệu) */
 .empty-state-styled {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 60px; color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 60px;
+  color: #64748b;
+
   .icon-circle {
-    width: 80px; height: 80px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+    width: 80px; height: 80px;
+    background: #f1f5f9;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px;
+
     ion-icon { font-size: 40px; color: #94a3b8; }
   }
   h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; color: #334155; }
   p { margin: 0; font-size: 14px; color: #94a3b8; }
 }
 
-/* FADE IN */
+/* Animation xuất hiện */
 .fade-in { animation: fadeIn ease 0.5s; }
-@keyframes fadeIn { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
-
-/* PAGINATION FOOTER */
-ion-footer.pagination-footer {
-  background: transparent; box-shadow: none; border: none; padding: 0 16px 16px;
-}
-.pagination-bar {
-  background: #ffffff; border-radius: 50px; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0;
-}
-.page-info {
-  font-size: 14px; color: #475569; font-weight: 500;
-  b { color: #2563eb; font-size: 16px; }
-}
-.page-btn {
-  background: transparent; border: none; height: 40px; border-radius: 20px; padding: 0 16px; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: #334155; transition: all 0.2s;
-  ion-icon { font-size: 18px; }
-  &:active { background: #f1f5f9; transform: scale(0.95); }
-  &.next { color: #2563eb; background: #eff6ff; &:active { background: #dbeafe; } }
-  &:disabled { opacity: 0.4; pointer-events: none; background: transparent; color: #cbd5e1; }
-}
-
-/* ... Style cũ giữ nguyên ... */
-
-/* --- NUMBERED PAGINATION FOOTER --- */
-ion-footer.pagination-footer {
-  background: transparent;
-  border: none;
-  padding: 0 0 20px;
-  display: flex;
-  justify-content: center;
-}
-
-.pagination-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #f8fafc; /* Nền xám nhạt nhẹ */
-  padding: 8px 16px;
-  border-radius: 30px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-}
-
-.page-numbers {
-  display: flex;
-  gap: 6px;
-}
-
-/* Nút tròn số trang */
-.page-circle {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  color: #64748b;
-  font-weight: 600;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  /* State: Active (Màu Cam) */
-  &.active {
-    background: #f97316; /* Cam */
-    color: white;
-    border-color: #f97316;
-    box-shadow: 0 2px 5px rgba(249, 115, 22, 0.3);
-  }
-
-  /* State: Dots (...) */
-  &.dots {
-    border: none;
-    background: transparent;
-    cursor: default;
-    pointer-events: none;
-  }
-
-  &:active:not(.dots):not(.active) {
-    background: #f1f5f9;
-  }
-}
-
-/* Nút Next (>>) */
-.next-circle {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #f1f5f9;
-  border: none;
-  color: #64748b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  cursor: pointer;
-  margin-left: 4px;
-
-  &:active { background: #e2e8f0; }
-
-  &:disabled {
-    opacity: 0.3;
-    pointer-events: none;
-  }
-}
-
-/* ... Style cũ ... */
-
-/* Footer Phân trang nổi */
-ion-footer.pagination-footer {
-  background: transparent;
-  box-shadow: none;
-  border: none;
-  padding: 0 16px 16px;
-}
-
-.pagination-bar {
-  background: #ffffff;
-  border-radius: 50px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
-}
-
-.page-info {
-  font-size: 14px;
-  color: #475569;
-  font-weight: 500;
-  b { color: #2563eb; font-size: 16px; }
-}
-
-.page-btn {
-  background: transparent;
-  border: none;
-  height: 40px;
-  border-radius: 20px;
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #334155;
-
-  &.next { color: #2563eb; background: #eff6ff; }
-  &:disabled { opacity: 0.4; pointer-events: none; }
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
