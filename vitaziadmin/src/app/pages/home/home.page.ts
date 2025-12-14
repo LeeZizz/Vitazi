@@ -8,7 +8,7 @@ import {
   IonFooter, IonSpinner,
   ActionSheetController, AlertController, ToastController,
   ModalController, IonSkeletonText,
-  IonInfiniteScroll, IonInfiniteScrollContent // <--- IMPORT MỚI
+  IonInfiniteScroll, IonInfiniteScrollContent
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -39,7 +39,7 @@ interface AppointmentUI extends AppointmentResponse {
     IonSegmentButton, IonLabel, IonCard, IonButton,
     IonRefresher, IonRefresherContent,
     IonFooter, IonSpinner, IonSkeletonText,
-    IonInfiniteScroll, IonInfiniteScrollContent // <--- IMPORT MỚI
+    IonInfiniteScroll, IonInfiniteScrollContent
   ]
 })
 export class HomePage implements OnInit {
@@ -54,7 +54,7 @@ export class HomePage implements OnInit {
 
   // CẤU HÌNH SCROLL
   currentPage = 0;
-  pageSize = 10; // Tăng pageSize lên một chút để trải nghiệm cuộn tốt hơn
+  pageSize = 10;
   hasMoreData = true;
 
   constructor(
@@ -92,7 +92,6 @@ export class HomePage implements OnInit {
     return timeString;
   }
 
-  // --- LOGIC LOAD DATA MỚI CHO SCROLL ---
   loadListData(event?: any) {
     // Chỉ hiện loading spinner lớn nếu là load lần đầu tiên (page 0)
     if (this.currentPage === 0) {
@@ -162,29 +161,25 @@ export class HomePage implements OnInit {
     this.content?.scrollToTop(0);
   }
 
-  // --- CÁC HÀM XỬ LÝ KHÁC (GIỮ NGUYÊN) ---
   updateStatus(item: AppointmentUI, newStatus: string) {
-    this.dashboardService.updateAppointmentStatus(item.id, newStatus).subscribe({
-      next: () => {
-        let msg = 'Cập nhật thành công!';
-        if (newStatus === 'CONFIRMED') msg = 'Đã xác nhận lịch hẹn!';
-        if (newStatus === 'CANCELED') msg = 'Đã hủy lịch hẹn!';
-        this.presentToast(msg, 'success');
-        this.loadStats();
-        // Reload lại từ đầu để danh sách đúng thứ tự/trạng thái
-        this.currentPage = 0;
-        this.loadListData();
-      },
-      error: (err) => {
-        let errorMsg = 'Lỗi cập nhật trạng thái.';
-        if (err.error) {
-          if (typeof err.error === 'string') errorMsg = err.error;
-          else if (err.error.message) errorMsg = err.error.message;
+      this.dashboardService.updateAppointmentStatus(item.id, newStatus).subscribe({
+        next: () => {
+          let msg = 'Cập nhật thành công!';
+          if (newStatus === 'CONFIRMED') msg = 'Đã xác nhận lịch hẹn!';
+          if (newStatus === 'CANCELED') msg = 'Đã hủy lịch hẹn!';
+          this.presentToast(msg, 'success');
+
+          this.loadStats();
+          this.currentPage = 0;
+          this.loadListData();
+        },
+        error: (err) => {
+          // Sử dụng hàm helper để lấy thông báo lỗi tiếng Việt
+          const msg = this.getFriendlyErrorMessage(err);
+          this.presentToast(msg, 'danger');
         }
-        this.presentToast(errorMsg, 'danger');
-      }
-    });
-  }
+      });
+    }
 
   async onEditClick(item: AppointmentUI) {
     if (!item.departmentId) {
@@ -203,16 +198,18 @@ export class HomePage implements OnInit {
   }
 
   confirmUpdateSchedule(appointmentId: string, date: string, scheduleId: string) {
-    this.dashboardService.updateAppointmentInfo(appointmentId, date, scheduleId)
-      .subscribe({
-        next: () => {
-          this.presentToast('Cập nhật lịch khám thành công!', 'success');
-          this.handleRefresh(null); // Reload list
-        },
-        error: (err) => {
-          this.presentToast('Lỗi khi cập nhật lịch khám.', 'danger');
-        }
-      });
+      this.dashboardService.updateAppointmentInfo(appointmentId, date, scheduleId)
+        .subscribe({
+          next: () => {
+            this.presentToast('Cập nhật lịch khám thành công!', 'success');
+            this.handleRefresh(null);
+          },
+          error: (err) => {
+            // Sử dụng hàm helper để lấy thông báo lỗi tiếng Việt
+            const msg = this.getFriendlyErrorMessage(err);
+            this.presentToast(msg, 'danger');
+          }
+        });
   }
 
   toggleExpand(item: AppointmentUI) {
@@ -244,8 +241,48 @@ export class HomePage implements OnInit {
 
   async presentToast(msg: string, color: string) {
     const toast = await this.toastCtrl.create({
-      message: msg, duration: 2000, color: color, position: 'top'
+      message: msg, duration: 2500, color: color, position: 'top'
     });
     toast.present();
   }
+
+  private getFriendlyErrorMessage(err: any): string {
+      // Nếu lỗi trả về có cấu trúc { code: number, message: string }
+      const errorBody = err.error;
+
+      if (errorBody && errorBody.code) {
+        switch (errorBody.code) {
+          case 1005: // APPOINTMENT_NOT_FOUND
+            return 'Không tìm thấy lịch hẹn này (có thể đã bị xóa).';
+
+          case 1007: // SCHEDULE_NOT_FOUND
+            return 'Không tìm thấy lịch làm việc của bác sĩ.';
+
+          case 1009: // SCHEDULE_FULL
+          case 1012: // SCHEDULE_FULLY_BOOKED
+            return 'Khung giờ này đã đầy, vui lòng chọn giờ khác.';
+
+          case 1010: // INVALID_SCHEDULE_DATE
+            return 'Ngày khám không hợp lệ.';
+
+          case 1011: // SCHEDULE_NOT_ACTIVE hoặc TIME_CONFLICT
+            return 'Lịch làm việc chưa kích hoạt hoặc bị trùng giờ.';
+
+          case 1004: // DEPARTMENT_NOT_FOUND
+            return 'Không tìm thấy chuyên khoa.';
+
+          case 1001: // CLINIC_EXISTED
+          case 1002: // CLINIC_NOT_FOUND
+            return 'Lỗi thông tin phòng khám.';
+
+          default:
+            return errorBody.message || 'Có lỗi xảy ra, vui lòng thử lại.';
+        }
+      }
+
+      if (typeof errorBody === 'string') return errorBody;
+      if (errorBody && errorBody.message) return errorBody.message;
+
+      return 'Lỗi kết nối máy chủ.';
+    }
 }
