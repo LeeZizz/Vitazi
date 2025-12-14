@@ -15,6 +15,7 @@ ion-toolbar {
     font-weight: 700;
     font-size: 18px;
   }
+
 }
 
 ion-content {
@@ -71,8 +72,15 @@ ion-content {
     width: 100%;
     border-radius: 12px;
     --background: #ffffff;
-    --ion-color-primary: #3b82f6; /* Set màu xanh cho ngày được chọn */
-    color: #333;
+    --ion-color-primary: #3b82f6;
+    color: #1e293b;
+    --ion-calendar-day-color: #1e293b;
+    --ion-calendar-month-year-color: #1e293b;
+    --ion-calendar-weekday-color: #64748b;
+    --ion-calendar-day-selected-color: #ffffff;
+    --ion-calendar-day-selected-bg: #3b82f6;
+    --ion-text-color: #1e293b;
+
     /* Ẩn các ngày cũ đi */
     &::part(calendar-day disabled) {
       color: #cbd5e1;
@@ -80,6 +88,7 @@ ion-content {
     }
   }
 }
+
 
 /* Loading & Empty States */
 .state-container {

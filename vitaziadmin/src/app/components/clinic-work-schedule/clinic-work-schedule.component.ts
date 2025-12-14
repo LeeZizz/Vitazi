@@ -31,7 +31,7 @@ export class ClinicWorkScheduleComponent implements OnInit {
   @Output() saved = new EventEmitter<void>();
 
   departments: Department[] = [];
-  selectedDate: string = new Date().toISOString().substring(0, 10);
+  selectedDate: string = ''; // Sẽ được set trong ngOnInit
   minDate: string = '';
 
   months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1 }));
@@ -53,8 +53,17 @@ export class ClinicWorkScheduleComponent implements OnInit {
 
   ngOnInit() {
     const today = new Date();
-    const localToday = new Date(today.getTime() - (today.getTimezoneOffset() * 60000));
-    this.minDate = localToday.toISOString().split('T')[0];
+
+    // Tính ngày mai (Today + 1)
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    // Chuyển đổi sang Local Time để lấy chuỗi YYYY-MM-DD chính xác
+    const localTomorrow = new Date(tomorrow.getTime() - (tomorrow.getTimezoneOffset() * 60000));
+    this.minDate = localTomorrow.toISOString().split('T')[0];
+
+    // Mặc định chọn ngày minDate (ngày mai)
+    this.selectedDate = this.minDate;
 
     const d = new Date(this.selectedDate);
     this.selectedMonth = d.getMonth() + 1;
@@ -93,7 +102,6 @@ export class ClinicWorkScheduleComponent implements OnInit {
           if (shiftsForDate.length > 0) {
             this.shifts = shiftsForDate.map((s: any) => ({
               id: s.id,
-              // Cắt chuỗi HH:mm:ss -> HH:mm (Format 24h)
               startTime: s.startTime ? s.startTime.substring(0, 5) : '',
               endTime: s.endTime ? s.endTime.substring(0, 5) : '',
               maxCapacity: s.maxCapacity,
@@ -117,7 +125,15 @@ export class ClinicWorkScheduleComponent implements OnInit {
 
   onMonthOrYearChange() {
     const d = new Date(this.selectedYear, this.selectedMonth - 1, 1, 12);
+    // Nếu ngày mùng 1 của tháng chọn nhỏ hơn minDate, thì vẫn phải dùng minDate nếu đang ở tháng hiện tại
+    // Tuy nhiên logic đơn giản là cứ set ngày mùng 1, user chọn lại ngày sau
     this.selectedDate = d.toISOString().substring(0, 10);
+
+    // Nếu ngày được chọn < minDate, reset về minDate để đảm bảo không sửa quá khứ
+    if (this.selectedDate < this.minDate) {
+        this.selectedDate = this.minDate;
+    }
+
     this.loadScheduleData();
   }
 
@@ -160,34 +176,30 @@ export class ClinicWorkScheduleComponent implements OnInit {
     shift.isValid = true;
     shift.errorMsg = undefined;
 
-    // input[type=time] luôn trả về HH:mm (24h), không cần convert AM/PM
     if (!shift.startTime || !shift.endTime) return;
 
     if (shift.startTime >= shift.endTime) {
       shift.isValid = false;
-      shift.errorMsg = 'Giờ kết thúc phải lớn hơn bắt đầu';
+      shift.errorMsg = 'Giờ kết thúc phải sau giờ bắt đầu';
     }
   }
 
-  // Logic kiểm tra trùng lặp (Cho phép nối tiếp: 7-8 và 8-9 là OK)
   private checkOverlap(shifts: ShiftView[]): boolean {
     const sortedShifts = [...shifts].sort((a, b) => a.startTime.localeCompare(b.startTime));
     for (let i = 0; i < sortedShifts.length - 1; i++) {
       const current = sortedShifts[i];
       const next = sortedShifts[i + 1];
 
-      // Nếu ca sau bắt đầu SỚM HƠN giờ kết thúc ca trước -> TRÙNG
-      // (VD: 8:00 < 8:00 là False -> OK)
       if (next.startTime < current.endTime) {
         const originalCurrent = shifts.find(s => s === current);
         const originalNext = shifts.find(s => s === next);
         if (originalCurrent) {
           originalCurrent.isValid = false;
-          originalCurrent.errorMsg = `Xung đột với ca ${next.startTime}`;
+          originalCurrent.errorMsg = `Xung đột thời gian với ca ${next.startTime}`;
         }
         if (originalNext) {
           originalNext.isValid = false;
-          originalNext.errorMsg = `Xung đột với ca ${current.startTime}`;
+          originalNext.errorMsg = `Xung đột thời gian với ca ${current.startTime}`;
         }
         return true;
       }
@@ -195,16 +207,21 @@ export class ClinicWorkScheduleComponent implements OnInit {
     return false;
   }
 
-  // HÀM SAVE: XỬ LÝ TUẦN TỰ (Xóa -> Sửa -> Thêm)
   async save() {
+    // 1. Kiểm tra ngày hợp lệ (Phải từ ngày mai trở đi)
+    if (this.selectedDate < this.minDate) {
+      this.presentToast('Chỉ có thể tạo hoặc chỉnh sửa lịch làm việc từ ngày mai trở đi.', 'warning');
+      return;
+    }
+
     if (!this.departmentId) {
-      this.presentToast('Vui lòng chọn Khoa.', 'warning');
+      this.presentToast('Vui lòng chọn Khoa/Phòng ban.', 'warning');
       return;
     }
 
     const validShifts = this.shifts.filter(s => s.startTime && s.endTime);
     if (validShifts.length === 0 && this.deletedShiftIds.length === 0) {
-      this.presentToast('Không có thay đổi nào để lưu.', 'warning');
+      this.presentToast('Bạn chưa nhập thông tin ca làm việc nào.', 'warning');
       return;
     }
 
@@ -215,8 +232,14 @@ export class ClinicWorkScheduleComponent implements OnInit {
       this.validateShift(s);
       if (s.isValid === false) hasError = true;
     });
-    if (hasError || this.checkOverlap(validShifts)) {
-      this.presentToast('Vui lòng kiểm tra lại thời gian các ca.', 'danger');
+
+    if (hasError) {
+        this.presentToast('Vui lòng kiểm tra lại giờ bắt đầu và kết thúc.', 'danger');
+        return;
+    }
+
+    if (this.checkOverlap(validShifts)) {
+      this.presentToast('Các ca làm việc đang bị trùng thời gian. Vui lòng kiểm tra lại.', 'danger');
       return;
     }
 
@@ -235,14 +258,14 @@ export class ClinicWorkScheduleComponent implements OnInit {
       const shiftsToUpdate = validShifts.filter(s => s.id);
       const shiftsToCreate = validShifts.filter(s => !s.id);
 
-      // 3. CẬP NHẬT (Update)
+      // 3. CẬP NHẬT
       if (shiftsToUpdate.length > 0) {
         const updateTasks = shiftsToUpdate.map(s =>
             this.workSchedulesService.updateSchedule(
               s.id!,
               {
-                startTime: s.startTime, // Đã là HH:mm (24h)
-                endTime: s.endTime,     // Đã là HH:mm (24h)
+                startTime: s.startTime,
+                endTime: s.endTime,
                 capacity: s.capacity,
                 maxCapacity: s.maxCapacity
               },
@@ -253,7 +276,7 @@ export class ClinicWorkScheduleComponent implements OnInit {
         await lastValueFrom(forkJoin(updateTasks));
       }
 
-      // 4. TẠO MỚI (Create)
+      // 4. TẠO MỚI
       if (shiftsToCreate.length > 0) {
         const payload: SaveSchedulesPayload = {
           clinicId: this.clinicId,
@@ -271,20 +294,27 @@ export class ClinicWorkScheduleComponent implements OnInit {
 
       this.loading = false;
       this.saved.emit();
-      await this.presentToast('Đã lưu thay đổi thành công!', 'success');
+      await this.presentToast('Cập nhật lịch làm việc thành công!', 'success');
       this.loadScheduleData();
 
     } catch (err: any) {
       console.error('Save error', err);
       this.loading = false;
       const backendCode = err.error?.code;
-      let userMessage = 'Lỗi khi lưu lịch.';
+      let userMessage = 'Đã xảy ra lỗi khi lưu lịch.';
 
       switch (backendCode) {
-        case 1009: userMessage = 'Lịch làm việc đã đầy.'; break;
-        case 1011: userMessage = 'Xung đột thời gian với ca đã có.'; break;
-        case 1012: userMessage = 'Lịch đã được đặt kín.'; break;
-        default: userMessage = err.error?.message || 'Lỗi hệ thống không xác định.';
+        case 1009:
+            userMessage = 'Không thể giảm số lượng tối đa thấp hơn số bệnh nhân đã đặt hẹn.';
+            break;
+        case 1011:
+            userMessage = 'Khung giờ này bị trùng lặp với một lịch làm việc đã tồn tại trong hệ thống.';
+            break;
+        case 1012:
+            userMessage = 'Không thể xóa hoặc sửa đổi ca này vì đã có bệnh nhân đặt lịch.';
+            break;
+        default:
+            userMessage = err.error?.message || 'Lỗi hệ thống không xác định. Vui lòng thử lại sau.';
       }
       await this.presentToast(userMessage, 'danger');
     }

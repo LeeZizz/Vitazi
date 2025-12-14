@@ -9,6 +9,8 @@ import {
 } from '@ionic/angular/standalone';
 import { WorkSchedulesService } from '../../services/work-schedules.service';
 import { AppointmentResponse } from '../../models/clinic.models';
+import { addIcons } from 'ionicons';
+import { checkmarkCircle, arrowBack } from 'ionicons/icons';
 
 @Component({
   selector: 'app-appointment-edit-modal',
@@ -30,13 +32,17 @@ export class AppointmentEditModalComponent implements OnInit {
   schedules: any[] = [];
   loading = false;
 
-  // Biến chặn ngày quá khứ
   minDate: string = '';
 
   constructor(
     private modalCtrl: ModalController,
     private workScheduleService: WorkSchedulesService
-  ) {}
+  ) {
+    addIcons({
+          checkmarkCircle,
+          arrowBack
+        });
+    }
 
   ngOnInit() {
     // 1. Thiết lập ngày tối thiểu là hôm nay (YYYY-MM-DD)
