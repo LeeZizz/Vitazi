@@ -9,7 +9,9 @@ import {
   LoadingController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { checkmarkCircle, chevronBack, chevronForward, chevronDown, calendarOutline, medkitOutline, personOutline, timeOutline, mailOutline, callOutline, documentTextOutline, arrowForwardOutline, alertCircleOutline } from 'ionicons/icons';
+import { checkmarkCircle, chevronBack, chevronForward, chevronDown,
+  calendarOutline, medkitOutline, personOutline, timeOutline,
+  mailOutline, callOutline, documentTextOutline, arrowForwardOutline, alertCircleOutline } from 'ionicons/icons';
 
 import { BookingService } from '../../services/booking.service';
 import { Department, WorkSchedule, BookingRequest } from '../../models/client-booking.models';
@@ -30,7 +32,7 @@ export class BookingFormComponent implements OnInit {
   schedules: WorkSchedule[] = [];
 
   socialAvatars: Array<{ src: string; alt: string }> = [];
-  
+
   // Dropdown State
   isDepartmentOpen: boolean = false;
   selectedDepartment: Department | null = null;
@@ -175,10 +177,10 @@ export class BookingFormComponent implements OnInit {
     // Adjust for timezone offset to keep the date correct when converting to ISO
     const offset = newDate.getTimezoneOffset() * 60000;
     const localISOTime = (new Date(newDate.getTime() - offset)).toISOString().slice(0, -1);
-    
+
     this.currentIsoDate = localISOTime;
     this.generateDaysForMonth(newDate);
-    
+
     this.selectedDate = '';
     this.schedules = [];
     this.isMonthPickerOpen = false;
@@ -324,7 +326,7 @@ export class BookingFormComponent implements OnInit {
       },
       error: async (err) => {
         await loading.dismiss();
-        this.presentToast('Lỗi đặt lịch, vui lòng thử lại', 'danger');
+        this.presentToast('Lịch đặt đã đầy, vui lòng chọn ca làm việc khác!', 'danger');
       }
     });
   }

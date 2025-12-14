@@ -85,7 +85,7 @@ onToggleStatus(shift: any, event: any) {
         shift.isActive = originalStatus;
         // Note: Do ion-toggle 2 chiều binding, việc revert này đôi khi cần trick nhỏ với ChangeDetectorRef
         // hoặc đơn giản là thông báo lỗi để user load lại
-        this.presentToast('Không thể cập nhật trạng thái. Vui lòng thử lại.', 'danger');
+        this.presentToast('Không thể cập nhật trạng thái. Ca làm việc đã đầy.', 'danger');
 
         // Trick: set timeout để đảo ngược lại toggle trên UI nếu muốn mượt
         event.target.checked = originalStatus;
