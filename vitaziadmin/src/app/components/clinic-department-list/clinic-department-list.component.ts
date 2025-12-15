@@ -91,9 +91,24 @@ export class ClinicDepartmentListComponent implements OnInit {
   }
 
   private deleteDepartment(dept: Department) {
-    this.departmentsService.delete(dept.id).subscribe(() => {
-      this.departments = this.departments.filter((d) => d.id !== dept.id);
-      this.deleted.emit(dept);
-    });
+      this.departmentsService.delete(dept.id).subscribe({
+        next: () => {
+          this.departments = this.departments.filter((d) => d.id !== dept.id);
+          this.deleted.emit(dept);
+        },
+        error: async (err) => {
+          const defaultMsg = 'Không thể xóa: khoa đã có lịch khám.';
+          const serverMsg = err?.error?.message || (err?.status === 409 ? defaultMsg : undefined);
+          const message = serverMsg || defaultMsg;
+
+          const alert = await this.alertCtrl.create({
+            header: 'Không thể xóa',
+            message,
+            buttons: [{ text: 'Đóng', role: 'cancel' }],
+          });
+
+          await alert.present();
+        },
+      });
   }
 }

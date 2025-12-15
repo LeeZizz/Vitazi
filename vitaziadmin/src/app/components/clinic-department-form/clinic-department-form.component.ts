@@ -67,7 +67,7 @@ export class ClinicDepartmentFormComponent implements OnChanges {
   async onSubmit() {
     if (!this.name.trim()) {
       const t = await this.toastCtrl.create({
-        message: 'Department name is required',
+        message: 'Tên khoa không được để trống!',
         duration: 1500,
         color: 'warning',
         position: 'top'
@@ -92,8 +92,8 @@ export class ClinicDepartmentFormComponent implements OnChanges {
         this.submitting = false;
         const t = await this.toastCtrl.create({
           message: this.department
-            ? 'Department updated successfully'
-            : 'Department created successfully',
+            ? 'Cập nhật thông tin khoa thành công!'
+            : 'Tạo khoa thành công!',
           duration: 1500,
           color: 'success',
           position: 'top'
@@ -105,7 +105,7 @@ export class ClinicDepartmentFormComponent implements OnChanges {
         console.error(err);
         this.submitting = false;
         const t = await this.toastCtrl.create({
-          message: 'Failed to save department',
+          message: 'Lỗi xảy ra. Vui lòng thử lại.',
           duration: 1500,
           color: 'danger',
           position: 'top'
